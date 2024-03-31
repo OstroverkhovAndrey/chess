@@ -1,11 +1,15 @@
 
 import asyncio
+import user_info
 
 clients = {}
+
+users = {} # user_name to ip, if ip is None => client logout
 
 async def chess_server(reader, writer):
     me = "{}:{}".format(*writer.get_extra_info('peername'))
     print(me)
+    info = UserInfo()
     clients[me] = asyncio.Queue()
     send = asyncio.create_task(reader.readline())
     receive = asyncio.create_task(clients[me].get())
@@ -22,9 +26,21 @@ async def chess_server(reader, writer):
                     case ["registre", user_name]:
                         pass
                     case ["login", user_name]:
-                        pass
+                        if not info.isLogin and user_name in users:
+                            info.isLogin = True
+                            users[user_name] = me
+                            # say success login
+                        else:
+                            # say user not registre
+                            pass
                     case ["logout"]:
-                        pass
+                        if info.isLogin and users[user_name] is not None:
+                            info.isLogin = False
+                            users[user_name] = None
+                            # say success logout
+                        else:
+                            #say we dont login
+                            pass
                     case ["users"]:
                         pass
                     case ["play", user_name]:
