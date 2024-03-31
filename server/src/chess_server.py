@@ -9,8 +9,18 @@ game_request = {} # player1 -> player2
 
 games = {}
 
+"""
+command ids
+0: simple message for client or user
+"""
+
 def isOnline(me):
     return me in clients and clients[me].user_name != ""
+
+async def send_msg(writer, ids, msg):
+    msg = str(ids) + ":" + msg
+    writer.write(msg.encode())
+    await writer.drain()
 
 async def chess_server(reader, writer):
     me = "{}:{}".format(*writer.get_extra_info('peername'))
@@ -23,37 +33,35 @@ async def chess_server(reader, writer):
         for q in done:
             if q is send:
 
-                comand = q.result().decode().strip().split()
-                print(me, comand)
+                command = q.result().decode().strip().split()
+                print(me, command)
 
-                match comand:
+                match command:
                     case ["registre", user_name]:
                         if user_name not in users:
                             users[user_name] = UserInfo()
                             users[user_name].user_name = user_name
-                            #say success registre
+                            await send_msg(writer, 0, "success registre\n")
                         else:
-                            #say not success registre
-                            pass
+                            await send_msg(writer, 0, "not success registre, such a user is already registered\n")
                     case ["login", user_name]:
-                        if not isOnline(me) and user_name in users:
+                        # need more if
+                        if not isOnline(me) and user_name in users and not users[user_name].isOnline:
                             clients[me].user_name = user_name
                             users[user_name].isOnline = True
                             users[user_name].IP = me
-                            # say success login
+                            await send_msg(writer, 0, "success login\n")
                         else:
-                            # say user not registre
-                            pass
+                            await send_msg(writer, 0, "not success login, such a user is not registered\n")
                     case ["logout"]:
                         if isOnline(me):
                             user_name = clients[me].user_name
                             users[user_name].isOnline = False
                             users[user_name].IP = ""
                             del clients[me].user_name
-                            # say success logout
+                            await send_msg(writer, 0, "success logout\n")
                         else:
-                            #say you dont login
-                            pass
+                            await send_msg(writer, 0, "not success logout, you dont login\n")
                     case ["users"]:
                         online_users = [user.user_name for _, user in clients.items() if user.user_name != ""]
                         online_users = " ".join(online_users)
@@ -61,15 +69,15 @@ async def chess_server(reader, writer):
                         await writer.drain()
                     case ["play", user_name]:
                         if not isOnline(me):
-                            print("you dont register")
+                            await send_msg(writer, 0, "you dont register\n")
                         elif user_name not in users:
-                            print("user dont registre")
+                            await send_msg(writer, 0, "user dont registre\n")
                         elif not users[user_name].isOnline:
-                            print("user dont online")
+                            await send_msg(writer, 0, "user dont online\n")
                         elif clients[me].user_name == user_name:
-                            print("cant play with yourself")
+                            await send_msg(writer, 0, "cant play with yourself\n")
                         elif users[user_name].isPlay:
-                            print("now user play")
+                            await send_msg(writer, 0, "now user play\n")
                         elif user_name in game_request and game_request[user_name] == clients[me].user_name:
                             del game_request[user_name]
                             users[user_name].isPlay = True
@@ -78,7 +86,7 @@ async def chess_server(reader, writer):
                             # start game
                         else:
                             game_request[clients[me].user_name] = user_name
-                            print("send game request")
+                            await send_msg(writer, 0, "send game request\n")
                             
                     case ["statistic", user_name]:
                         pass
