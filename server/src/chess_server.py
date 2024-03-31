@@ -1,50 +1,85 @@
 
 import asyncio
-import user_info
+from user_info import UserInfo
+from clients_info import ClientsInfo
 
-clients = {}
+clients = {} # ip to clients_info
+users = {} # user_name to user_info, need load from memory
+game_request = {} # player1 -> player2
 
-users = {} # user_name to ip, if ip is None => client logout
+games = {}
+
+def isOnline(me):
+    return me in clients and clients[me].user_name != ""
 
 async def chess_server(reader, writer):
     me = "{}:{}".format(*writer.get_extra_info('peername'))
     print(me)
-    info = UserInfo()
-    clients[me] = asyncio.Queue()
+    clients[me] = ClientsInfo()
     send = asyncio.create_task(reader.readline())
-    receive = asyncio.create_task(clients[me].get())
+    receive = asyncio.create_task(clients[me].queue.get())
     while not reader.at_eof():
         done, pending = await asyncio.wait([send, receive], return_when=asyncio.FIRST_COMPLETED)
         for q in done:
             if q is send:
-                send = asyncio.create_task(reader.readline())
 
                 comand = q.result().decode().strip().split()
                 print(me, comand)
 
                 match comand:
                     case ["registre", user_name]:
-                        pass
+                        if user_name not in users:
+                            users[user_name] = UserInfo()
+                            users[user_name].user_name = user_name
+                            #say success registre
+                        else:
+                            #say not success registre
+                            pass
                     case ["login", user_name]:
-                        if not info.isLogin and user_name in users:
-                            info.isLogin = True
-                            users[user_name] = me
+                        if not isOnline(me) and user_name in users:
+                            clients[me].user_name = user_name
+                            users[user_name].isOnline = True
+                            users[user_name].IP = me
                             # say success login
                         else:
                             # say user not registre
                             pass
                     case ["logout"]:
-                        if info.isLogin and users[user_name] is not None:
-                            info.isLogin = False
-                            users[user_name] = None
+                        if isOnline(me):
+                            user_name = clients[me].user_name
+                            users[user_name].isOnline = False
+                            users[user_name].IP = ""
+                            del clients[me].user_name
                             # say success logout
                         else:
-                            #say we dont login
+                            #say you dont login
                             pass
                     case ["users"]:
-                        pass
+                        online_users = [user.user_name for _, user in clients.items() if user.user_name != ""]
+                        online_users = " ".join(online_users)
+                        writer.write(online_users.encode())
+                        await writer.drain()
                     case ["play", user_name]:
-                        pass
+                        if not isOnline(me):
+                            print("you dont register")
+                        elif user_name not in users:
+                            print("user dont registre")
+                        elif not users[user_name].isOnline:
+                            print("user dont online")
+                        elif clients[me].user_name == user_name:
+                            print("cant play with yourself")
+                        elif users[user_name].isPlay:
+                            print("now user play")
+                        elif user_name in game_request and game_request[user_name] == clients[me].user_name:
+                            del game_request[user_name]
+                            users[user_name].isPlay = True
+                            users[clients[me].user_name].isPlay = True
+                            print("start game, player1 {}, player2 {}".format(clients[me].user_name, user_name))
+                            # start game
+                        else:
+                            game_request[clients[me].user_name] = user_name
+                            print("send game request")
+                            
                     case ["statistic", user_name]:
                         pass
                     case ["chat"]:
@@ -55,8 +90,9 @@ async def chess_server(reader, writer):
                         pass
                     case ["give_up"]:
                         pass
+                send = asyncio.create_task(reader.readline())
             elif q is receive:
-                receive = asyncio.create_task(clients[me].get())
+                receive = asyncio.create_task(clients[me].queue.get())
                 writer.write(f"{q.result()}\n".encode())
                 await writer.drain()
     send.cancel()

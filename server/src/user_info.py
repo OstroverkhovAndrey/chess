@@ -1,6 +1,8 @@
 
 class UserInfo:
     def __init__(self):
-        self.isLogin = False
+        self.user_name = ""
+        self.isOnline = False
         self.isPlay = False
-
+        self.IP = ""
+        self.statistic = ""
