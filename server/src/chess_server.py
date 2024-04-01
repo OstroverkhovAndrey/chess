@@ -2,12 +2,13 @@
 import asyncio
 from user_info import UserInfo
 from clients_info import ClientsInfo
+from games import Game, GamesDict
 
 clients = {} # ip to clients_info
 users = {} # user_name to user_info, need load from memory
 game_request = {} # player1 -> player2
 
-games = {}
+games = GamesDict()
 
 """
 command ids
@@ -82,13 +83,16 @@ async def play(user_name, me, writer):
         users[user_name].isPlay = True
         users[clients[me].user_name].isPlay = True
         print("start game, player1 {}, player2 {}".format(clients[me].user_name, user_name))
+        await send_msg(writer, 0, "start game\n")
+        await clients[users[user_name].IP].queue.put("start game")
         # start game
+        games.add_game(clients[me].user_name, user_name)
     else:
         game_request[clients[me].user_name] = user_name
         await send_msg(writer, 0, "send game request\n")
 
-async def move(me, move):
-    pass
+async def move_command(me, move, msg):
+    games[clients[me].user_name].move(clients[me].user_name, move, msg[0])
 
 
 async def chess_server(reader, writer):
@@ -121,8 +125,8 @@ async def chess_server(reader, writer):
                         pass
                     case ["chat"]:
                         pass
-                    case ["move", move]:
-                        await move(me, move)
+                    case ["move", move, *msg]:
+                        await move_command(me, move, msg)
                     case ["draw"]:
                         pass
                     case ["give_up"]:
