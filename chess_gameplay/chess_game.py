@@ -256,9 +256,34 @@ class Pawn(Figure):
                     if self.y == 6 and board[self.x][self.y - 2] == ' ':
                         self.possible_moves.append((self.x, self.y - 2))
 
+WHITE_START_FIGURES = [King(4, 0, 'w'), Queen(3, 0, 'w')] + [Rook(0, 0, 'w'), Rook(7, 0, 'w')] + [Knight(1, 0, 'w'), Knight(6, 0, 'w')] + [Bishop(2, 0, 'w'), Bishop(5, 0, 'w')] + [Pawn(i, 1, 'w') for i in range(8)]
+BLACK_START_FIGURES = [King(4, 7, 'b'), Queen(3, 7, 'b')] + [Rook(0, 7, 'b'), Rook(7, 7, 'b')] + [Knight(1, 7, 'b'), Knight(6, 7, 'b')] + [Bishop(2, 7, 'b'), Bishop(5, 7, 'b')] + [Pawn(i, 6, 'b') for i in range(8)]
+
+EMPTY_BOARD = [[' ' for i in range(8)] for j in range(8)]
 
 
+class Game():
+    def __init__(self):
+        self.white_figures = WHITE_START_FIGURES
+        self.black_figures = BLACK_START_FIGURES
 
+        self.score = 0
+        
+        self.update_board()
+        self.update_possible_moves()
+
+        self.moves_history = []
+
+        self.curr_player = 'w'
+
+    def update_possible_moves(self):
+        for fig in self.white_figures + self.black_figures:
+            fig.update_possible_moves(self.board)
+    
+    def update_board(self):
+        self.board = EMPTY_BOARD
+        for fig in self.white_figures + self.black_figures:
+            self.board[fig.x][fig.y] = fig.label
 
 
 
