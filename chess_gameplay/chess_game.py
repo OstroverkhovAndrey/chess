@@ -223,6 +223,38 @@ class Bishop(Figure):
             else:
                 break
 
+class Pawn(Figure):
+    def __init__(self, x, y, color):
+        super().__init__(x, y, color)
+        self.value = 1
+        if color == 'w':
+            self.label = 'P'
+        elif color == 'b':
+            self.label = 'p'
+    
+    def update_possible_moves(self, board):
+        self.possible_moves = []
+        
+        if self.label.isupper():
+            if self.y + 1 < 8:
+                if self.x - 1 > -1 and board[self.x - 1][self.y + 1]!= ' ' and board[self.x - 1][self.y + 1].isupper() != self.label.isupper():
+                    self.possible_moves.append((self.x - 1, self.y + 1))
+                if self.x + 1 < 8 and board[self.x + 1][self.y + 1]!= ' ' and board[self.x + 1][self.y + 1].isupper() != self.label.isupper():
+                    self.possible_moves.append((self.x + 1, self.y + 1))
+                if board[self.x][self.y + 1] == ' ':
+                    self.possible_moves.append((self.x, self.y + 1))
+                    if self.y == 1 and board[self.x][self.y + 2] == ' ':
+                        self.possible_moves.append((self.x, self.y + 2))
+        else:
+            if self.y - 1 > -1:
+                if self.x - 1 > -1 and board[self.x - 1][self.y - 1]!= ' ' and board[self.x - 1][self.y - 1].isupper() != self.label.isupper():
+                    self.possible_moves.append((self.x - 1, self.y - 1))
+                if self.x + 1 < 8 and board[self.x + 1][self.y - 1]!= ' ' and board[self.x + 1][self.y - 1].isupper() != self.label.isupper():
+                    self.possible_moves.append((self.x + 1, self.y - 1))
+                if board[self.x][self.y - 1] == ' ':
+                    self.possible_moves.append((self.x, self.y - 1))
+                    if self.y == 6 and board[self.x][self.y - 2] == ' ':
+                        self.possible_moves.append((self.x, self.y - 2))
 
 
 
