@@ -311,4 +311,42 @@ class Game():
     def print_board(self):
         print(BOARD_TEMPLATE.format(*[self.board[i][j] for j in range(7, -1, -1) for i in range(8)]))
 
-
+    def mv(self, x1, y1, x2, y2):
+        if self.curr_player == 'w':
+            for fig in self.white_figures:
+                if fig.x == x1 and fig.y == y1 and (x2, y2) in fig.possible_moves:
+                    if self.board[x2][y2] != ' ':
+                        for i in range(len(self.black_figures)):
+                            if self.black_figures[i].x == x2 and self.black_figures[i].y == y2:
+                                self.score += self.black_figures[i].value
+                                self.black_figures.pop(i)
+                                break
+                    fig.x = x2
+                    fig.y = y2
+                    self.moves_history.append(((x1, y1), (x2, y2)))
+                    self.board[x1][y1] = ' '
+                    self.board[x2][y2] = fig.label
+                    self.curr_player = 'b'
+                    self.update_possible_moves()
+                    self.print_board()
+                    return
+            raise Exception('IMPOSSIBLE MOVE')
+        else:
+            for fig in self.black_figures:
+                if fig.x == x1 and fig.y == y1 and (x2, y2) in fig.possible_moves:
+                    if self.board[x2][y2] != ' ':
+                        for i in range(len(self.white_figures)):
+                            if self.white_figures[i].x == x2 and self.white_figures[i].y == y2:
+                                self.score += self.white_figures[i].value
+                                self.white_figures.pop(i)
+                                break
+                    fig.x = x2
+                    fig.y = y2
+                    self.moves_history.append(((x1, y1), (x2, y2)))
+                    self.board[x1][y1] = ' '
+                    self.board[x2][y2] = fig.label
+                    self.curr_player = 'w'
+                    self.update_possible_moves()
+                    self.print_board()
+                    return
+            raise Exception('IMPOSSIBLE MOVE')
