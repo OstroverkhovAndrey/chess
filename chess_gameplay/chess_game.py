@@ -156,4 +156,32 @@ class Rook(Figure):
             else:
                 break
 
+class Knight(Figure):
+    def __init__(self, x, y, color):
+        super().__init__(x, y, color)
+        self.value = 3
+        if color == 'w':
+            self.label = 'KN'
+        elif color == 'b':
+            self.label = 'kn'
+
+    def update_possible_moves(self, board):
+        self.possible_moves = []
+        
+        for i in [-2, 2]:
+            for j in [-1, 1]:
+                if -1 < self.x + i < 8 and -1 < self.y + j < 8 and (board[self.x + i][self.y + j] == ' ' or board[self.x + i][self.y + j].isupper() != self.label.isupper()):
+                    self.possible_moves.append((self.x + i, self.y + j))
+                if -1 < self.x + j < 8 and -1 < self.y + i < 8 and (board[self.x + j][self.y + i] == ' ' or board[self.x + j][self.y + i].isupper() != self.label.isupper()):
+                    self.possible_moves.append((self.x + j, self.y + i))
+
+
+
+
+
+
+
+
+
+
 
