@@ -108,4 +108,52 @@ class Queen(Figure):
             else:
                 break
 
+class Rook(Figure):
+    def __init__(self, x, y, color):
+        super().__init__(x, y, color)
+        self.value = 5
+        if color == 'w':
+            self.label = 'R'
+        elif color == 'b':
+            self.label = 'r'
+
+    def update_possible_moves(self, board):
+        self.possible_moves = []
+        
+        for i in range(1, 8 - self.y):
+            if board[self.x][self.y + i] == ' ':
+                self.possible_moves.append((self.x, self.y + i))
+            elif board[self.x][self.y + i].isupper() != self.label.isupper():
+                self.possible_moves.append((self.x, self.y + i))
+                break
+            else:
+                break
+        
+        for i in range(1, 8 - self.x):
+            if board[self.x + i][self.y] == ' ':
+                self.possible_moves.append((self.x + i, self.y))
+            elif board[self.x + i][self.y].isupper() != self.label.isupper():
+                self.possible_moves.append((self.x + i, self.y))
+                break
+            else:
+                break
+        
+        for i in range(1, self.y + 1):
+            if board[self.x][self.y - i] == ' ':
+                self.possible_moves.append((self.x, self.y - i))
+            elif board[self.x][self.y - i].isupper() != self.label.isupper():
+                self.possible_moves.append((self.x, self.y - i))
+                break
+            else:
+                break
+        
+        for i in range(1, self.x + 1):
+            if board[self.x - i][self.y] == ' ':
+                self.possible_moves.append((self.x - i, self.y))
+            elif board[self.x - i][self.y].isupper() != self.label.isupper():
+                self.possible_moves.append((self.x - i, self.y))
+                break
+            else:
+                break
+
 
