@@ -175,7 +175,53 @@ class Knight(Figure):
                 if -1 < self.x + j < 8 and -1 < self.y + i < 8 and (board[self.x + j][self.y + i] == ' ' or board[self.x + j][self.y + i].isupper() != self.label.isupper()):
                     self.possible_moves.append((self.x + j, self.y + i))
 
-
+class Bishop(Figure):
+    def __init__(self, x, y, color):
+        super().__init__(x, y, color)
+        self.value = 3
+        if color == 'w':
+            self.label = 'B'
+        elif color == 'b':
+            self.label = 'b'
+    
+    def update_possible_moves(self, board):
+        self.possible_moves = []
+        
+        for i in range(1, min(self.x, 7 - self.y) + 1):
+            if board[self.x - i][self.y + i] == ' ':
+                self.possible_moves.append((self.x - i, self.y + i))
+            elif board[self.x - i][self.y + i].isupper() != self.label.isupper():
+                self.possible_moves.append((self.x - i, self.y + i))
+                break
+            else:
+                break
+        
+        for i in range(1, min(7 - self.x, 7 - self.y) + 1):
+            if board[self.x + i][self.y + i] == ' ':
+                self.possible_moves.append((self.x + i, self.y + i))
+            elif board[self.x + i][self.y + i].isupper() != self.label.isupper():
+                self.possible_moves.append((self.x + i, self.y + i))
+                break
+            else:
+                break
+        
+        for i in range(1, min(7 - self.x, self.y) + 1):
+            if board[self.x + i][self.y - i] == ' ':
+                self.possible_moves.append((self.x + i, self.y - i))
+            elif board[self.x + i][self.y - i].isupper() != self.label.isupper():
+                self.possible_moves.append((self.x + i, self.y - i))
+                break
+            else:
+                break
+        
+        for i in range(1, min(self.x, self.y) + 1):
+            if board[self.x - i][self.y - i] == ' ':
+                self.possible_moves.append((self.x - i, self.y - i))
+            elif board[self.x - i][self.y - i].isupper() != self.label.isupper():
+                self.possible_moves.append((self.x - i, self.y - i))
+                break
+            else:
+                break
 
 
 
