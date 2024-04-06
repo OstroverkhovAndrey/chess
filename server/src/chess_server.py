@@ -31,36 +31,36 @@ def get_msg_num(msg):
     else:
         return 0, msg
 
-async def registre(user_name, writer):
+async def registre(user_name, writer, command_num):
     if user_name not in users:
         users[user_name] = UserInfo()
         users[user_name].user_name = user_name
-        await send_msg(writer, 0, "success registre\n")
+        await send_msg(writer, command_num, "success registre\n")
     else:
-        await send_msg(writer, 0, "not success registre, such a user is already registered\n")
+        await send_msg(writer, command_num, "not success registre, such a user is already registered\n")
 
-async def login(user_name, me, writer):
+async def login(user_name, me, writer, command_num):
     if isOnline(me):
-        await send_msg(writer, 0, "you already login\n")
+        await send_msg(writer, command_num, "you already login\n")
     elif user_name not in users:
-        await send_msg(writer, 0, "this user_name dont registre\n")
+        await send_msg(writer, command_num, "this user_name dont registre\n")
     elif users[user_name].isOnline:
-        await send_msg(writer, 0, "this user_name already online\n")
+        await send_msg(writer, command_num, "this user_name already online\n")
     else:
         clients[me].user_name = user_name
         users[user_name].isOnline = True
         users[user_name].IP = me
-        await send_msg(writer, 0, "success login\n")
+        await send_msg(writer, command_num, "success login\n")
 
-async def logout(me, writer):
+async def logout(me, writer, command_num):
     if isOnline(me):
         user_name = clients[me].user_name
         users[user_name].isOnline = False
         users[user_name].IP = ""
         clients[me].user_name = ""
-        await send_msg(writer, 0, "success logout\n")
+        await send_msg(writer, command_num, "success logout\n")
     else:
-        await send_msg(writer, 0, "not success logout, you dont login\n")
+        await send_msg(writer, command_num, "not success logout, you dont login\n")
 
 async def get_users(writer, command_num):
     online_users = [user.user_name for _, user in clients.items() if user.user_name != ""]
@@ -112,11 +112,11 @@ async def chess_server(reader, writer):
 
                 match command:
                     case ["registre", user_name]:
-                        await registre(user_name, writer)
+                        await registre(user_name, writer, command_num)
                     case ["login", user_name]:
-                        await login(user_name, me, writer)
+                        await login(user_name, me, writer, command_num)
                     case ["logout"]:
-                        await logout(me, writer)
+                        await logout(me, writer, command_num)
                     case ["users"]:
                         await get_users(writer, command_num)
                     case ["play", user_name]:
