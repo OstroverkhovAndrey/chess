@@ -4,6 +4,7 @@ class Game:
         self.user1 = user1
         self.user2 = user2
         self.game_story = []
+
     def move(self, user, move, msg=""):
         self.game_story.append([user, move])
         if msg == "win":
@@ -16,7 +17,7 @@ class GamesDict:
         self.user1_to_user2 = {}
         self.user2_to_user1 = {}
         self.game_dict = {}
-        
+
     def add_game(self, user1, user2):
         self.user1_to_user2[user1] = user2
         self.user2_to_user1[user2] = user1
@@ -28,8 +29,3 @@ class GamesDict:
         else:
             user2, user1 = user, self.user2_to_user1[user]
         return self.game_dict[user1+" "+user2]
-
-    
-
-
-

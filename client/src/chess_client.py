@@ -1,10 +1,10 @@
 
 import cmd
 import threading
-import time
 import readline
 import socket
 import shlex
+
 
 class chess_client(cmd.Cmd):
 
@@ -43,7 +43,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("registre " + arg[0] + "\n", num)
-            while self.request[num] == None:
+            while self.request[num] is None:
                 pass
             if self.request[num]:
                 print(self.request[num])
@@ -59,7 +59,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("login " + arg[0] + "\n", num)
-            while self.request[num] == None:
+            while self.request[num] is None:
                 pass
             if self.request[num]:
                 print(self.request[num])
@@ -76,12 +76,10 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("logout\n", num)
-            while self.request[num] == None:
+            while self.request[num] is None:
                 pass
             if self.request[num]:
                 print(self.request[num])
-
-
 
     def do_get_users(self, arg):
         pass
@@ -116,14 +114,15 @@ class chess_client(cmd.Cmd):
             data_num = data.split(":")[0]
             data = data[len(data_num)+1:].strip()
             data_num = int(data_num)
-            if data_num in self.complition and self.complition[data_num] == None:
+            if data_num in self.complition and\
+                    self.complition[data_num] is None:
                 self.complition[data_num] = data
-            elif data_num in self.request and self.request[data_num] == None:
+            elif data_num in self.request and self.request[data_num] is None:
                 self.request[data_num] = data
             else:
-                print(f"\n{data}\n{self.prompt}{readline.get_line_buffer()}", end="", flush=True)
+                print(f"\n{data}\n{self.prompt}{readline.get_line_buffer()}",
+                      end="", flush=True)
 
 
 if __name__ == "__main__":
     chess_client().cmdloop()
-

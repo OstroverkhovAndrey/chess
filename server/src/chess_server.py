@@ -2,12 +2,12 @@
 import asyncio
 from user_info import UserInfo
 from clients_info import ClientsInfo
-from games import Game, GamesDict
+from games import GamesDict
 
-clients = {} # ip to clients_info
-users = {} # user_name to user_info, need load from memory
-game_request = {} # player1 -> player2
 
+clients = {}  # ip to clients_info
+users = {}  # user_name to user_info, need load from memory
+game_request = {}  # player1 -> player2
 games = GamesDict()
 
 """
@@ -15,13 +15,16 @@ command ids
 0: simple message for client or user
 """
 
+
 def isOnline(me):
     return me in clients and clients[me].user_name != ""
+
 
 async def send_msg(writer, ids, msg):
     msg = str(ids) + ":" + msg
     writer.write(msg.encode())
     await writer.drain()
+
 
 def get_msg_num(msg):
     num = msg.strip().split(":")[0]
@@ -31,13 +34,16 @@ def get_msg_num(msg):
     else:
         return 0, msg
 
+
 async def registre(user_name, writer, command_num):
     if user_name not in users:
         users[user_name] = UserInfo()
         users[user_name].user_name = user_name
         await send_msg(writer, command_num, "success registre\n")
     else:
-        await send_msg(writer, command_num, "not success registre, such a user is already registered\n")
+        await send_msg(writer, command_num, "not success registre, \
+                such a user is already registered\n")
+
 
 async def login(user_name, me, writer, command_num):
     if isOnline(me):
@@ -52,6 +58,7 @@ async def login(user_name, me, writer, command_num):
         users[user_name].IP = me
         await send_msg(writer, command_num, "success login\n")
 
+
 async def logout(me, writer, command_num):
     if isOnline(me):
         user_name = clients[me].user_name
@@ -60,12 +67,16 @@ async def logout(me, writer, command_num):
         clients[me].user_name = ""
         await send_msg(writer, command_num, "success logout\n")
     else:
-        await send_msg(writer, command_num, "not success logout, you dont login\n")
+        await send_msg(writer, command_num, "not success logout, \
+                you dont login\n")
+
 
 async def get_users(writer, command_num):
-    online_users = [user.user_name for _, user in clients.items() if user.user_name != ""]
+    online_users = [user.user_name for _, user in clients.items()
+                    if user.user_name != ""]
     online_users = " ".join(online_users) + "\n"
     await send_msg(writer, command_num, online_users)
+
 
 async def play(user_name, me, writer):
     if not isOnline(me):
@@ -78,11 +89,13 @@ async def play(user_name, me, writer):
         await send_msg(writer, 0, "cant play with yourself\n")
     elif users[user_name].isPlay:
         await send_msg(writer, 0, "now user play\n")
-    elif user_name in game_request and game_request[user_name] == clients[me].user_name:
+    elif user_name in game_request and game_request[user_name] ==\
+            clients[me].user_name:
         del game_request[user_name]
         users[user_name].isPlay = True
         users[clients[me].user_name].isPlay = True
-        print("start game, player1 {}, player2 {}".format(clients[me].user_name, user_name))
+        print("start game, player1 {}, player2 {}".format(clients[me]
+              .user_name, user_name))
         await send_msg(writer, 0, "start game\n")
         await clients[users[user_name].IP].queue.put("start game")
         # start game
@@ -90,6 +103,7 @@ async def play(user_name, me, writer):
     else:
         game_request[clients[me].user_name] = user_name
         await send_msg(writer, 0, "send game request\n")
+
 
 async def move_command(me, move, msg):
     games[clients[me].user_name].move(clients[me].user_name, move, msg[0])
@@ -102,7 +116,8 @@ async def chess_server(reader, writer):
     send = asyncio.create_task(reader.readline())
     receive = asyncio.create_task(clients[me].queue.get())
     while not reader.at_eof():
-        done, pending = await asyncio.wait([send, receive], return_when=asyncio.FIRST_COMPLETED)
+        done, pending = await asyncio.wait([send, receive],
+                                           return_when=asyncio.FIRST_COMPLETED)
         for q in done:
             if q is send:
 
@@ -143,11 +158,12 @@ async def chess_server(reader, writer):
     writer.close()
     await writer.wait_closed()
 
+
 async def main():
     server = await asyncio.start_server(chess_server, '0.0.0.0', 1337)
     async with server:
         await server.serve_forever()
 
+
 if __name__ == "__main__":
     asyncio.run(main())
-
