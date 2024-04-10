@@ -45,18 +45,15 @@ class King(Figure):
     def get_possible_moves(self, board):
         possible_moves = []
 
-        for i in range(-1, 2):
-            for j in range(-1, 2):
-                if not (i == 0 and j == 0):
-                    if (-1 < self.x + i < 8
-                            and -1 < self.y + j < 8
-                            and (board[self.x + i][self.y + j] == ' '
-                                 or board[self.x + i][self.y + j].isupper()
-                                 != self.label.isupper())):
-                        possible_moves.append(
-                            coordinates_to_human((self.x + i, self.y + j)))
+        for dx, dy in ([0, 1], [1, 1], [1, 0], [1, -1],
+                       [0, -1], [-1, -1], [-1, 0], [-1, 1]):
+            x = self.x + dx
+            y = self.y + dy
+            if (-1 < x < 8 and -1 < y < 8 and (board[x][y] == ' '
+               or board[x][y].isupper() != self.label.isupper())):
+                possible_moves.append(coordinates_to_human((x, y)))
 
-        return possible_moves
+        return sorted(possible_moves)
 
     def update_possible_moves(self, board):
         self.possible_moves = [coordinates_to_computer(coordinate)
@@ -72,123 +69,26 @@ class Queen(Figure):
         elif color == 'b':
             self.label = 'q'
 
-    def possible_moves_horisontal(self, board):
-        possible_moves = []
-
-        for i in range(1, 8 - self.x):
-            if board[self.x + i][self.y] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y)))
-            elif board[self.x + i][self.y].isupper() != self.label.isupper():
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y)))
-                break
-            else:
-                break
-
-        for i in range(1, self.x + 1):
-            if board[self.x - i][self.y] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y)))
-            elif board[self.x - i][self.y].isupper() != self.label.isupper():
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y)))
-                break
-            else:
-                break
-
-        return possible_moves
-
-    def possible_moves_vertical(self, board):
-        possible_moves = []
-
-        for i in range(1, 8 - self.y):
-            if board[self.x][self.y + i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x, self.y + i)))
-            elif board[self.x][self.y + i].isupper() != self.label.isupper():
-                possible_moves.append(
-                        coordinates_to_human((self.x, self.y + i)))
-                break
-            else:
-                break
-
-        for i in range(1, self.y + 1):
-            if board[self.x][self.y - i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x, self.y - i)))
-            elif board[self.x][self.y - i].isupper() != self.label.isupper():
-                possible_moves.append(
-                        coordinates_to_human((self.x, self.y - i)))
-                break
-            else:
-                break
-
-        return possible_moves
-
-    def possible_moves_1_3(self, board):
-        possible_moves = []
-
-        for i in range(1, min(7 - self.x, 7 - self.y) + 1):
-            if board[self.x + i][self.y + i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y + i)))
-            elif (board[self.x + i][self.y + i].isupper()
-                    != self.label.isupper()):
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y + i)))
-                break
-            else:
-                break
-
-        for i in range(1, min(self.x, self.y) + 1):
-            if board[self.x - i][self.y - i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y - i)))
-            elif (board[self.x - i][self.y - i].isupper()
-                    != self.label.isupper()):
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y - i)))
-                break
-            else:
-                break
-
-        return possible_moves
-
-    def possible_moves_2_4(self, board):
-        possible_moves = []
-
-        for i in range(1, min(self.x, 7 - self.y) + 1):
-            if board[self.x - i][self.y + i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y + i)))
-            elif (board[self.x - i][self.y + i].isupper()
-                    != self.label.isupper()):
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y + i)))
-                break
-            else:
-                break
-
-        for i in range(1, min(7 - self.x, self.y) + 1):
-            if board[self.x + i][self.y - i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y - i)))
-            elif (board[self.x + i][self.y - i].isupper()
-                    != self.label.isupper()):
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y - i)))
-                break
-            else:
-                break
-
-        return possible_moves
-
     def get_possible_moves(self, board):
-        return (self.possible_moves_horisontal(board)
-                + self.possible_moves_vertical(board)
-                + self.possible_moves_1_3(board)
-                + self.possible_moves_2_4(board))
+        possible_moves = []
+
+        for dx, dy in ([1, 0], [0, -1], [-1, 0], [0, 1],
+                       [1, 1], [1, -1], [-1, -1], [-1, 1]):
+            for length in range(1, 7):
+                x = self.x + dx * length
+                y = self.y + dy * length
+                if not -1 < x < 8 or not -1 < y < 8:
+                    break
+                elif board[x][y] == ' ':
+                    possible_moves.append(
+                            coordinates_to_human((x, y)))
+                elif board[x][y].isupper() != self.label.isupper():
+                    possible_moves.append(coordinates_to_human((x, y)))
+                    break
+                else:
+                    break
+
+        return sorted(possible_moves)
 
     def update_possible_moves(self, board):
         self.possible_moves = [coordinates_to_computer(coordinate)
@@ -204,63 +104,24 @@ class Rook(Figure):
         elif color == 'b':
             self.label = 'r'
 
-    def possible_moves_horisontal(self, board):
-        possible_moves = []
-
-        for i in range(1, 8 - self.x):
-            if board[self.x + i][self.y] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y)))
-            elif board[self.x + i][self.y].isupper() != self.label.isupper():
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y)))
-                break
-            else:
-                break
-
-        for i in range(1, self.x + 1):
-            if board[self.x - i][self.y] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y)))
-            elif board[self.x - i][self.y].isupper() != self.label.isupper():
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y)))
-                break
-            else:
-                break
-
-        return possible_moves
-
-    def possible_moves_vertical(self, board):
-        possible_moves = []
-
-        for i in range(1, 8 - self.y):
-            if board[self.x][self.y + i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x, self.y + i)))
-            elif board[self.x][self.y + i].isupper() != self.label.isupper():
-                possible_moves.append(
-                        coordinates_to_human((self.x, self.y + i)))
-                break
-            else:
-                break
-
-        for i in range(1, self.y + 1):
-            if board[self.x][self.y - i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x, self.y - i)))
-            elif board[self.x][self.y - i].isupper() != self.label.isupper():
-                possible_moves.append(
-                        coordinates_to_human((self.x, self.y - i)))
-                break
-            else:
-                break
-
-        return possible_moves
-
     def get_possible_moves(self, board):
-        return (self.possible_moves_horisontal(board)
-                + self.possible_moves_vertical(board))
+        possible_moves = []
+
+        for dx, dy in [1, 0], [0, -1], [-1, 0], [0, 1]:
+            for length in range(1, 7):
+                x = self.x + dx * length
+                y = self.y + dy * length
+                if not -1 < x < 8 or not -1 < y < 8:
+                    break
+                elif board[x][y] == ' ':
+                    possible_moves.append(coordinates_to_human((x, y)))
+                elif board[x][y].isupper() != self.label.isupper():
+                    possible_moves.append(coordinates_to_human((x, y)))
+                    break
+                else:
+                    break
+
+        return sorted(possible_moves)
 
     def update_possible_moves(self, board):
         self.possible_moves = [coordinates_to_computer(coordinate)
@@ -279,24 +140,16 @@ class Knight(Figure):
     def get_possible_moves(self, board):
         possible_moves = []
 
-        for i in [-2, 2]:
-            for j in [-1, 1]:
-                if (-1 < self.x + i < 8
-                        and -1 < self.y + j < 8
-                        and (board[self.x + i][self.y + j] == ' ' or
-                             board[self.x + i][self.y + j].isupper()
-                             != self.label.isupper())):
-                    possible_moves.append(
-                            coordinates_to_human((self.x + i, self.y + j)))
-                if (-1 < self.x + j < 8
-                        and -1 < self.y + i < 8
-                        and (board[self.x + j][self.y + i] == ' '
-                             or board[self.x + j][self.y + i].isupper()
-                             != self.label.isupper())):
-                    possible_moves.append(
-                            coordinates_to_human((self.x + j, self.y + i)))
+        for dx, dy in ([2, 1], [2, -1], [-2, -1], [-2, 1],
+                       [1, 2], [1, -2], [-1, -2], [-1, 2]):
+            x = self.x + dx
+            y = self.y + dy
+            if (-1 < x < 8 and -1 < y < 8
+                    and (board[x][y] == ' ' or board[x][y].isupper()
+                         != self.label.isupper())):
+                possible_moves.append(coordinates_to_human((x, y)))
 
-        return possible_moves
+        return sorted(possible_moves)
 
     def update_possible_moves(self, board):
         self.possible_moves = [coordinates_to_computer(coordinate)
@@ -312,67 +165,24 @@ class Bishop(Figure):
         elif color == 'b':
             self.label = 'b'
 
-    def possible_moves_1_3(self, board):
-        possible_moves = []
-
-        for i in range(1, min(7 - self.x, 7 - self.y) + 1):
-            if board[self.x + i][self.y + i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y + i)))
-            elif (board[self.x + i][self.y + i].isupper()
-                    != self.label.isupper()):
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y + i)))
-                break
-            else:
-                break
-
-        for i in range(1, min(self.x, self.y) + 1):
-            if board[self.x - i][self.y - i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y - i)))
-            elif (board[self.x - i][self.y - i].isupper()
-                    != self.label.isupper()):
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y - i)))
-                break
-            else:
-                break
-
-        return possible_moves
-
-    def possible_moves_2_4(self, board):
-        possible_moves = []
-
-        for i in range(1, min(self.x, 7 - self.y) + 1):
-            if board[self.x - i][self.y + i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y + i)))
-            elif (board[self.x - i][self.y + i].isupper()
-                    != self.label.isupper()):
-                possible_moves.append(
-                        coordinates_to_human((self.x - i, self.y + i)))
-                break
-            else:
-                break
-
-        for i in range(1, min(7 - self.x, self.y) + 1):
-            if board[self.x + i][self.y - i] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y - i)))
-            elif (board[self.x + i][self.y - i].isupper()
-                    != self.label.isupper()):
-                possible_moves.append(
-                        coordinates_to_human((self.x + i, self.y - i)))
-                break
-            else:
-                break
-
-        return possible_moves
-
     def get_possible_moves(self, board):
-        return (self.possible_moves_1_3(board)
-                + self.possible_moves_2_4(board))
+        possible_moves = []
+
+        for dx, dy in [1, 1], [1, -1], [-1, -1], [-1, 1]:
+            for length in range(1, 7):
+                x = self.x + dx * length
+                y = self.y + dy * length
+                if not -1 < x < 8 or not -1 < y < 8:
+                    break
+                elif board[x][y] == ' ':
+                    possible_moves.append(coordinates_to_human((x, y)))
+                elif board[x][y].isupper() != self.label.isupper():
+                    possible_moves.append(coordinates_to_human((x, y)))
+                    break
+                else:
+                    break
+
+        return sorted(possible_moves)
 
     def update_possible_moves(self, board):
         self.possible_moves = [coordinates_to_computer(coordinate)
@@ -413,7 +223,7 @@ class Pawn(Figure):
                     possible_moves.append(
                             coordinates_to_human((self.x, self.y + 2)))
 
-        return possible_moves
+        return sorted(possible_moves)
 
     def possible_moves_black_pawn(self, board):
         possible_moves = []
@@ -440,7 +250,7 @@ class Pawn(Figure):
                     possible_moves.append(
                             coordinates_to_human((self.x, self.y - 2)))
 
-        return possible_moves
+        return sorted(possible_moves)
 
     def get_possible_moves(self, board):
         if self.label.isupper():
@@ -508,16 +318,16 @@ class Game():
     def get_possible_moves(self, side=''):
         possible_moves = {}
 
-        if self.current_player == 'w' or side == 'all':
+        if side == 'w' or side == 'all':
             for fig in self.white_figures:
                 possible_moves[coordinates_to_human((fig.x, fig.y))] = (
                         fig.get_possible_moves(self.board))
-        if self.current_player == 'b' or side == 'all':
+        if side == 'b' or side == 'all':
             for fig in self.black_figures:
                 possible_moves[coordinates_to_human((fig.x, fig.y))] = (
                         fig.get_possible_moves(self.board))
 
-        return possible_moves
+        return dict(sorted(possible_moves.items()))
 
     def update_possible_moves(self):
         for fig in self.white_figures + self.black_figures:
