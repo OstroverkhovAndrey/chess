@@ -59,16 +59,18 @@ async def login(user_name, me, writer, command_num):
         await send_msg(writer, command_num, "success login\n")
 
 
-async def logout(me, writer, command_num):
+async def logout(me, writer=None, command_num=None):
     if isOnline(me):
         user_name = clients[me].user_name
         users[user_name].isOnline = False
         users[user_name].IP = ""
         clients[me].user_name = ""
-        await send_msg(writer, command_num, "success logout\n")
+        if writer is not None and command_num is not None:
+            await send_msg(writer, command_num, "success logout\n")
     else:
-        await send_msg(writer, command_num, "not success logout, \
-                you dont login\n")
+        if writer is not None and command_num is not None:
+            await send_msg(writer, command_num, "not success logout, \
+                    you dont login\n")
 
 
 async def get_users(writer, command_num):
@@ -151,6 +153,7 @@ async def chess_server(reader, writer):
                 receive = asyncio.create_task(clients[me].queue.get())
                 writer.write(f"{q.result()}\n".encode())
                 await writer.drain()
+    await logout(me)
     send.cancel()
     receive.cancel()
     print(me, "DONE")
