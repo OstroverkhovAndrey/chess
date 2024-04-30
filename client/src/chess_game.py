@@ -456,8 +456,37 @@ class Game():
         for fig in moving_figures:
             for (x, y) in fig.possible_moves:
                 if x == king_x and y == king_y:
-                    print('CHECK!')
                     fixed_figures[0].is_under_attack = True
+                    if self.is_checkmate():
+                        print('CHECKMATE!')
+                    else:
+                        print('CHECK!')
+
+    def is_checkmate(self):
+        if self.current_player == 'w':
+            moving_figures = self.black_figures
+            fixed_figures = self.white_figures
+        else:
+            moving_figures = self.white_figures
+            fixed_figures = self.black_figures
+
+        king_position = (coordinates_to_human((moving_figures[0].x,
+                                              moving_figures[0].y)))
+
+        for moved_figure in moving_figures[1:]:
+            for (x, y) in moved_figure.possible_moves:
+                board = [line[:] for line in self.board]
+                board[moved_figure.x][moved_figure.y] = ' '
+                board[x][y] = moved_figure.label
+                under_attack = False
+                for fixed_figure in fixed_figures:
+                    if (king_position in
+                            fixed_figure.get_possible_moves(board)):
+                        under_attack = True
+                if not under_attack:
+                    return False
+
+        return True
 
     def handle_move(self, x1, y1, x2, y2, moving_figures, fixed_figures):
         score = 0
