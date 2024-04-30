@@ -1,3 +1,5 @@
+import copy
+
 COMPUTER_TO_HUMAN_TRANSLATOR = [
         {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h'},
         {0: '1', 1: '2', 2: '3', 3: '4', 4: '5', 5: '6', 6: '7', 7: '8'}
@@ -41,8 +43,41 @@ class King(Figure):
             self.label = 'K'
         elif color == 'b':
             self.label = 'k'
+        self.has_moved = False
+
+    def get_possible_roques(self, board):
+        possible_moves = []
+
+        if not self.has_moved:
+            for dx in [-3, -2, -1]:
+                x = self.x + dx
+                y = self.y
+                if board[x][y] != ' ':
+                    break
+            else:
+                if self.label == 'K' and board[0][0] == 'R':
+                    possible_moves.append(coordinates_to_human((2, 0)))
+                elif self.label == 'k' and board[0][7] == 'r':
+                    possible_moves.append(coordinates_to_human((2, 7)))
+
+            for dx in [1, 2]:
+                x = self.x + dx
+                y = self.y
+                if board[x][y] != ' ':
+                    break
+            else:
+                if self.label == 'K' and board[7][0] == 'R':
+                    possible_moves.append(coordinates_to_human((6, 0)))
+                elif self.label == 'k' and board[7][7] == 'r':
+                    possible_moves.append(coordinates_to_human((6, 7)))
+
+        return possible_moves
 
     def get_possible_moves(self, board):
+        if (self.x != 4 or self.label == 'K' and self.y != 0
+                or self.label == 'k' and self.y != 7):
+            self.has_moved = True
+
         possible_moves = []
 
         for dx, dy in ([0, 1], [1, 1], [1, 0], [1, -1],
@@ -52,6 +87,8 @@ class King(Figure):
             if (-1 < x < 8 and -1 < y < 8 and (board[x][y] == ' '
                or board[x][y].isupper() != self.label.isupper())):
                 possible_moves.append(coordinates_to_human((x, y)))
+
+        possible_moves += self.get_possible_roques(board)
 
         return sorted(possible_moves)
 
@@ -103,6 +140,7 @@ class Rook(Figure):
             self.label = 'R'
         elif color == 'b':
             self.label = 'r'
+        self.has_moved = False
 
     def get_possible_moves(self, board):
         possible_moves = []
@@ -276,33 +314,56 @@ BLACK_START_FIGURES = ([King(4, 7, 'b'), Queen(3, 7, 'b')]
 
 EMPTY_BOARD = [[' ' for i in range(8)] for j in range(8)]
 
-BOARD_TEMPLATE = """
-   0   1   2   3   4   5   6   7\n
+BOARD_TEMPLATE_WHITE = """
+   a   b   c   d   e   f   g   h\n
  ┌───┬───┬───┬───┬───┬───┬───┬───┐\n
-8│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│7\n
+8│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│8\n
  ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-7│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│6\n
+7│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│7\n
  ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-6│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│5\n
+6│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│6\n
  ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-5│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│4\n
+5│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│5\n
  ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-4│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│3\n
+4│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│4\n
  ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-3│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│2\n
+3│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│3\n
  ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-2│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│1\n
+2│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│2\n
  ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-1│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│0\n
+1│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│1\n
  └───┴───┴───┴───┴───┴───┴───┴───┘\n
    a   b   c   d   e   f   g   h\n
+"""
+BOARD_TEMPLATE_BLACK = """
+   h   g   f   e   d   c   b   a\n
+ ┌───┬───┬───┬───┬───┬───┬───┬───┐\n
+1│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│1\n
+ ├───┼───┼───┼───┼───┼───┼───┼───┤\n
+2│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│2\n
+ ├───┼───┼───┼───┼───┼───┼───┼───┤\n
+3│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│3\n
+ ├───┼───┼───┼───┼───┼───┼───┼───┤\n
+4│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│4\n
+ ├───┼───┼───┼───┼───┼───┼───┼───┤\n
+5│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│5\n
+ ├───┼───┼───┼───┼───┼───┼───┼───┤\n
+6│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│6\n
+ ├───┼───┼───┼───┼───┼───┼───┼───┤\n
+7│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│7\n
+ ├───┼───┼───┼───┼───┼───┼───┼───┤\n
+8│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│8\n
+ └───┴───┴───┴───┴───┴───┴───┴───┘\n
+   h   g   f   e   d   c   b   a\n
 """
 
 
 class Game():
-    def __init__(self):
-        self.white_figures = WHITE_START_FIGURES
-        self.black_figures = BLACK_START_FIGURES
+    def __init__(self, player = 'w'):
+        self.white_figures = [copy.deepcopy(WHITE_START_FIGURES[i])
+                              for i in range(len(WHITE_START_FIGURES))]
+        self.black_figures = [copy.deepcopy(BLACK_START_FIGURES[i])
+                              for i in range(len(BLACK_START_FIGURES))]
 
         self.score = 0
 
@@ -312,22 +373,21 @@ class Game():
         self.moves_history = []
 
         self.current_player = 'w'
+        self.player = player
 
         self.print_board()
 
-    def get_possible_moves(self, side=''):
+    def get_possible_moves(self):
         possible_moves = {}
 
-        if side == 'w' or side == 'all':
+        if (self.current_player == 'w' and self.player == 'w'
+                or self.current_player == 'b' and self.player == 'b'):
             for fig in self.white_figures:
                 possible_moves[coordinates_to_human((fig.x, fig.y))] = (
                         fig.get_possible_moves(self.board))
-        if side == 'b' or side == 'all':
-            for fig in self.black_figures:
-                possible_moves[coordinates_to_human((fig.x, fig.y))] = (
-                        fig.get_possible_moves(self.board))
-
-        return dict(sorted(possible_moves.items()))
+            return dict(sorted(possible_moves.items()))
+        else:
+            return "It's your opponent's turn!"
 
     def update_possible_moves(self):
         for fig in self.white_figures + self.black_figures:
@@ -339,11 +399,40 @@ class Game():
             self.board[fig.x][fig.y] = fig.label
 
     def print_board(self):
-        print(BOARD_TEMPLATE.format(*[self.board[i][j]
-              for j in range(7, -1, -1) for i in range(8)]))
+        self.update_board()
+        if self.player == 'w':
+            print(BOARD_TEMPLATE_WHITE.format(*[self.board[i][j]
+                  for j in range(7, -1, -1) for i in range(8)]))
+        else:
+            print(BOARD_TEMPLATE_BLACK.format(*[self.board[7 - i][7 - j]
+                  for j in range(7, -1, -1) for i in range(8)]))
+
+    def handle_roque(self, x1, y1, x2, y2, moving_figures):
+        for fig in moving_figures:
+            if fig.x == x1 and fig.y == y1:
+                fig.x = x2
+                fig.y = x2
+                self.board[x2][y2] = self.board[x1][y1]
+                self.board[x1][y1] = ' '
+            elif fig.y == y1 and x2 > x1 and fig.x == 7:
+                fig.x = x2
+                fig.y = 5
+                self.board[5][y2] = self.board[7][y1]
+                self.board[7][y1] = ' '
+            elif fig.y == y1 and x2 < x1 and fig.x == 0:
+                fig.x = x2
+                fig.y = 3
+                self.board[3][y2] = self.board[0][y1]
+                self.board[0][y1] = ' '
 
     def handle_move(self, x1, y1, x2, y2, moving_figures, fixed_figures):
         score = 0
+
+        if ((self.current_player == 'w' and self.board[x1][y1] == 'K'
+                or self.current_player == 'b' and self.board[x1][y1] == 'k')
+                and abs(x1 - x2) == 2):
+            self.handle_roque(x1, y1, x2, y2, moving_figures)
+            return 0
 
         for fig in moving_figures:
             if fig.x == x1 and fig.y == y1:
@@ -364,20 +453,28 @@ class Game():
 
         raise Exception('IMPOSSIBLE MOVE')
 
-    def move(self, coordinate_1, coordinate_2):
+    def move(self, coordinate_1, coordinate_2, forced = False):
         x1, y1 = coordinates_to_computer(coordinate_1)
         x2, y2 = coordinates_to_computer(coordinate_2)
 
-        if self.current_player == 'w':
+        if self.current_player == 'w' and (self.player == 'w' or forced):
             self.score += self.handle_move(
                     x1, y1, x2, y2, self.white_figures, self.black_figures)
             self.current_player = 'b'
-        else:
+        elif self.current_player == 'b' and (self.player == 'b' or forced):
             self.score -= self.handle_move(
                     x1, y1, x2, y2, self.black_figures, self.white_figures)
             self.current_player = 'w'
+        else:
+            return "It's your opponent's turn!"
 
         self.moves_history.append((coordinate_1, coordinate_2))
         self.update_possible_moves()
         self.print_board()
-        return
+        return coordinate_1, coordinate_2
+
+    def get_score(self):
+        if player == 'w':
+            return self.score
+        else:
+            return -self.score
