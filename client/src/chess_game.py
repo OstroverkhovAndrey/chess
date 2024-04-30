@@ -236,6 +236,7 @@ class Pawn(Figure):
             self.label = 'P'
         elif color == 'b':
             self.label = 'p'
+        self.has_moved_two = False
 
     def possible_moves_white_pawn(self, board):
         possible_moves = []
@@ -261,6 +262,14 @@ class Pawn(Figure):
                 if self.y == 1 and board[self.x][self.y + 2] == ' ':
                     possible_moves.append(
                             coordinates_to_human((self.x, self.y + 2)))
+
+            if self.y == 4:
+                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'p':
+                    possible_moves.append(
+                        coordinates_to_human((self.x - 1, self.y + 1)))
+                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'p':
+                    possible_moves.append(
+                        coordinates_to_human((self.x + 1, self.y + 1)))
 
         return sorted(possible_moves)
 
@@ -288,6 +297,14 @@ class Pawn(Figure):
                 if self.y == 6 and board[self.x][self.y - 2] == ' ':
                     possible_moves.append(
                             coordinates_to_human((self.x, self.y - 2)))
+
+            if self.y == 3:
+                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'P':
+                    possible_moves.append(
+                        coordinates_to_human((self.x - 1, self.y - 1)))
+                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'P':
+                    possible_moves.append(
+                        coordinates_to_human((self.x + 1, self.y - 1)))
 
         return sorted(possible_moves)
 
@@ -405,6 +422,7 @@ class Game():
             print(BOARD_TEMPLATE_WHITE.format(*[self.board[i][j]
                   for j in range(7, -1, -1) for i in range(8)]))
         else:
+            return
             print(BOARD_TEMPLATE_BLACK.format(*[self.board[7 - i][7 - j]
                   for j in range(7, -1, -1) for i in range(8)]))
 
@@ -488,14 +506,39 @@ class Game():
 
         return True
 
+    def handle_en_passant(self, x1, y1, x2, y2, moving_figures, fixed_figures):
+        for moving_fig in moving_figures:
+            for i in range(len(fixed_figures)):
+                fixed_fig = fixed_figures[i]
+                if (moving_fig.x == x1 and moving_fig.y == y1
+                        and fixed_fig.x == x2
+                        and (y1 == 4 and fixed_fig.y == y2 - 1 or
+                             y1 == 3 and fixed_fig.y == y2 + 1)):
+                    self.board[fixed_fig.x][fixed_fig.y] = ' '
+                    fixed_figures.pop(i)
+                    self.board[x1][y1] = ' '
+                    self.board[x2][y2] = moving_fig.label
+                    moving_fig.x = x2
+                    moving_fig.y = y2
+                    if y1 == 4:
+                        return 1
+                    else:
+                        return -1
+
     def handle_move(self, x1, y1, x2, y2, moving_figures, fixed_figures):
         score = 0
 
         if ((self.current_player == 'w' and self.board[x1][y1] == 'K'
                 or self.current_player == 'b' and self.board[x1][y1] == 'k')
-                and abs(x1 - x2) == 2):
+                and abs(x2 - x1) == 2):
             self.handle_roque(x1, y1, x2, y2, moving_figures)
             return 0
+
+        if ((self.current_player == 'w' and self.board[x1][y1] == 'P'
+                or self.current_player == 'b' and self.board[x1][y1] == 'p')
+                and abs(x2 - x1) == 1 and abs(y2 - y1) == 1):
+            return self.handle_en_passant(x1, y1, x2, y2,
+                                          moving_figures, fixed_figures)
 
         eaten_figure = None
         for fig in moving_figures:
@@ -513,6 +556,8 @@ class Game():
                     fig.y = y2
                     self.board[x2][y2] = self.board[x1][y1]
                     self.board[x1][y1] = ' '
+                    if isinstance(fig, Pawn) and (abs(y2 - y1) == 2):
+                        fig.has_moved_two = True
 
                     break
         else:
