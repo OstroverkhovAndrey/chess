@@ -65,7 +65,20 @@ class chess_client(cmd.Cmd):
                 print(self.request[num])
 
     def complete_login(self, text, line, begidx, endidx):
-        pass
+        """complete login command"""
+        num = self.complition_num()
+        self.complition[num] = None
+        self.write_to_server("offline_users\n", num)
+
+        while self.complition[num] is None:
+            pass
+
+        words = (line[:endidx] + ".").split()
+        complition = []
+        match len(words):
+            case 2:
+                complition = self.complition[num].split()
+        return [c for c in complition if c.startswith(text)]
 
     def do_logout(self, arg):
         """logout from chess server"""
@@ -126,7 +139,20 @@ class chess_client(cmd.Cmd):
                 print(self.request[num])
 
     def complete_play(self, text, line, begidx, endidx):
-        pass
+        """complete play command"""
+        num = self.complition_num()
+        self.complition[num] = None
+        self.write_to_server("online_users\n", num)
+
+        while self.complition[num] is None:
+            pass
+
+        words = (line[:endidx] + ".").split()
+        complition = []
+        match len(words):
+            case 2:
+                complition = self.complition[num].split()
+        return [c for c in complition if c.startswith(text)]
 
     def do_move(self, arg):
         """move command"""
@@ -148,7 +174,7 @@ class chess_client(cmd.Cmd):
                 print(self.request[num])
 
     def complete_move(self, text, line, begidx, endidx):
-        pass
+        """print all passible move"""
 
     def do_exit(self, arg):
         """Exit program"""
