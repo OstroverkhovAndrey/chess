@@ -359,7 +359,7 @@ BOARD_TEMPLATE_BLACK = """
 
 
 class Game():
-    def __init__(self, player = 'w'):
+    def __init__(self, player):
         self.white_figures = [copy.deepcopy(WHITE_START_FIGURES[i])
                               for i in range(len(WHITE_START_FIGURES))]
         self.black_figures = [copy.deepcopy(BLACK_START_FIGURES[i])
@@ -453,7 +453,7 @@ class Game():
 
         raise Exception('IMPOSSIBLE MOVE')
 
-    def move(self, coordinate_1, coordinate_2, forced = False):
+    def move(self, coordinate_1, coordinate_2, forced=False):
         x1, y1 = coordinates_to_computer(coordinate_1)
         x2, y2 = coordinates_to_computer(coordinate_2)
 
@@ -474,7 +474,7 @@ class Game():
         return coordinate_1, coordinate_2
 
     def get_score(self):
-        if player == 'w':
+        if self.player == 'w':
             return self.score
         else:
             return -self.score
