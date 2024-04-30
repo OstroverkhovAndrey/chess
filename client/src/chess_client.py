@@ -82,16 +82,70 @@ class chess_client(cmd.Cmd):
                 print(self.request[num])
 
     def do_get_users(self, arg):
-        pass
+        """get online users"""
+        arg = shlex.split(arg)
+        if len(arg) > 0:
+            self.print_error_message("More arguments!")
+        else:
+            num = self.request_num()
+            self.request[num] = None
+            self.write_to_server("online_users\n", num)
+            while self.request[num] is None:
+                pass
+            if self.request[num]:
+                print(self.request[num])
+
+    def do_get_game_request(self, arg):
+        """get game request from current player"""
+        arg = shlex.split(arg)
+        if len(arg) > 0:
+            self.print_error_message("More arguments!")
+        else:
+            num = self.request_num()
+            self.request[num] = None
+            self.write_to_server("game_request\n", num)
+            while self.request[num] is None:
+                pass
+            if self.request[num]:
+                print(self.request[num])
 
     def do_play(self, arg):
-        pass
+        """play request with another user"""
+        arg = shlex.split(arg)
+        if len(arg) > 1:
+            self.print_error_message("More arguments!")
+        elif len(arg) < 1:
+            self.print_error_message("Not enough arguments!")
+        else:
+            num = self.request_num()
+            self.request[num] = None
+            self.write_to_server("play " + arg[0] + "\n", num)
+            while self.request[num] is None:
+                pass
+            if self.request[num]:
+                print(self.request[num])
 
     def complete_play(self, text, line, begidx, endidx):
         pass
 
     def do_move(self, arg):
-        pass
+        """move command"""
+        arg = shlex.split(arg)
+        if len(arg) > 2:
+            self.print_error_message("More arguments!")
+        elif len(arg) < 1:
+            self.print_error_message("Not enough arguments!")
+        else:
+            msg = ""
+            if len(arg) == 2:
+                msg = arg[1]
+            num = self.request_num()
+            self.request[num] = None
+            self.write_to_server("move " + arg[0] + msg + "\n", num)
+            while self.request[num] is None:
+                pass
+            if self.request[num]:
+                print(self.request[num])
 
     def complete_move(self, text, line, begidx, endidx):
         pass

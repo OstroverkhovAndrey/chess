@@ -73,24 +73,38 @@ async def logout(me, writer=None, command_num=None):
                     you dont login\n")
 
 
-async def get_users(writer, command_num):
+async def get_offline_users(writer, command_num):
+    offline_users = [name for name, info in users.items()
+                     if not info.isOnline]
+    offline_users = " ".join(offline_users) + "\n"
+    await send_msg(writer, command_num, offline_users)
+
+
+async def get_online_users(writer, command_num):
     online_users = [user.user_name for _, user in clients.items()
                     if user.user_name != ""]
     online_users = " ".join(online_users) + "\n"
     await send_msg(writer, command_num, online_users)
 
 
-async def play(user_name, me, writer):
+async def get_game_request(me, writer, command_num):
+    game_request_for_me = [user1 for user1, user2 in game_request.items()
+                           if user2 == clients[me].user_name]
+    game_request_for_me = " ".join(game_request_for_me) + "\n"
+    await send_msg(writer, command_num, game_request_for_me)
+
+
+async def play(user_name, me, writer, command_num):
     if not isOnline(me):
-        await send_msg(writer, 0, "you dont register\n")
+        await send_msg(writer, command_num, "you dont register\n")
     elif user_name not in users:
-        await send_msg(writer, 0, "user dont registre\n")
+        await send_msg(writer, command_num, "user dont registre\n")
     elif not users[user_name].isOnline:
-        await send_msg(writer, 0, "user dont online\n")
+        await send_msg(writer, command_num, "user dont online\n")
     elif clients[me].user_name == user_name:
-        await send_msg(writer, 0, "cant play with yourself\n")
+        await send_msg(writer, command_num, "cant play with yourself\n")
     elif users[user_name].isPlay:
-        await send_msg(writer, 0, "now user play\n")
+        await send_msg(writer, command_num, "now user play\n")
     elif user_name in game_request and game_request[user_name] ==\
             clients[me].user_name:
         del game_request[user_name]
@@ -98,17 +112,29 @@ async def play(user_name, me, writer):
         users[clients[me].user_name].isPlay = True
         print("start game, player1 {}, player2 {}".format(clients[me]
               .user_name, user_name))
-        await send_msg(writer, 0, "start game\n")
+        await send_msg(writer, command_num, "start game\n")
         await clients[users[user_name].IP].queue.put("start game")
+        users[clients[me].user_name].isPlay = True
+        users[user_name].isPlay = True
         # start game
         games.add_game(clients[me].user_name, user_name)
     else:
         game_request[clients[me].user_name] = user_name
-        await send_msg(writer, 0, "send game request\n")
+        await send_msg(writer, command_num, "send game request\n")
+        await clients[users[user_name].IP].queue.put(
+            "{} send you game request\n".format(clients[me].user_name))
 
 
-async def move_command(me, move, msg):
-    games[clients[me].user_name].move(clients[me].user_name, move, msg[0])
+async def move_command(me, writer, move, command_num):
+    games[clients[me].user_name].move(clients[me].user_name, move)
+    await send_msg(writer, command_num, "you get move\n")
+    opponent = games[clients[me].user_name].get_opponent(clients[me].user_name)
+    await clients[users[opponent].IP].queue.put(
+        "opponent get move {}".format(move))
+    if move.endswith("win"):
+        print("end game")
+        users[clients[me].user_name].isPlay = False
+        users[opponent].isPlay = False
 
 
 async def chess_server(reader, writer):
@@ -134,16 +160,21 @@ async def chess_server(reader, writer):
                         await login(user_name, me, writer, command_num)
                     case ["logout"]:
                         await logout(me, writer, command_num)
-                    case ["users"]:
-                        await get_users(writer, command_num)
+                    case ["offline_users"]:
+                        await get_offline_users(writer, command_num)
+                    case ["online_users"]:
+                        await get_online_users(writer, command_num)
+                    case ["game_request"]:
+                        await get_game_request(me, writer, command_num)
                     case ["play", user_name]:
-                        await play(user_name, me, writer)
+                        await play(user_name, me, writer, command_num)
                     case ["statistic", user_name]:
                         pass
                     case ["chat"]:
                         pass
-                    case ["move", move, *msg]:
-                        await move_command(me, move, msg)
+                    case ["move", move]:
+                        print(move)
+                        await move_command(me, writer, move, command_num)
                     case ["draw"]:
                         pass
                     case ["give_up"]:
@@ -151,8 +182,9 @@ async def chess_server(reader, writer):
                 send = asyncio.create_task(reader.readline())
             elif q is receive:
                 receive = asyncio.create_task(clients[me].queue.get())
-                writer.write(f"{q.result()}\n".encode())
-                await writer.drain()
+                await send_msg(writer, 0, q.result())
+                # writer.write(f"{q.result()}\n".encode())
+                # await writer.drain()
     await logout(me)
     send.cancel()
     receive.cancel()

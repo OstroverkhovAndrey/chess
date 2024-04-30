@@ -5,11 +5,19 @@ class Game:
         self.user2 = user2
         self.game_story = []
 
-    def move(self, user, move, msg=""):
+    def move(self, user, move):
         self.game_story.append([user, move])
-        if msg == "win":
-            print(self.game_story)
-            print("win {}".format(user))
+        # if msg == "win":
+        #     print(self.game_story)
+        #     print("win {}".format(user))
+
+    def get_opponent(self, me_name):
+        if me_name == self.user1:
+            return self.user2
+        elif me_name == self.user2:
+            return self.user1
+        else:
+            return None
 
 
 class GamesDict:
