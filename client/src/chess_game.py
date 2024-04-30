@@ -12,6 +12,13 @@ HUMAN_TO_COMPUTER_TRANSLATOR = [
 
 
 def coordinates_to_human(to_translate):
+    """
+    Return human-like coordinates of chess figure.
+    
+    Argument:
+    to_translate -- tuple of machine-like figure coordinates
+    
+    """
     if isinstance(to_translate, str):
         return to_translate
 
@@ -20,6 +27,13 @@ def coordinates_to_human(to_translate):
 
 
 def coordinates_to_computer(to_translate):
+    """
+    Return machine-like coordinates of chess figure.
+    
+    Argument:
+    to_translate -- string human-like figure coordinates
+    
+    """
     if isinstance(to_translate, tuple):
         return to_translate
 
@@ -28,7 +42,35 @@ def coordinates_to_computer(to_translate):
 
 
 class Figure():
+    """
+    A class used to present any chess figure.
+    
+    Attributes
+    ----------
+    x : int
+        first coordinate of figure (0 to 7)
+    y : int
+        second coordinate of figure (0 to 7)
+    color : str
+        present side which figure is on ('w' -white or 'b' - black)
+    possible_moves : list
+        list of figure possible moves
+    
+    """
+
     def __init__(self, x, y, color):
+        """
+        Parameters
+        ----------
+        x : int
+            first coordinate of figure (0 to 7)
+        y : int
+            second coordinate of figure (0 to 7)
+        color : str
+            present side which figure is on ('w' -white or 'b' - black)
+        possible_moves : list
+            list of figure possible moves
+        """
         self.x = x
         self.y = y
         self.color = color
@@ -36,6 +78,38 @@ class Figure():
 
 
 class King(Figure):
+    """
+    A class used to present King chess figure.
+    
+    Attributes
+    ----------
+    x : int
+        first coordinate of figure (0 to 7)
+    y : int
+        second coordinate of figure (0 to 7)
+    color : str
+        present side which figure is on ('w' -white or 'b' - black)
+    possible_moves : list
+        list of figure possible moves
+    value : int
+        value of a figure (default 0)
+    has_moved : bool
+        indicator of moving since begginning of the game (used for roque)
+    is_under_attack : bool
+        indicator of attack on King (chech)
+
+    Methods
+    -------
+    get_possible_roques(board)
+        return list of human-like possible positions to move on the board
+    get_possible_moves(board)
+        return list of human-like possible positions to move on the board
+    update_possible_moves(board)
+        update possible moves attribute based on get_possible_roques and
+        get_possible_moves returning lists
+    
+    """
+
     def __init__(self, x, y, color):
         super().__init__(x, y, color)
         self.value = 0
@@ -44,6 +118,7 @@ class King(Figure):
         elif color == 'b':
             self.label = 'k'
         self.has_moved = False
+        self.is_under_attack = False
 
     def get_possible_roques(self, board):
         possible_moves = []
@@ -235,6 +310,7 @@ class Pawn(Figure):
             self.label = 'P'
         elif color == 'b':
             self.label = 'p'
+        self.has_moved_two = False
 
     def possible_moves_white_pawn(self, board):
         possible_moves = []
@@ -260,6 +336,14 @@ class Pawn(Figure):
                 if self.y == 1 and board[self.x][self.y + 2] == ' ':
                     possible_moves.append(
                             coordinates_to_human((self.x, self.y + 2)))
+
+            if self.y == 4:
+                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'p':
+                    possible_moves.append(
+                        coordinates_to_human((self.x - 1, self.y + 1)))
+                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'p':
+                    possible_moves.append(
+                        coordinates_to_human((self.x + 1, self.y + 1)))
 
         return sorted(possible_moves)
 
@@ -287,6 +371,14 @@ class Pawn(Figure):
                 if self.y == 6 and board[self.x][self.y - 2] == ' ':
                     possible_moves.append(
                             coordinates_to_human((self.x, self.y - 2)))
+
+            if self.y == 3:
+                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'P':
+                    possible_moves.append(
+                        coordinates_to_human((self.x - 1, self.y - 1)))
+                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'P':
+                    possible_moves.append(
+                        coordinates_to_human((self.x + 1, self.y - 1)))
 
         return sorted(possible_moves)
 
@@ -404,6 +496,7 @@ class Game():
             print(BOARD_TEMPLATE_WHITE.format(*[self.board[i][j]
                   for j in range(7, -1, -1) for i in range(8)]))
         else:
+            return
             print(BOARD_TEMPLATE_BLACK.format(*[self.board[7 - i][7 - j]
                   for j in range(7, -1, -1) for i in range(8)]))
 
@@ -425,15 +518,103 @@ class Game():
                 self.board[3][y2] = self.board[0][y1]
                 self.board[0][y1] = ' '
 
+    def cancel_move(self, x1, y1, x2, y2,
+                    moving_figures, fixed_figures, eaten_figure):
+        for fig in moving_figures:
+            if fig.x == x2 and fig.y == y2:
+                fig.x = x1
+                fig.y = y1
+        if eaten_figure is not None:
+            fixed_figures.append(eaten_figure)
+
+    def is_check_move(self, x1, x2, y1, y2,
+                      moving_figures, fixed_figures, eaten_figure):
+        self.update_possible_moves()
+        king_x = moving_figures[0].x
+        king_y = moving_figures[0].y
+        for fig in fixed_figures:
+            for (x, y) in fig.possible_moves:
+                if x == king_x and y == king_y:
+                    self.cancel_move(x1, y1, x2, y2,
+                                     moving_figures, fixed_figures,
+                                     eaten_figure)
+                    self.update_possible_moves()
+                    raise Exception('IMPOSSIBLE MOVE (CHECK)')
+        moving_figures[0].is_under_attack = False
+
+        self.update_possible_moves()
+        king_x = fixed_figures[0].x
+        king_y = fixed_figures[0].y
+        for fig in moving_figures:
+            for (x, y) in fig.possible_moves:
+                if x == king_x and y == king_y:
+                    fixed_figures[0].is_under_attack = True
+                    if self.is_checkmate():
+                        print('CHECKMATE!')
+                    else:
+                        print('CHECK!')
+
+    def is_checkmate(self):
+        if self.current_player == 'w':
+            moving_figures = self.black_figures
+            fixed_figures = self.white_figures
+        else:
+            moving_figures = self.white_figures
+            fixed_figures = self.black_figures
+
+        king_position = (coordinates_to_human((moving_figures[0].x,
+                                              moving_figures[0].y)))
+
+        for moved_figure in moving_figures[1:]:
+            for (x, y) in moved_figure.possible_moves:
+                board = [line[:] for line in self.board]
+                board[moved_figure.x][moved_figure.y] = ' '
+                board[x][y] = moved_figure.label
+                under_attack = False
+                for fixed_figure in fixed_figures:
+                    if (king_position in
+                            fixed_figure.get_possible_moves(board)):
+                        under_attack = True
+                if not under_attack:
+                    return False
+
+        return True
+
+    def handle_en_passant(self, x1, y1, x2, y2, moving_figures, fixed_figures):
+        for moving_fig in moving_figures:
+            for i in range(len(fixed_figures)):
+                fixed_fig = fixed_figures[i]
+                if (moving_fig.x == x1 and moving_fig.y == y1
+                        and fixed_fig.x == x2
+                        and (y1 == 4 and fixed_fig.y == y2 - 1 or
+                             y1 == 3 and fixed_fig.y == y2 + 1)):
+                    self.board[fixed_fig.x][fixed_fig.y] = ' '
+                    fixed_figures.pop(i)
+                    self.board[x1][y1] = ' '
+                    self.board[x2][y2] = moving_fig.label
+                    moving_fig.x = x2
+                    moving_fig.y = y2
+                    if y1 == 4:
+                        return 1
+                    else:
+                        return -1
+
     def handle_move(self, x1, y1, x2, y2, moving_figures, fixed_figures):
         score = 0
 
         if ((self.current_player == 'w' and self.board[x1][y1] == 'K'
                 or self.current_player == 'b' and self.board[x1][y1] == 'k')
-                and abs(x1 - x2) == 2):
+                and abs(x2 - x1) == 2):
             self.handle_roque(x1, y1, x2, y2, moving_figures)
             return 0
 
+        if ((self.current_player == 'w' and self.board[x1][y1] == 'P'
+                or self.current_player == 'b' and self.board[x1][y1] == 'p')
+                and abs(x2 - x1) == 1 and abs(y2 - y1) == 1):
+            return self.handle_en_passant(x1, y1, x2, y2,
+                                          moving_figures, fixed_figures)
+
+        eaten_figure = None
         for fig in moving_figures:
             if fig.x == x1 and fig.y == y1:
                 if (x2, y2) in fig.possible_moves:
@@ -442,16 +623,24 @@ class Game():
                             if (fixed_figures[i].x == x2
                                     and fixed_figures[i].y == y2):
                                 score = fixed_figures[i].value
+                                eaten_figure = fixed_figures[i]
                                 fixed_figures.pop(i)
                                 break
                     fig.x = x2
                     fig.y = y2
                     self.board[x2][y2] = self.board[x1][y1]
                     self.board[x1][y1] = ' '
+                    if isinstance(fig, Pawn) and (abs(y2 - y1) == 2):
+                        fig.has_moved_two = True
 
-                    return score
+                    break
+        else:
+            raise Exception('IMPOSSIBLE MOVE')
 
-        raise Exception('IMPOSSIBLE MOVE')
+        self.is_check_move(x1, y1, x2, y2,
+                           moving_figures, fixed_figures, eaten_figure)
+
+        return score
 
     def move(self, coordinate_1, coordinate_2, forced=False):
         x1, y1 = coordinates_to_computer(coordinate_1)
@@ -467,6 +656,24 @@ class Game():
             self.current_player = 'w'
         else:
             return "It's your opponent's turn!"
+
+        self.moves_history.append((coordinate_1, coordinate_2))
+        self.update_possible_moves()
+        self.print_board()
+        return coordinate_1, coordinate_2
+
+    def move_from_server(self, coordinate_1, coordinate_2):
+        x1, y1 = coordinates_to_computer(coordinate_1)
+        x2, y2 = coordinates_to_computer(coordinate_2)
+
+        if self.current_player == 'w':
+            self.score += self.handle_move(
+                    x1, y1, x2, y2, self.white_figures, self.black_figures)
+            self.current_player = 'b'
+        elif self.current_player == 'b':
+            self.score -= self.handle_move(
+                    x1, y1, x2, y2, self.black_figures, self.white_figures)
+            self.current_player = 'w'
 
         self.moves_history.append((coordinate_1, coordinate_2))
         self.update_possible_moves()
