@@ -44,6 +44,7 @@ class King(Figure):
         elif color == 'b':
             self.label = 'k'
         self.has_moved = False
+        self.is_under_attack = False
 
     def get_possible_roques(self, board):
         possible_moves = []
@@ -359,7 +360,7 @@ BOARD_TEMPLATE_BLACK = """
 
 
 class Game():
-    def __init__(self, player = 'w'):
+    def __init__(self, player):
         self.white_figures = [copy.deepcopy(WHITE_START_FIGURES[i])
                               for i in range(len(WHITE_START_FIGURES))]
         self.black_figures = [copy.deepcopy(BLACK_START_FIGURES[i])
@@ -425,6 +426,39 @@ class Game():
                 self.board[3][y2] = self.board[0][y1]
                 self.board[0][y1] = ' '
 
+    def cancel_move(self, x1, y1, x2, y2,
+                    moving_figures, fixed_figures, eaten_figure):
+        for fig in moving_figures:
+            if fig.x == x2 and fig.y == y2:
+                fig.x = x1
+                fig.y = y1
+        if eaten_figure is not None:
+            fixed_figures.append(eaten_figure)
+
+    def is_check_move(self, x1, x2, y1, y2,
+                      moving_figures, fixed_figures, eaten_figure):
+        self.update_possible_moves()
+        king_x = moving_figures[0].x
+        king_y = moving_figures[0].y
+        for fig in fixed_figures:
+            for (x, y) in fig.possible_moves:
+                if x == king_x and y == king_y:
+                    self.cancel_move(x1, y1, x2, y2,
+                                     moving_figures, fixed_figures,
+                                     eaten_figure)
+                    self.update_possible_moves()
+                    raise Exception('IMPOSSIBLE MOVE (CHECK)')
+        moving_figures[0].is_under_attack = False
+
+        self.update_possible_moves()
+        king_x = fixed_figures[0].x
+        king_y = fixed_figures[0].y
+        for fig in moving_figures:
+            for (x, y) in fig.possible_moves:
+                if x == king_x and y == king_y:
+                    print('CHECK!')
+                    fixed_figures[0].is_under_attack = True
+
     def handle_move(self, x1, y1, x2, y2, moving_figures, fixed_figures):
         score = 0
 
@@ -434,6 +468,7 @@ class Game():
             self.handle_roque(x1, y1, x2, y2, moving_figures)
             return 0
 
+        eaten_figure = None
         for fig in moving_figures:
             if fig.x == x1 and fig.y == y1:
                 if (x2, y2) in fig.possible_moves:
@@ -442,6 +477,7 @@ class Game():
                             if (fixed_figures[i].x == x2
                                     and fixed_figures[i].y == y2):
                                 score = fixed_figures[i].value
+                                eaten_figure = fixed_figures[i]
                                 fixed_figures.pop(i)
                                 break
                     fig.x = x2
@@ -449,11 +485,16 @@ class Game():
                     self.board[x2][y2] = self.board[x1][y1]
                     self.board[x1][y1] = ' '
 
-                    return score
+                    break
+        else:
+            raise Exception('IMPOSSIBLE MOVE')
 
-        raise Exception('IMPOSSIBLE MOVE')
+        self.is_check_move(x1, y1, x2, y2,
+                           moving_figures, fixed_figures, eaten_figure)
 
-    def move(self, coordinate_1, coordinate_2, forced = False):
+        return score
+
+    def move(self, coordinate_1, coordinate_2, forced=False):
         x1, y1 = coordinates_to_computer(coordinate_1)
         x2, y2 = coordinates_to_computer(coordinate_2)
 
@@ -474,7 +515,7 @@ class Game():
         return coordinate_1, coordinate_2
 
     def get_score(self):
-        if player == 'w':
+        if self.player == 'w':
             return self.score
         else:
             return -self.score
