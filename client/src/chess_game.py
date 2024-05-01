@@ -318,15 +318,15 @@ class Pawn(Figure):
         if self.y + 1 < 8:
             if (self.x - 1 > -1
                     and board[self.x - 1][self.y + 1] != ' '
-                    and board[self.x - 1][self.y + 1].isupper()
-                    != self.label.isupper()):
+                    and board[self.x - 1][self.y + 1][-1]
+                    != self.label[-1]):
                 possible_moves.append(
                         coordinates_to_human((self.x - 1, self.y + 1)))
 
             if (self.x + 1 < 8
                     and board[self.x + 1][self.y + 1] != ' '
-                    and board[self.x + 1][self.y + 1].isupper()
-                    != self.label.isupper()):
+                    and board[self.x + 1][self.y + 1][-1]
+                    != self.label[-1]):
                 possible_moves.append(
                         coordinates_to_human((self.x + 1, self.y + 1)))
 
@@ -338,10 +338,10 @@ class Pawn(Figure):
                             coordinates_to_human((self.x, self.y + 2)))
 
             if self.y == 4:
-                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'p':
+                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'Pb':
                     possible_moves.append(
                         coordinates_to_human((self.x - 1, self.y + 1)))
-                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'p':
+                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'Pb':
                     possible_moves.append(
                         coordinates_to_human((self.x + 1, self.y + 1)))
 
@@ -353,15 +353,15 @@ class Pawn(Figure):
         if self.y - 1 > -1:
             if (self.x - 1 > -1
                     and board[self.x - 1][self.y - 1] != ' '
-                    and board[self.x - 1][self.y - 1].isupper()
-                    != self.label.isupper()):
+                    and board[self.x - 1][self.y - 1][-1]
+                    != self.label[-1]):
                 possible_moves.append(
                         coordinates_to_human((self.x - 1, self.y - 1)))
 
             if (self.x + 1 < 8
                     and board[self.x + 1][self.y - 1] != ' '
-                    and board[self.x + 1][self.y - 1].isupper() !=
-                    self.label.isupper()):
+                    and board[self.x + 1][self.y - 1][-1] !=
+                    self.label[-1]):
                 possible_moves.append(
                         coordinates_to_human((self.x + 1, self.y - 1)))
 
@@ -373,17 +373,17 @@ class Pawn(Figure):
                             coordinates_to_human((self.x, self.y - 2)))
 
             if self.y == 3:
-                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'P':
+                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'Pw':
                     possible_moves.append(
                         coordinates_to_human((self.x - 1, self.y - 1)))
-                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'P':
+                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'Pw':
                     possible_moves.append(
                         coordinates_to_human((self.x + 1, self.y - 1)))
 
         return sorted(possible_moves)
 
     def get_possible_moves(self, board):
-        if self.label.isupper():
+        if self.label[-1] == 'w':
             return self.possible_moves_white_pawn(board)
         else:
             return self.possible_moves_black_pawn(board)
@@ -470,8 +470,12 @@ class Game():
     def get_possible_moves(self):
         possible_moves = {}
 
-        if (self.current_player == 'w' and self.player == 'w'
-                or self.current_player == 'b' and self.player == 'b'):
+        if self.current_player == 'w' and self.player == 'w':
+            for fig in self.white_figures:
+                possible_moves[coordinates_to_human((fig.x, fig.y))] = (
+                        fig.get_possible_moves(self.board))
+            return dict(sorted(possible_moves.items()))
+        elif self.current_player == 'b' and self.player == 'b':
             for fig in self.white_figures:
                 possible_moves[coordinates_to_human((fig.x, fig.y))] = (
                         fig.get_possible_moves(self.board))
@@ -500,7 +504,13 @@ class Game():
                                                for i in range(8)])
 
     def print_board(self):
-        print(self.get_board())
+        self.update_board()
+        if self.player == 'w':
+            print(BOARD_TEMPLATE_WHITE.format(*[self.board[i][j]
+                  for j in range(7, -1, -1) for i in range(8)]))
+        else:
+            print(BOARD_TEMPLATE_BLACK.format(*[self.board[7 - i][7 - j]
+                  for j in range(7, -1, -1) for i in range(8)]))
 
     def cancel_move(self, x1, y1, x2, y2,
                     moving_figures, fixed_figures, eaten_figure):
@@ -565,8 +575,8 @@ class Game():
         return True
 
     def handle_roque(self, x1, y1, x2, y2, moving_figures):
-        if ((self.current_player == 'w' and self.board[x1][y1] == 'K'
-                or self.current_player == 'b' and self.board[x1][y1] == 'k')
+        if ((self.current_player == 'w' and self.board[x1][y1] == 'Kw'
+                or self.current_player == 'b' and self.board[x1][y1] == 'Kb')
                 and abs(x2 - x1) == 2):
             for fig in moving_figures:
                 if fig.x == x1 and fig.y == y1:
@@ -589,8 +599,10 @@ class Game():
             return False
 
     def handle_en_passant(self, x1, y1, x2, y2, moving_figures, fixed_figures):
-        if ((self.current_player == 'w' and self.board[x1][y1] == 'P'
-                or self.current_player == 'b' and self.board[x1][y1] == 'p')
+        if ((self.current_player == 'w'
+                and self.board[x1][y1] == 'Pw' and y1 == 4
+                or self.current_player == 'b'
+                and self.board[x1][y1] == 'Pb' and y1 == 3)
                 and abs(x2 - x1) == 1 and abs(y2 - y1) == 1):
             for moving_fig in moving_figures:
                 for i in range(len(fixed_figures)):
