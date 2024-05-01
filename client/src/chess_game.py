@@ -12,6 +12,13 @@ HUMAN_TO_COMPUTER_TRANSLATOR = [
 
 
 def coordinates_to_human(to_translate):
+    """
+    Return human-like coordinates of chess figure.
+    
+    Argument:
+    to_translate -- tuple of machine-like figure coordinates
+    
+    """
     if isinstance(to_translate, str):
         return to_translate
 
@@ -20,6 +27,13 @@ def coordinates_to_human(to_translate):
 
 
 def coordinates_to_computer(to_translate):
+    """
+    Return machine-like coordinates of chess figure.
+    
+    Argument:
+    to_translate -- string human-like figure coordinates
+    
+    """
     if isinstance(to_translate, tuple):
         return to_translate
 
@@ -28,7 +42,35 @@ def coordinates_to_computer(to_translate):
 
 
 class Figure():
+    """
+    A class used to present any chess figure.
+    
+    Attributes
+    ----------
+    x : int
+        first coordinate of figure (0 to 7)
+    y : int
+        second coordinate of figure (0 to 7)
+    color : str
+        present side which figure is on ('w' -white or 'b' - black)
+    possible_moves : list
+        list of figure possible moves
+    
+    """
+
     def __init__(self, x, y, color):
+        """
+        Parameters
+        ----------
+        x : int
+            first coordinate of figure (0 to 7)
+        y : int
+            second coordinate of figure (0 to 7)
+        color : str
+            present side which figure is on ('w' -white or 'b' - black)
+        possible_moves : list
+            list of figure possible moves
+        """
         self.x = x
         self.y = y
         self.color = color
@@ -36,6 +78,38 @@ class Figure():
 
 
 class King(Figure):
+    """
+    A class used to present King chess figure.
+    
+    Attributes
+    ----------
+    x : int
+        first coordinate of figure (0 to 7)
+    y : int
+        second coordinate of figure (0 to 7)
+    color : str
+        present side which figure is on ('w' -white or 'b' - black)
+    possible_moves : list
+        list of figure possible moves
+    value : int
+        value of a figure (default 0)
+    has_moved : bool
+        indicator of moving since begginning of the game (used for roque)
+    is_under_attack : bool
+        indicator of attack on King (chech)
+
+    Methods
+    -------
+    get_possible_roques(board)
+        return list of human-like possible positions to move on the board
+    get_possible_moves(board)
+        return list of human-like possible positions to move on the board
+    update_possible_moves(board)
+        update possible moves attribute based on get_possible_roques and
+        get_possible_moves returning lists
+    
+    """
+
     def __init__(self, x, y, color):
         super().__init__(x, y, color)
         self.value = 0
@@ -582,6 +656,24 @@ class Game():
             self.current_player = 'w'
         else:
             return "It's your opponent's turn!"
+
+        self.moves_history.append((coordinate_1, coordinate_2))
+        self.update_possible_moves()
+        self.print_board()
+        return coordinate_1, coordinate_2
+
+    def move_from_server(self, coordinate_1, coordinate_2):
+        x1, y1 = coordinates_to_computer(coordinate_1)
+        x2, y2 = coordinates_to_computer(coordinate_2)
+
+        if self.current_player == 'w':
+            self.score += self.handle_move(
+                    x1, y1, x2, y2, self.white_figures, self.black_figures)
+            self.current_player = 'b'
+        elif self.current_player == 'b':
+            self.score -= self.handle_move(
+                    x1, y1, x2, y2, self.black_figures, self.white_figures)
+            self.current_player = 'w'
 
         self.moves_history.append((coordinate_1, coordinate_2))
         self.update_possible_moves()
