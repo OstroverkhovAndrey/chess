@@ -14,10 +14,10 @@ HUMAN_TO_COMPUTER_TRANSLATOR = [
 def coordinates_to_human(to_translate):
     """
     Return human-like coordinates of chess figure.
-    
+
     Argument:
     to_translate -- tuple of machine-like figure coordinates
-    
+
     """
     if isinstance(to_translate, str):
         return to_translate
@@ -29,10 +29,10 @@ def coordinates_to_human(to_translate):
 def coordinates_to_computer(to_translate):
     """
     Return machine-like coordinates of chess figure.
-    
+
     Argument:
     to_translate -- string human-like figure coordinates
-    
+
     """
     if isinstance(to_translate, tuple):
         return to_translate
@@ -44,7 +44,7 @@ def coordinates_to_computer(to_translate):
 class Figure():
     """
     A class used to present any chess figure.
-    
+
     Attributes
     ----------
     x : int
@@ -55,7 +55,7 @@ class Figure():
         present side which figure is on ('w' -white or 'b' - black)
     possible_moves : list
         list of figure possible moves
-    
+
     """
 
     def __init__(self, x, y, color):
@@ -80,7 +80,7 @@ class Figure():
 class King(Figure):
     """
     A class used to present King chess figure.
-    
+
     Attributes
     ----------
     x : int
@@ -107,7 +107,7 @@ class King(Figure):
     update_possible_moves(board)
         update possible moves attribute based on get_possible_roques and
         get_possible_moves returning lists
-    
+
     """
 
     def __init__(self, x, y, color):
@@ -407,46 +407,46 @@ BLACK_START_FIGURES = ([King(4, 7, 'b'), Queen(3, 7, 'b')]
 EMPTY_BOARD = [[' ' for i in range(8)] for j in range(8)]
 
 BOARD_TEMPLATE_WHITE = """
-   a   b   c   d   e   f   g   h\n
- ┌───┬───┬───┬───┬───┬───┬───┬───┐\n
-8│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│8\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-7│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│7\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-6│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│6\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-5│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│5\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-4│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│4\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-3│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│3\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-2│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│2\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-1│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│1\n
- └───┴───┴───┴───┴───┴───┴───┴───┘\n
-   a   b   c   d   e   f   g   h\n
+   a   b   c   d   e   f   g   h
+ ┌───┬───┬───┬───┬───┬───┬───┬───┐
+8│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│8
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+7│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│7
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+6│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│6
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+5│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│5
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+4│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│4
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+3│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│3
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+2│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│2
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+1│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│1
+ └───┴───┴───┴───┴───┴───┴───┴───┘
+   a   b   c   d   e   f   g   h
 """
 BOARD_TEMPLATE_BLACK = """
    h   g   f   e   d   c   b   a\n
- ┌───┬───┬───┬───┬───┬───┬───┬───┐\n
-1│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│1\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-2│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│2\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-3│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│3\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-4│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│4\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-5│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│5\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-6│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│6\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-7│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│7\n
- ├───┼───┼───┼───┼───┼───┼───┼───┤\n
-8│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│8\n
- └───┴───┴───┴───┴───┴───┴───┴───┘\n
-   h   g   f   e   d   c   b   a\n
+ ┌───┬───┬───┬───┬───┬───┬───┬───┐
+1│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│1
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+2│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│2
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+3│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│3
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+4│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│4
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+5│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│5
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+6│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│6
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+7│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│7
+ ├───┼───┼───┼───┼───┼───┼───┼───┤
+8│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│8
+ └───┴───┴───┴───┴───┴───┴───┴───┘
+   h   g   f   e   d   c   b   a
 """
 
 
@@ -467,8 +467,6 @@ class Game():
         self.current_player = 'w'
         self.player = player
 
-        self.print_board()
-
     def get_possible_moves(self):
         possible_moves = {}
 
@@ -479,7 +477,7 @@ class Game():
                         fig.get_possible_moves(self.board))
             return dict(sorted(possible_moves.items()))
         else:
-            return "It's your opponent's turn!"
+            return []
 
     def update_possible_moves(self):
         for fig in self.white_figures + self.black_figures:
@@ -490,33 +488,25 @@ class Game():
         for fig in self.white_figures + self.black_figures:
             self.board[fig.x][fig.y] = fig.label
 
+    def get_board(self):
+        self.update_board()
+        if self.player == 'w':
+            return BOARD_TEMPLATE_WHITE.format(*[self.board[i][j]
+                                               for j in range(7, -1, -1)
+                                               for i in range(8)])
+        else:
+            return BOARD_TEMPLATE_BLACK.format(*[self.board[7 - i][7 - j]
+                                               for j in range(7, -1, -1)
+                                               for i in range(8)])
+
     def print_board(self):
         self.update_board()
         if self.player == 'w':
             print(BOARD_TEMPLATE_WHITE.format(*[self.board[i][j]
                   for j in range(7, -1, -1) for i in range(8)]))
         else:
-            return
             print(BOARD_TEMPLATE_BLACK.format(*[self.board[7 - i][7 - j]
                   for j in range(7, -1, -1) for i in range(8)]))
-
-    def handle_roque(self, x1, y1, x2, y2, moving_figures):
-        for fig in moving_figures:
-            if fig.x == x1 and fig.y == y1:
-                fig.x = x2
-                fig.y = x2
-                self.board[x2][y2] = self.board[x1][y1]
-                self.board[x1][y1] = ' '
-            elif fig.y == y1 and x2 > x1 and fig.x == 7:
-                fig.x = x2
-                fig.y = 5
-                self.board[5][y2] = self.board[7][y1]
-                self.board[7][y1] = ' '
-            elif fig.y == y1 and x2 < x1 and fig.x == 0:
-                fig.x = x2
-                fig.y = 3
-                self.board[3][y2] = self.board[0][y1]
-                self.board[0][y1] = ' '
 
     def cancel_move(self, x1, y1, x2, y2,
                     moving_figures, fixed_figures, eaten_figure):
@@ -539,7 +529,7 @@ class Game():
                                      moving_figures, fixed_figures,
                                      eaten_figure)
                     self.update_possible_moves()
-                    raise Exception('IMPOSSIBLE MOVE (CHECK)')
+                    return "IMPOSSIBLE MOVE: YOU CAN'T MAKE MOVE TO CHECK"
         moving_figures[0].is_under_attack = False
 
         self.update_possible_moves()
@@ -550,9 +540,9 @@ class Game():
                 if x == king_x and y == king_y:
                     fixed_figures[0].is_under_attack = True
                     if self.is_checkmate():
-                        print('CHECKMATE!')
+                        return 'CHECKMATE!'
                     else:
-                        print('CHECK!')
+                        return 'CHECK!'
 
     def is_checkmate(self):
         if self.current_player == 'w':
@@ -580,40 +570,71 @@ class Game():
 
         return True
 
-    def handle_en_passant(self, x1, y1, x2, y2, moving_figures, fixed_figures):
-        for moving_fig in moving_figures:
-            for i in range(len(fixed_figures)):
-                fixed_fig = fixed_figures[i]
-                if (moving_fig.x == x1 and moving_fig.y == y1
-                        and fixed_fig.x == x2
-                        and (y1 == 4 and fixed_fig.y == y2 - 1 or
-                             y1 == 3 and fixed_fig.y == y2 + 1)):
-                    self.board[fixed_fig.x][fixed_fig.y] = ' '
-                    fixed_figures.pop(i)
-                    self.board[x1][y1] = ' '
-                    self.board[x2][y2] = moving_fig.label
-                    moving_fig.x = x2
-                    moving_fig.y = y2
-                    if y1 == 4:
-                        return 1
-                    else:
-                        return -1
-
-    def handle_move(self, x1, y1, x2, y2, moving_figures, fixed_figures):
-        score = 0
-
+    def handle_roque(self, x1, y1, x2, y2, moving_figures):
         if ((self.current_player == 'w' and self.board[x1][y1] == 'K'
                 or self.current_player == 'b' and self.board[x1][y1] == 'k')
                 and abs(x2 - x1) == 2):
-            self.handle_roque(x1, y1, x2, y2, moving_figures)
-            return 0
+            for fig in moving_figures:
+                if fig.x == x1 and fig.y == y1:
+                    fig.x = x2
+                    fig.y = x2
+                    self.board[x2][y2] = self.board[x1][y1]
+                    self.board[x1][y1] = ' '
+                elif fig.y == y1 and x2 > x1 and fig.x == 7:
+                    fig.x = x2
+                    fig.y = 5
+                    self.board[5][y2] = self.board[7][y1]
+                    self.board[7][y1] = ' '
+                elif fig.y == y1 and x2 < x1 and fig.x == 0:
+                    fig.x = x2
+                    fig.y = 3
+                    self.board[3][y2] = self.board[0][y1]
+                    self.board[0][y1] = ' '
+            return True
+        else:
+            return False
 
+    def handle_en_passant(self, x1, y1, x2, y2, moving_figures, fixed_figures):
         if ((self.current_player == 'w' and self.board[x1][y1] == 'P'
                 or self.current_player == 'b' and self.board[x1][y1] == 'p')
                 and abs(x2 - x1) == 1 and abs(y2 - y1) == 1):
-            return self.handle_en_passant(x1, y1, x2, y2,
-                                          moving_figures, fixed_figures)
+            for moving_fig in moving_figures:
+                for i in range(len(fixed_figures)):
+                    fixed_fig = fixed_figures[i]
+                    if (moving_fig.x == x1 and moving_fig.y == y1
+                            and fixed_fig.x == x2
+                            and (y1 == 4 and fixed_fig.y == y2 - 1 or
+                                 y1 == 3 and fixed_fig.y == y2 + 1)):
+                        self.board[fixed_fig.x][fixed_fig.y] = ' '
+                        fixed_figures.pop(i)
+                        self.board[x1][y1] = ' '
+                        self.board[x2][y2] = moving_fig.label
+                        moving_fig.x = x2
+                        moving_fig.y = y2
+                        if y1 == 4:
+                            return 1
+                        else:
+                            return -1
+        else:
+            return 0
 
+    def handle_en_passant_roque(self, x1, y1, x2, y2,
+                                moving_figures, fixed_figures):
+        if self.handle_roque(x1, y1, x2, y2, moving_figures):
+            return 0
+        if (t := self.handle_en_passant(x1, y1, x2, y2,
+                                        moving_figures, fixed_figures) != 0):
+            self.score += t
+            return 0
+        else:
+            return -1
+
+    def handle_move(self, x1, y1, x2, y2, moving_figures, fixed_figures):
+        if self.handle_en_passant_roque(x1, y1, x2, y2,
+                                        moving_figures, fixed_figures) == 0:
+            return 0
+
+        score = 0
         eaten_figure = None
         for fig in moving_figures:
             if fig.x == x1 and fig.y == y1:
@@ -635,31 +656,40 @@ class Game():
 
                     break
         else:
-            raise Exception('IMPOSSIBLE MOVE')
+            return 'IMPOSSIBLE MOVE'
 
-        self.is_check_move(x1, y1, x2, y2,
-                           moving_figures, fixed_figures, eaten_figure)
-
-        return score
+        ans = self.is_check_move(x1, y1, x2, y2,
+                                 moving_figures, fixed_figures, eaten_figure)
+        if ans is not None:
+            return ans
+        else:
+            return score
 
     def move(self, coordinate_1, coordinate_2, forced=False):
         x1, y1 = coordinates_to_computer(coordinate_1)
         x2, y2 = coordinates_to_computer(coordinate_2)
 
         if self.current_player == 'w' and (self.player == 'w' or forced):
-            self.score += self.handle_move(
+            ans = self.handle_move(
                     x1, y1, x2, y2, self.white_figures, self.black_figures)
+            if isinstance(ans, int):
+                self.score += ans
+            else:
+                return ans
             self.current_player = 'b'
         elif self.current_player == 'b' and (self.player == 'b' or forced):
-            self.score -= self.handle_move(
+            ans = self.handle_move(
                     x1, y1, x2, y2, self.black_figures, self.white_figures)
+            if isinstance(ans, int):
+                self.score -= ans
+            else:
+                return ans
             self.current_player = 'w'
         else:
             return "It's your opponent's turn!"
 
         self.moves_history.append((coordinate_1, coordinate_2))
         self.update_possible_moves()
-        self.print_board()
         return coordinate_1, coordinate_2
 
     def move_from_server(self, coordinate_1, coordinate_2):
@@ -677,7 +707,6 @@ class Game():
 
         self.moves_history.append((coordinate_1, coordinate_2))
         self.update_possible_moves()
-        self.print_board()
         return coordinate_1, coordinate_2
 
     def get_score(self):
