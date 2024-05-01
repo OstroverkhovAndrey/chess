@@ -114,9 +114,9 @@ class King(Figure):
         super().__init__(x, y, color)
         self.value = 0
         if color == 'w':
-            self.label = 'K'
+            self.label = 'Kw'
         elif color == 'b':
-            self.label = 'k'
+            self.label = 'Kb'
         self.has_moved = False
         self.is_under_attack = False
 
@@ -177,9 +177,9 @@ class Queen(Figure):
         super().__init__(x, y, color)
         self.value = 8
         if color == 'w':
-            self.label = 'Q'
+            self.label = 'Qw'
         elif color == 'b':
-            self.label = 'q'
+            self.label = 'Qb'
 
     def get_possible_moves(self, board):
         possible_moves = []
@@ -212,9 +212,9 @@ class Rook(Figure):
         super().__init__(x, y, color)
         self.value = 5
         if color == 'w':
-            self.label = 'R'
+            self.label = 'Rw'
         elif color == 'b':
-            self.label = 'r'
+            self.label = 'Rb'
         self.has_moved = False
 
     def get_possible_moves(self, board):
@@ -246,9 +246,9 @@ class Knight(Figure):
         super().__init__(x, y, color)
         self.value = 3
         if color == 'w':
-            self.label = 'KN'
+            self.label = 'KNw'
         elif color == 'b':
-            self.label = 'kn'
+            self.label = 'KNb'
 
     def get_possible_moves(self, board):
         possible_moves = []
@@ -274,9 +274,9 @@ class Bishop(Figure):
         super().__init__(x, y, color)
         self.value = 3
         if color == 'w':
-            self.label = 'B'
+            self.label = 'Bw'
         elif color == 'b':
-            self.label = 'b'
+            self.label = 'Bb'
 
     def get_possible_moves(self, board):
         possible_moves = []
@@ -307,9 +307,9 @@ class Pawn(Figure):
         super().__init__(x, y, color)
         self.value = 1
         if color == 'w':
-            self.label = 'P'
+            self.label = 'Pw'
         elif color == 'b':
-            self.label = 'p'
+            self.label = 'Pb'
         self.has_moved_two = False
 
     def possible_moves_white_pawn(self, board):
@@ -318,15 +318,15 @@ class Pawn(Figure):
         if self.y + 1 < 8:
             if (self.x - 1 > -1
                     and board[self.x - 1][self.y + 1] != ' '
-                    and board[self.x - 1][self.y + 1].isupper()
-                    != self.label.isupper()):
+                    and board[self.x - 1][self.y + 1][-1]
+                    != self.label[-1]):
                 possible_moves.append(
                         coordinates_to_human((self.x - 1, self.y + 1)))
 
             if (self.x + 1 < 8
                     and board[self.x + 1][self.y + 1] != ' '
-                    and board[self.x + 1][self.y + 1].isupper()
-                    != self.label.isupper()):
+                    and board[self.x + 1][self.y + 1][-1]
+                    != self.label[-1]):
                 possible_moves.append(
                         coordinates_to_human((self.x + 1, self.y + 1)))
 
@@ -338,10 +338,10 @@ class Pawn(Figure):
                             coordinates_to_human((self.x, self.y + 2)))
 
             if self.y == 4:
-                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'p':
+                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'Pb':
                     possible_moves.append(
                         coordinates_to_human((self.x - 1, self.y + 1)))
-                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'p':
+                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'Pb':
                     possible_moves.append(
                         coordinates_to_human((self.x + 1, self.y + 1)))
 
@@ -353,15 +353,15 @@ class Pawn(Figure):
         if self.y - 1 > -1:
             if (self.x - 1 > -1
                     and board[self.x - 1][self.y - 1] != ' '
-                    and board[self.x - 1][self.y - 1].isupper()
-                    != self.label.isupper()):
+                    and board[self.x - 1][self.y - 1][-1]
+                    != self.label[-1]):
                 possible_moves.append(
                         coordinates_to_human((self.x - 1, self.y - 1)))
 
             if (self.x + 1 < 8
                     and board[self.x + 1][self.y - 1] != ' '
-                    and board[self.x + 1][self.y - 1].isupper() !=
-                    self.label.isupper()):
+                    and board[self.x + 1][self.y - 1][-1] !=
+                    self.label[-1]):
                 possible_moves.append(
                         coordinates_to_human((self.x + 1, self.y - 1)))
 
@@ -373,17 +373,17 @@ class Pawn(Figure):
                             coordinates_to_human((self.x, self.y - 2)))
 
             if self.y == 3:
-                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'P':
+                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'Pw':
                     possible_moves.append(
                         coordinates_to_human((self.x - 1, self.y - 1)))
-                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'P':
+                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'Pw':
                     possible_moves.append(
                         coordinates_to_human((self.x + 1, self.y - 1)))
 
         return sorted(possible_moves)
 
     def get_possible_moves(self, board):
-        if self.label.isupper():
+        if self.label[-1] == 'w':
             return self.possible_moves_white_pawn(board)
         else:
             return self.possible_moves_black_pawn(board)
@@ -407,46 +407,46 @@ BLACK_START_FIGURES = ([King(4, 7, 'b'), Queen(3, 7, 'b')]
 EMPTY_BOARD = [[' ' for i in range(8)] for j in range(8)]
 
 BOARD_TEMPLATE_WHITE = """
-   a   b   c   d   e   f   g   h
- ┌───┬───┬───┬───┬───┬───┬───┬───┐
-8│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│8
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-7│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│7
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-6│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│6
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-5│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│5
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-4│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│4
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-3│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│3
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-2│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│2
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-1│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│1
- └───┴───┴───┴───┴───┴───┴───┴───┘
-   a   b   c   d   e   f   g   h
+   a    b    c    d    e    f    g    h
+ ┌────┬────┬────┬────┬────┬────┬────┬────┐
+8│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │8
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+7│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │7
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+6│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │6
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+5│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │5
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+4│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │4
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+3│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │3
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+2│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │2
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+1│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │1
+ └────┴────┴────┴────┴────┴────┴────┴────┘
+   a    b    c    d    e    f    g    h
 """
 BOARD_TEMPLATE_BLACK = """
-   h   g   f   e   d   c   b   a\n
- ┌───┬───┬───┬───┬───┬───┬───┬───┐
-1│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│1
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-2│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│2
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-3│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│3
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-4│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│4
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-5│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│5
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-6│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│6
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-7│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│7
- ├───┼───┼───┼───┼───┼───┼───┼───┤
-8│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│ {:<2}│8
- └───┴───┴───┴───┴───┴───┴───┴───┘
-   h   g   f   e   d   c   b   a
+   h    g    f    e    d    c    b    a
+ ┌────┬────┬────┬────┬────┬────┬────┬────┐
+8│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │8
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+7│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │7
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+6│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │6
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+5│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │5
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+4│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │4
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+3│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │3
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+2│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │2
+ ├────┼────┼────┼────┼────┼────┼────┼────┤
+1│{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │{:>3} │1
+ └────┴────┴────┴────┴────┴────┴────┴────┘
+   h    g    f    e    d    c    b    a
 """
 
 
@@ -470,8 +470,12 @@ class Game():
     def get_possible_moves(self):
         possible_moves = {}
 
-        if (self.current_player == 'w' and self.player == 'w'
-                or self.current_player == 'b' and self.player == 'b'):
+        if self.current_player == 'w' and self.player == 'w':
+            for fig in self.white_figures:
+                possible_moves[coordinates_to_human((fig.x, fig.y))] = (
+                        fig.get_possible_moves(self.board))
+            return dict(sorted(possible_moves.items()))
+        elif self.current_player == 'b' and self.player == 'b':
             for fig in self.white_figures:
                 possible_moves[coordinates_to_human((fig.x, fig.y))] = (
                         fig.get_possible_moves(self.board))
@@ -571,8 +575,8 @@ class Game():
         return True
 
     def handle_roque(self, x1, y1, x2, y2, moving_figures):
-        if ((self.current_player == 'w' and self.board[x1][y1] == 'K'
-                or self.current_player == 'b' and self.board[x1][y1] == 'k')
+        if ((self.current_player == 'w' and self.board[x1][y1] == 'Kw'
+                or self.current_player == 'b' and self.board[x1][y1] == 'Kb')
                 and abs(x2 - x1) == 2):
             for fig in moving_figures:
                 if fig.x == x1 and fig.y == y1:
@@ -595,8 +599,10 @@ class Game():
             return False
 
     def handle_en_passant(self, x1, y1, x2, y2, moving_figures, fixed_figures):
-        if ((self.current_player == 'w' and self.board[x1][y1] == 'P'
-                or self.current_player == 'b' and self.board[x1][y1] == 'p')
+        if ((self.current_player == 'w'
+                and self.board[x1][y1] == 'Pw' and y1 == 4
+                or self.current_player == 'b'
+                and self.board[x1][y1] == 'Pb' and y1 == 3)
                 and abs(x2 - x1) == 1 and abs(y2 - y1) == 1):
             for moving_fig in moving_figures:
                 for i in range(len(fixed_figures)):
