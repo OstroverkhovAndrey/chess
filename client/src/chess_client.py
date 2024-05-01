@@ -4,6 +4,7 @@ import threading
 import readline
 import socket
 import shlex
+from chess_game import Game
 
 
 class chess_client(cmd.Cmd):
@@ -20,6 +21,7 @@ class chess_client(cmd.Cmd):
         self.cn = 2
         self.request = {}
         self.complition = {}
+        self.game = None
 
     def request_num(self):
         self.rn += 2
@@ -138,6 +140,13 @@ class chess_client(cmd.Cmd):
             if self.request[num]:
                 print(self.request[num])
 
+            if "start game" in self.request[num]:
+                color = int(self.request[num][-1])
+                color = "w" if not color else "b"
+                self.game = Game(color)
+                print(color)
+                print(self.game.get_board())
+
     def complete_play(self, text, line, begidx, endidx):
         """complete play command"""
         num = self.complition_num()
@@ -157,17 +166,22 @@ class chess_client(cmd.Cmd):
     def do_move(self, arg):
         """move command"""
         arg = shlex.split(arg)
-        if len(arg) > 2:
+        if len(arg) > 1:
             self.print_error_message("More arguments!")
         elif len(arg) < 1:
             self.print_error_message("Not enough arguments!")
         else:
-            msg = ""
-            if len(arg) == 2:
-                msg = arg[1]
+            if "to" not in arg[0]:
+                print("Impossible move!")
+                return
+            move = arg[0]
+            move = move.split("to")
+            self.game.move(move[0], move[1])
+            print(self.game.get_board())
+
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("move " + arg[0] + msg + "\n", num)
+            self.write_to_server("move " + arg[0] + "\n", num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
@@ -175,6 +189,15 @@ class chess_client(cmd.Cmd):
 
     def complete_move(self, text, line, begidx, endidx):
         """print all passible move"""
+        words = (line[:endidx] + ".").split()
+        complition = []
+        match len(words):
+            case 2:
+                for start, ends in self.game.get_possible_moves().items():
+                    for end in ends:
+                        complition.append(start+"to"+end)
+
+        return [c for c in complition if c.startswith(text)]
 
     def do_exit(self, arg):
         """Exit program"""
@@ -200,8 +223,24 @@ class chess_client(cmd.Cmd):
             elif data_num in self.request and self.request[data_num] is None:
                 self.request[data_num] = data
             else:
-                print(f"\n{data}\n{self.prompt}{readline.get_line_buffer()}",
-                      end="", flush=True)
+                if "start game" in data:
+                    color = int(data[-1])
+                    color = "w" if not color else "b"
+                    self.game = Game(color)
+                    board = self.game.get_board()
+                    print(f"\n{data}\n{color}\n{board}\n{self.prompt}\
+                          {readline.get_line_buffer()}", end="", flush=True)
+                elif "opponent get move" in data:
+                    move = data.split()[-1]
+                    move = move.split("to")
+                    self.game.move_from_server(move[0], move[1])
+                    board = self.game.get_board()
+                    print(f"\n{data}\n{board}\n{self.prompt}\
+                          {readline.get_line_buffer()}",
+                          end="", flush=True)
+                else:
+                    print(f"\n{data}\n{self.prompt}\
+                          {readline.get_line_buffer()}", end="", flush=True)
 
 
 if __name__ == "__main__":

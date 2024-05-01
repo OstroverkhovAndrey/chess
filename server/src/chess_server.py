@@ -3,6 +3,7 @@ import asyncio
 from user_info import UserInfo
 from clients_info import ClientsInfo
 from games import GamesDict
+import random
 
 
 clients = {}  # ip to clients_info
@@ -63,6 +64,7 @@ async def logout(me, writer=None, command_num=None):
     if isOnline(me):
         user_name = clients[me].user_name
         users[user_name].isOnline = False
+        users[user_name].isPlay = False
         users[user_name].IP = ""
         clients[me].user_name = ""
         if writer is not None and command_num is not None:
@@ -110,12 +112,16 @@ async def play(user_name, me, writer, command_num):
         del game_request[user_name]
         users[user_name].isPlay = True
         users[clients[me].user_name].isPlay = True
-        print("start game, player1 {}, player2 {}".format(clients[me]
-              .user_name, user_name))
-        await send_msg(writer, command_num, "start game\n")
-        await clients[users[user_name].IP].queue.put("start game")
-        users[clients[me].user_name].isPlay = True
-        users[user_name].isPlay = True
+        color_player1 = random.randint(0, 1)
+        color_player2 = 1 - color_player1
+        print("start game, player1 {} {}, player2 {} {}".format(clients[me]
+              .user_name, color_player1, user_name, color_player2))
+        await send_msg(writer, command_num, "start game {}\n"
+                       .format(color_player1))
+        await clients[users[user_name].IP].queue.put("start game {}"
+                                                     .format(color_player2))
+        # users[clients[me].user_name].isPlay = True
+        # users[user_name].isPlay = True
         # start game
         games.add_game(clients[me].user_name, user_name)
     else:
