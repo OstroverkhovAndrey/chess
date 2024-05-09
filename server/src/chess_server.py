@@ -92,10 +92,22 @@ async def get_online_users(writer, command_num):
 
 
 async def get_game_request(me, writer, command_num):
+    game_request_from_me = [user2 for user1, user2 in game_request.items()
+                            if user1 == clients[me].user_name]
+    game_request_from_me = "from me: " + " ".join(game_request_from_me) + "\n"
     game_request_for_me = [user1 for user1, user2 in game_request.items()
                            if user2 == clients[me].user_name]
-    game_request_for_me = " ".join(game_request_for_me) + "\n"
-    await send_msg(writer, command_num, game_request_for_me)
+    game_request_for_me = "for me: " + " ".join(game_request_for_me) + "\n"
+    await send_msg(writer, command_num, game_request_from_me +
+                   game_request_for_me)
+
+
+async def remove_game_request(me, writer, command_num):
+    user_name = clients[me].user_name
+    if user_name in game_request:
+        del game_request[user_name]
+    ans = "success remove\n"
+    await send_msg(writer, command_num, ans)
 
 
 async def get_statistic(me, writer, command_num, user_name=""):
@@ -185,6 +197,8 @@ async def chess_server(reader, writer):
                         await get_game_request(me, writer, command_num)
                     case ["play", user_name]:
                         await play(user_name, me, writer, command_num)
+                    case ["remove_game_request"]:
+                        await remove_game_request(me, writer, command_num)
                     case ["statistic"]:
                         await get_statistic(me, writer, command_num)
                     case ["statistic", user_name]:
