@@ -22,6 +22,7 @@ class chess_client(cmd.Cmd):
         self.request = {}
         self.complition = {}
         self.game = None
+        self.draw_request = False
 
     def request_num(self):
         self.rn += 2
@@ -196,26 +197,42 @@ class chess_client(cmd.Cmd):
     def do_move(self, arg):
         """move command"""
         arg = shlex.split(arg)
-        if len(arg) > 1:
+        if self.game is None:
+            self.print_error_message("You dont play now!")
+        elif not self.game.isMyMove():
+            self.print_error_message("Now not you move!")
+        elif len(arg) > 1:
             self.print_error_message("More arguments!")
         elif len(arg) < 1:
             self.print_error_message("Not enough arguments!")
+        elif self.draw_request:
+            self.print_error_message("you send draw request!")
         else:
-            if "to" not in arg[0]:
-                print("Impossible move!")
-                return
-            move = arg[0]
-            move = move.split("to")
+            move = [arg[0][0:2], arg[0][2:4]]
+
+            if not self.game.isPossibleMove(move[0], move[1]):
+                self.print_error_message("It is impossiple move!")
+
+            msg = "ok"
+            if self.game.isWinMove(move[0], move[1]):
+                msg = "win"
+            if self.game.isDrawMove(move[0], move[1]):
+                msg = "draw"
+
             self.game.move(move[0], move[1])
             print(self.game.get_board())
 
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("move " + arg[0] + "\n", num)
+            self.write_to_server("move " + arg[0] + ":" + msg + "\n", num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
                 print(self.request[num])
+            if msg == "win":
+                print("stop game, you win!")
+            if msg == "draw":
+                print("stop game, draw")
 
     def complete_move(self, text, line, begidx, endidx):
         """print all passible move"""
@@ -225,9 +242,44 @@ class chess_client(cmd.Cmd):
             case 2:
                 for start, ends in self.game.get_possible_moves().items():
                     for end in ends:
-                        complition.append(start+"to"+end)
+                        complition.append(start+end)
 
         return [c for c in complition if c.startswith(text)]
+
+    def do_draw(self, arg):
+        """draw"""
+        arg = shlex.split(arg)
+        if len(arg) > 1:
+            self.print_error_message("More arguments!")
+        elif len(arg) < 1:
+            self.print_error_message("Not enough arguments!")
+        elif not (arg[0] == "ok" or arg[0] == "not"):
+            self.print_error_message("Incorrect argument!")
+        else:
+            num = self.request_num()
+            self.request[num] = None
+            self.write_to_server("draw " + arg[0] + "\n", num)
+            while self.request[num] is None:
+                pass
+            if self.request[num]:
+                if self.request[num] == "send draw request\n":
+                    self.draw_request = True
+                print(self.request[num])
+
+    def do_give_up(self, arg):
+        """dive up"""
+        arg = shlex.split(arg)
+        if len(arg) > 0:
+            self.print_error_message("More arguments!")
+        else:
+            num = self.request_num()
+            self.request[num] = None
+            self.write_to_server("give_up\n", num)
+            while self.request[num] is None:
+                pass
+            if self.request[num]:
+                print(self.request[num])
+            print("you give ok!")
 
     def do_exit(self, arg):
         """Exit program"""
@@ -262,13 +314,31 @@ class chess_client(cmd.Cmd):
                           f"{readline.get_line_buffer()}", end="", flush=True)
                 elif "opponent get move" in data:
                     move = data.split()[-1]
-                    move = move.split("to")
+                    move, msg = move.split(":")
+                    move = [move[0:2], move[2:4]]
                     self.game.move_from_server(move[0], move[1])
                     board = self.game.get_board()
-                    print(f"\n{data}\n{board}\n{self.prompt}" +
+                    if msg == "win":
+                        msg = "stop game, you lose =("
+                    elif msg == "draw":
+                        msg = "stop game, draw"
+                    else:
+                        msg = ""
+                    if msg != "":
+                        print(f"\n{data}\n{board}\n{msg}\n{self.prompt}" +
+                              f"{readline.get_line_buffer()}",
+                              end="", flush=True)
+                    else:
+                        print(f"\n{data}\n{board}\n{self.prompt}" +
+                              f"{readline.get_line_buffer()}",
+                              end="", flush=True)
+                elif "opponent give up" in data:
+                    print(f"\n{data}\nyou win!\n{self.prompt}" +
                           f"{readline.get_line_buffer()}",
                           end="", flush=True)
                 else:
+                    if "opponent refused a draw\n" in data:
+                        self.draw_request = False
                     print(f"\n{data}\n{self.prompt}" +
                           f"{readline.get_line_buffer()}", end="", flush=True)
 

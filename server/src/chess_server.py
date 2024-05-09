@@ -155,15 +155,87 @@ async def play(user_name, me, writer, command_num):
 
 
 async def move_command(me, writer, move, command_num):
+    if not users[clients[me].user_name].isPlay:
+        await send_msg(writer, command_num, "you dont play now\n")
+        return
+    opponent = games[clients[me].user_name].get_opponent(clients[me].user_name)
+    if games[clients[me].user_name].get_draw_request() == clients[me].user_name:
+        print("Error with draw request!")
+    if not games[clients[me].user_name].get_draw_request() is None:
+        games[clients[me].user_name].remove_draw_request()
+        await clients[users[opponent].IP].queue.put("opponent refused a draw\n")
+
     games[clients[me].user_name].move(clients[me].user_name, move)
     await send_msg(writer, command_num, "you get move\n")
-    opponent = games[clients[me].user_name].get_opponent(clients[me].user_name)
     await clients[users[opponent].IP].queue.put(
         "opponent get move {}".format(move))
-    if move.endswith("win"):
-        print("end game")
+    if move.endswith("win") or move.endswith("draw"):
+        print("end game ", move.split(":")[1])
         users[clients[me].user_name].isPlay = False
         users[opponent].isPlay = False
+        game_story = games[clients[me].user_name].get_game_story()
+        games.stop_game(clients[me].user_name, opponent)
+        game_result = "draw"
+        if move.endswith("win"):
+            game_result = users[clients[me].user_name]
+        game_history.add_game(clients[me].user_name, opponent,
+                              game_result, game_story)
+
+
+async def draw(me, writer, command_num, msg):
+    if not users[clients[me].user_name].isPlay:
+        await send_msg(writer, command_num, "you dont play now\n")
+        return
+    game = games[clients[me].user_name]
+    opponent = game.get_opponent(clients[me].user_name)
+    if game.get_draw_request() is None:
+        if msg == "ok":
+            game.set_draw_request(clients[me].user_name)
+            await send_msg(writer, command_num, "send draw request\n")
+            await clients[users[opponent].IP].queue.put(
+                "opponent send you draw request\n")
+        elif msg == "not":
+            await send_msg(writer, command_num,
+                           "opponent dont send draw request\n")
+    else:
+        if game.get_draw_request() == clients[me].user_name and msg == "ok":
+            await send_msg(writer, command_num, "send draw request\n")
+        elif game.get_draw_request() == clients[me].user_name and msg == "not":
+            await send_msg(writer, command_num,
+                           "you dont delete draw request\n")
+        elif msg == "not":
+            await send_msg(writer, command_num, "you refused a draw\n")
+            await clients[users[opponent].IP].queue.put(
+                "opponent refused a draw\n")
+            game.remove_draw_request()
+        elif msg == "ok":
+            print("end game draw")
+            await send_msg(writer, command_num, "draw\n")
+            await clients[users[opponent].IP].queue.put("draw\n")
+            game.move(clients[me].user_name, "draw")
+            users[clients[me].user_name].isPlay = False
+            users[opponent].isPlay = False
+            game_story = game.get_game_story()
+            games.stop_game(clients[me].user_name, opponent)
+            game_result = "draw"
+            game_history.add_game(clients[me].user_name, opponent,
+                                  game_result, game_story)
+
+
+async def give_up(me, writer, command_num):
+    print("end game draw")
+    game = games[clients[me].user_name]
+    opponent = game.get_opponent(clients[me].user_name)
+    await send_msg(writer, command_num, "yoe success give up\n")
+    await clients[users[opponent].IP].queue.put("opponent give up\n")
+    game.move(clients[me].user_name, "give_up")
+    users[clients[me].user_name].isPlay = False
+    users[opponent].isPlay = False
+    game_story = game.get_game_story()
+    games.stop_game(clients[me].user_name, opponent)
+    game_result = opponent
+    game_history.add_game(clients[me].user_name, opponent,
+                          game_result, game_story)
 
 
 async def chess_server(reader, writer):
@@ -208,10 +280,10 @@ async def chess_server(reader, writer):
                     case ["move", move]:
                         print(move)
                         await move_command(me, writer, move, command_num)
-                    case ["draw"]:
-                        pass
+                    case ["draw", msg]:
+                        await draw(me, writer, command_num, msg)
                     case ["give_up"]:
-                        pass
+                        await give_up(me, writer, command_num)
                 send = asyncio.create_task(reader.readline())
             elif q is receive:
                 receive = asyncio.create_task(clients[me].queue.get())
