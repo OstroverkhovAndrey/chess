@@ -130,9 +130,9 @@ class King(Figure):
                 if board[x][y] != ' ':
                     break
             else:
-                if self.label == 'K' and board[0][0] == 'R':
+                if self.label == 'Kw' and board[0][0] == 'Rw':
                     possible_moves.append(coordinates_to_human((2, 0)))
-                elif self.label == 'k' and board[0][7] == 'r':
+                elif self.label == 'Kb' and board[0][7] == 'Rb':
                     possible_moves.append(coordinates_to_human((2, 7)))
 
             for dx in [1, 2]:
@@ -141,16 +141,16 @@ class King(Figure):
                 if board[x][y] != ' ':
                     break
             else:
-                if self.label == 'K' and board[7][0] == 'R':
+                if self.label == 'Kw' and board[7][0] == 'Rw':
                     possible_moves.append(coordinates_to_human((6, 0)))
-                elif self.label == 'k' and board[7][7] == 'r':
+                elif self.label == 'Kb' and board[7][7] == 'Rb':
                     possible_moves.append(coordinates_to_human((6, 7)))
 
         return possible_moves
 
     def get_possible_moves(self, board):
-        if (self.x != 4 or self.label == 'K' and self.y != 0
-                or self.label == 'k' and self.y != 7):
+        if (self.x != 4 or self.label == 'Kw' and self.y != 0
+                or self.label == 'Kb' and self.y != 7):
             self.has_moved = True
 
         possible_moves = []
@@ -577,26 +577,21 @@ class Game():
     def handle_roque(self, x1, y1, x2, y2, moving_figures):
         if ((self.current_player == 'w' and self.board[x1][y1] == 'Kw'
                 or self.current_player == 'b' and self.board[x1][y1] == 'Kb')
-                and abs(x2 - x1) == 2):
+                and abs(x2 - x1) == 2 and (x2, y2)
+                in moving_figures[0].possible_moves):
             for fig in moving_figures:
-                if fig.x == x1 and fig.y == y1:
-                    fig.x = x2
-                    fig.y = x2
+                if ((self.current_player == 'w' and fig.label == 'Rw' or
+                    self.current_player == 'b' and fig.label == 'Rb') and
+                   (x2 == 2 and fig.x == 0 or x2 == 6 and fig.x == 7)):
                     self.board[x2][y2] = self.board[x1][y1]
                     self.board[x1][y1] = ' '
-                elif fig.y == y1 and x2 > x1 and fig.x == 7:
-                    fig.x = x2
-                    fig.y = 5
-                    self.board[5][y2] = self.board[7][y1]
-                    self.board[7][y1] = ' '
-                elif fig.y == y1 and x2 < x1 and fig.x == 0:
-                    fig.x = x2
-                    fig.y = 3
-                    self.board[3][y2] = self.board[0][y1]
-                    self.board[0][y1] = ' '
-            return True
+                    self.board[0 if x2 == 2 else 7][y1] = ' '
+                    moving_figures[0].x = x2
+                    fig.x = 3 if x2 == 2 else 5
+                    moving_figures[0].update_possible_moves(self.board)
+                    break
         else:
-            return False
+            return -1
 
     def handle_en_passant(self, x1, y1, x2, y2, moving_figures, fixed_figures):
         if ((self.current_player == 'w'
@@ -626,7 +621,7 @@ class Game():
 
     def handle_en_passant_roque(self, x1, y1, x2, y2,
                                 moving_figures, fixed_figures):
-        if self.handle_roque(x1, y1, x2, y2, moving_figures):
+        if not self.handle_roque(x1, y1, x2, y2, moving_figures):
             return 0
         if (t := self.handle_en_passant(x1, y1, x2, y2,
                                         moving_figures, fixed_figures) != 0):
@@ -672,6 +667,7 @@ class Game():
             return score
 
     def move(self, coordinate_1, coordinate_2):
+        self.update_possible_moves()
         x1, y1 = coordinates_to_computer(coordinate_1)
         x2, y2 = coordinates_to_computer(coordinate_2)
 
@@ -699,6 +695,7 @@ class Game():
         return coordinate_1, coordinate_2
 
     def move_from_server(self, coordinate_1, coordinate_2):
+        self.update_possible_moves()
         x1, y1 = coordinates_to_computer(coordinate_1)
         x2, y2 = coordinates_to_computer(coordinate_2)
 
