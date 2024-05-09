@@ -124,6 +124,23 @@ class chess_client(cmd.Cmd):
             if self.request[num]:
                 print(self.request[num])
 
+    def do_get_statistic(self, arg):
+        """get statistic for current player or other player"""
+        arg = shlex.split(arg)
+        if len(arg) > 1:
+            self.print_error_message("More arguments!")
+        else:
+            user = ""
+            if len(arg) == 1:
+                user = arg[0]
+            num = self.request_num()
+            self.request[num] = None
+            self.write_to_server("statistic " + user + "\n", num)
+            while self.request[num] is None:
+                pass
+            if self.request[num]:
+                print(self.request[num])
+
     def do_play(self, arg):
         """play request with another user"""
         arg = shlex.split(arg)
@@ -239,8 +256,8 @@ class chess_client(cmd.Cmd):
                           {readline.get_line_buffer()}",
                           end="", flush=True)
                 else:
-                    print(f"\n{data}\n{self.prompt}\
-                          {readline.get_line_buffer()}", end="", flush=True)
+                    print(f"\n{data}\n{self.prompt}" +
+                          f"{readline.get_line_buffer()}", end="", flush=True)
 
 
 if __name__ == "__main__":

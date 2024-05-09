@@ -3,6 +3,7 @@ import asyncio
 from user_info import UserInfo
 from clients_info import ClientsInfo
 from games import GamesDict
+from game_history import GameHistory
 import random
 
 
@@ -10,6 +11,7 @@ clients = {}  # ip to clients_info
 users = {}  # user_name to user_info, need load from memory
 game_request = {}  # player1 -> player2
 games = GamesDict()
+game_history = GameHistory()
 
 """
 command ids
@@ -96,6 +98,15 @@ async def get_game_request(me, writer, command_num):
     await send_msg(writer, command_num, game_request_for_me)
 
 
+async def get_statistic(me, writer, command_num, user_name=""):
+    if user_name == "":
+        user_name = clients[me].user_name
+    statistic = game_history.get_statistic_for_user(user_name)
+    statistic = "statistic for {}\nwin: {}\ndraw: {}\ndefeat: {}\n".format(
+                 user_name, *statistic)
+    await send_msg(writer, command_num, statistic)
+
+
 async def play(user_name, me, writer, command_num):
     if not isOnline(me):
         await send_msg(writer, command_num, "you dont register\n")
@@ -174,8 +185,10 @@ async def chess_server(reader, writer):
                         await get_game_request(me, writer, command_num)
                     case ["play", user_name]:
                         await play(user_name, me, writer, command_num)
+                    case ["statistic"]:
+                        await get_statistic(me, writer, command_num)
                     case ["statistic", user_name]:
-                        pass
+                        await get_statistic(me, writer, command_num, user_name)
                     case ["chat"]:
                         pass
                     case ["move", move]:
