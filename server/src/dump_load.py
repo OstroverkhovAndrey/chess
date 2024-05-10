@@ -29,7 +29,6 @@ def load_user_info() -> dict:
 
 
 def dump_game_history(game_history: GameHistory) -> None:
-    print(game_history.history)
     if not os.path.exists(dump_path):
         os.mkdir(dump_path)
     with open(dump_path + game_history_dump, "wb") as file:
@@ -43,5 +42,4 @@ def load_game_history() -> GameHistory:
         history = pickle.load(file)
     game_history = GameHistory()
     game_history.history = history
-    print(game_history.history)
     return game_history
