@@ -32,7 +32,7 @@ server_answer = {
     "you_get_move": "You get move",
     "opponent_get_move": "Opponent get move {}",
     #  for draw
-    "dont_login": "You dont login now",
+    "you_dont_login": "You dont login now",
     "you_dont_play_now": "You dont play now",
     "send_draw_request": "Send draw request",
     "opponent_send_you_draw_request": "Opponent send you draw request",
@@ -41,6 +41,9 @@ server_answer = {
     "you_refused_draw": "You refused a draw",
     "opponent_refused_draw": "Opponent refused a draw",
     "draw": "Draw",
+    #  for give up
+    "you_success_give_up": "You success give up",
+    "opponent_give_up": "Opponent give up",
 }
 
 
@@ -84,3 +87,6 @@ def mock_for_i18n():
     _("You refused a draw")
     _("Opponent refused a draw")
     _("Draw")
+    #  for give up
+    _("You success give up")
+    _("Opponent give up")

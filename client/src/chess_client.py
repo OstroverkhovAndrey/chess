@@ -305,18 +305,19 @@ class chess_client(cmd.Cmd):
         """dive up"""
         arg = shlex.split(arg)
         if self.game is None:
-            self.print_error_message("You dont play now!")
+            self.print_error_message(_("You dont play now"))
         elif len(arg) > 0:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         else:
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("give_up\n", num)
+            self.write_to_server("give_up", num)
             while self.request[num] is None:
                 pass
-            if self.request[num]:
-                print(self.request[num])
-            print("you give ok!")
+            if self.request[num] == "you_success_give_up":
+                self.game = None
+                self.draw_request = False
+            print(_(server_answer[self.request[num]]))
 
     def do_exit(self, arg):
         """Exit program"""
@@ -375,7 +376,9 @@ class chess_client(cmd.Cmd):
                         print(f"\n{msg}\n{board}\n{self.prompt}" +
                               f"{readline.get_line_buffer()}",
                               end="", flush=True)
-                elif "opponent give up" in data:
+                elif "opponent_give_up" in data:
+                    self.game = None
+                    self.draw_request = False
                     print(f"\n{data}\nyou win!\n{self.prompt}" +
                           f"{readline.get_line_buffer()}",
                           end="", flush=True)

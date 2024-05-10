@@ -160,7 +160,8 @@ async def play(user_name, me, writer, command_num):
         print("start game, player1 {} {}, player2 {} {}".format(clients[me]
               .user_name, color_player1, user_name, color_player2))
         await send_msg(writer, command_num, "start_game " + str(color_player1))
-        await clients[users[user_name].IP].queue.put("start_game " + str(color_player2))
+        await clients[users[user_name].IP].queue.put("start_game " +
+                                                     str(color_player2))
         games.add_game(clients[me].user_name, user_name)
     else:
         game_request[clients[me].user_name] = user_name
@@ -181,7 +182,8 @@ async def move_command(me, writer, move, command_num):
         print("Error with draw request!")
     if not games[clients[me].user_name].get_draw_request() is None:
         games[clients[me].user_name].remove_draw_request()
-        await clients[users[opponent].IP].queue.put("move_opponent_refused_draw")
+        await clients[users[opponent].IP].queue.put(
+            "move_opponent_refused_draw")
 
     games[clients[me].user_name].move(clients[me].user_name, move)
     await send_msg(writer, command_num, "you_get_move")
@@ -202,7 +204,7 @@ async def move_command(me, writer, move, command_num):
 
 async def draw(me, writer, command_num, msg):
     if clients[me].user_name == "":
-        await send_msg(writer, command_num, "dont_login")
+        await send_msg(writer, command_num, "you_dont_login")
         return
     if not users[clients[me].user_name].isPlay:
         await send_msg(writer, command_num, "you_dont_play_now")
@@ -246,16 +248,16 @@ async def draw(me, writer, command_num, msg):
 
 async def give_up(me, writer, command_num):
     if clients[me].user_name == "":
-        await send_msg(writer, command_num, "you dont login now\n")
+        await send_msg(writer, command_num, "you_dont_login")
         return
     if not users[clients[me].user_name].isPlay:
-        await send_msg(writer, command_num, "you dont play now\n")
+        await send_msg(writer, command_num, "you_dont_play_now")
         return
     print("end game give_up")
     game = games[clients[me].user_name]
     opponent = game.get_opponent(clients[me].user_name)
-    await send_msg(writer, command_num, "yoe success give up\n")
-    await clients[users[opponent].IP].queue.put("opponent give up\n")
+    await send_msg(writer, command_num, "you_success_give_up")
+    await clients[users[opponent].IP].queue.put("opponent_give_up")
     game.move(clients[me].user_name, "give_up")
     users[clients[me].user_name].isPlay = False
     users[opponent].isPlay = False
