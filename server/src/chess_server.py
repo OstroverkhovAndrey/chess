@@ -5,6 +5,8 @@ from clients_info import ClientsInfo
 from games import GamesDict
 from game_history import GameHistory
 import random
+from dump_load import dump_user_info, load_user_info
+from dump_load import dump_game_history, load_game_history
 
 
 clients = {}  # ip to clients_info
@@ -40,8 +42,8 @@ def get_msg_num(msg):
 
 async def registre(user_name, writer, command_num):
     if user_name not in users:
-        users[user_name] = UserInfo()
-        users[user_name].user_name = user_name
+        users[user_name] = UserInfo(user_name)
+        dump_user_info(users)
         await send_msg(writer, command_num, "success registre\n")
     else:
         await send_msg(writer, command_num, "not success registre, " +
@@ -200,9 +202,10 @@ async def move_command(me, writer, move, command_num):
         games.stop_game(clients[me].user_name, opponent)
         game_result = "draw"
         if move.endswith("win"):
-            game_result = users[clients[me].user_name]
+            game_result = clients[me].user_name
         game_history.add_game(clients[me].user_name, opponent,
                               game_result, game_story)
+        dump_game_history(game_history)
 
 
 async def draw(me, writer, command_num, msg):
@@ -246,6 +249,7 @@ async def draw(me, writer, command_num, msg):
             game_result = "draw"
             game_history.add_game(clients[me].user_name, opponent,
                                   game_result, game_story)
+            dump_game_history(game_history)
 
 
 async def give_up(me, writer, command_num):
@@ -268,6 +272,7 @@ async def give_up(me, writer, command_num):
     game_result = opponent
     game_history.add_game(clients[me].user_name, opponent,
                           game_result, game_story)
+    dump_game_history(game_history)
 
 
 async def chess_server(reader, writer):
@@ -338,4 +343,6 @@ async def main():
 
 
 if __name__ == "__main__":
+    users = load_user_info()
+    game_history = load_game_history()
     asyncio.run(main())
