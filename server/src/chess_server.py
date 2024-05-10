@@ -177,7 +177,7 @@ async def play(user_name, me, writer, command_num):
 
 
 async def move_command(me, writer, move, command_num):
-    if not clients[me].user_name == "":
+    if clients[me].user_name == "":
         await send_msg(writer, command_num, "you dont login now\n")
         return
     if not users[clients[me].user_name].isPlay:
@@ -209,7 +209,7 @@ async def move_command(me, writer, move, command_num):
 
 
 async def draw(me, writer, command_num, msg):
-    if not clients[me].user_name == "":
+    if clients[me].user_name == "":
         await send_msg(writer, command_num, "you dont login now\n")
         return
     if not users[clients[me].user_name].isPlay:
@@ -253,7 +253,7 @@ async def draw(me, writer, command_num, msg):
 
 
 async def give_up(me, writer, command_num):
-    if not clients[me].user_name == "":
+    if clients[me].user_name == "":
         await send_msg(writer, command_num, "you dont login now\n")
         return
     if not users[clients[me].user_name].isPlay:
