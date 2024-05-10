@@ -15,6 +15,16 @@ server_answer = {
     "logout_not": "Not success logout, you dont login",
     "opponent_give_up": "Opponent give up",
     "success_logout_give_up": "You success give up",
+    #  for play
+    "you_dont_register": "You dont registre",
+    "opponent_dont_registre": "Opponent dont registre",
+    "opponent_dont_online": "Opponent dont online",
+    "cant_play_with_yourself": "Cant play with yourself",
+    "now_opponent_play": "Now opponent play",
+    "now_you_play": "Now you play",
+    "start_game": "Start game, color: {}",
+    "send_game_request": "Send game request",
+    "send_you_game_request": "{} send you game request",
 }
 
 

@@ -174,26 +174,27 @@ class chess_client(cmd.Cmd):
         """play request with another user"""
         arg = shlex.split(arg)
         if len(arg) > 1:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         elif len(arg) < 1:
-            self.print_error_message("Not enough arguments!")
+            self.print_error_message(_("Not enough arguments"))
         elif not arg[0].isalnum():
-            self.print_error_message("Incorrect name!")
+            self.print_error_message(_("Incorrect name"))
         else:
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("play " + arg[0] + "\n", num)
+            self.write_to_server("play " + arg[0], num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
-                print(self.request[num])
-
-            if "start game" in self.request[num]:
-                color = int(self.request[num][-1])
-                color = "w" if not color else "b"
-                self.game = Game(color)
-                print(color)
-                print(self.game.get_board())
+                if "start_game" in self.request[num]:
+                    color = int(self.request[num].split()[-1][0])
+                    msg = self.request[num].split()[0]
+                    color = "w" if not color else "b"
+                    self.game = Game(color)
+                    print(_(server_answer[msg]).format(color))
+                    print(self.game.get_board())
+                else:
+                    print(_(server_answer[self.request[num]]))
 
     def complete_play(self, text, line, begidx, endidx):
         """complete play command"""
@@ -337,12 +338,14 @@ class chess_client(cmd.Cmd):
             elif data_num in self.request and self.request[data_num] is None:
                 self.request[data_num] = data
             else:
-                if "start game" in data:
-                    color = int(data[-1])
+                if "start_game" in data:
+                    color = int(data.split()[-1][0])
+                    msg = data.split()[0]
                     color = "w" if not color else "b"
+                    msg = _(server_answer[msg]).format(color)
                     self.game = Game(color)
                     board = self.game.get_board()
-                    print(f"\n{data}\n{color}\n{board}\n{self.prompt}" +
+                    print(f"\n{msg}\n{board}\n{self.prompt}" +
                           f"{readline.get_line_buffer()}", end="", flush=True)
                 elif "opponent get move" in data:
                     move = data.split()[-1]
@@ -368,6 +371,13 @@ class chess_client(cmd.Cmd):
                     print(f"\n{data}\nyou win!\n{self.prompt}" +
                           f"{readline.get_line_buffer()}",
                           end="", flush=True)
+                elif "send_you_game_request" in data:
+                    opponent_name = data.split()[-1]
+                    msg = data.split()[0]
+                    msg = _(server_answer[msg]).format(opponent_name)
+                    print(f"\n{msg}\n{self.prompt}" +
+                          f"{readline.get_line_buffer()}", end="", flush=True)
+
                 else:
                     if "opponent refused a draw\n" in data:
                         self.draw_request = False

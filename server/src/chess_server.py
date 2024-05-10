@@ -139,17 +139,17 @@ async def get_statistic(me, writer, command_num, user_name=""):
 
 async def play(user_name, me, writer, command_num):
     if not isOnline(me):
-        await send_msg(writer, command_num, "you dont register\n")
+        await send_msg(writer, command_num, "you_dont_register")
     elif user_name not in users:
-        await send_msg(writer, command_num, "user dont registre\n")
+        await send_msg(writer, command_num, "opponent_dont_registre")
     elif not users[user_name].isOnline:
-        await send_msg(writer, command_num, "user dont online\n")
+        await send_msg(writer, command_num, "opponent_dont_online")
     elif clients[me].user_name == user_name:
-        await send_msg(writer, command_num, "cant play with yourself\n")
+        await send_msg(writer, command_num, "cant_play_with_yourself")
     elif users[user_name].isPlay:
-        await send_msg(writer, command_num, "now user play\n")
+        await send_msg(writer, command_num, "now_opponent_play")
     elif users[clients[me].user_name].isPlay:
-        await send_msg(writer, command_num, "now you play\n")
+        await send_msg(writer, command_num, "now_you_play")
     elif user_name in game_request and game_request[user_name] ==\
             clients[me].user_name:
         del game_request[user_name]
@@ -159,19 +159,14 @@ async def play(user_name, me, writer, command_num):
         color_player2 = 1 - color_player1
         print("start game, player1 {} {}, player2 {} {}".format(clients[me]
               .user_name, color_player1, user_name, color_player2))
-        await send_msg(writer, command_num, "start game {}\n"
-                       .format(color_player1))
-        await clients[users[user_name].IP].queue.put("start game {}"
-                                                     .format(color_player2))
-        # users[clients[me].user_name].isPlay = True
-        # users[user_name].isPlay = True
-        # start game
+        await send_msg(writer, command_num, "start_game " + str(color_player1))
+        await clients[users[user_name].IP].queue.put("start_game " + str(color_player2))
         games.add_game(clients[me].user_name, user_name)
     else:
         game_request[clients[me].user_name] = user_name
-        await send_msg(writer, command_num, "send game request\n")
+        await send_msg(writer, command_num, "send_game_request")
         await clients[users[user_name].IP].queue.put(
-            "{} send you game request\n".format(clients[me].user_name))
+            "send_you_game_request " + clients[me].user_name)
 
 
 async def move_command(me, writer, move, command_num):
