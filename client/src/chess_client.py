@@ -98,19 +98,19 @@ class chess_client(cmd.Cmd):
         """logout from chess server"""
         arg = shlex.split(arg)
         if len(arg) > 0:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         elif self.name == "":
-            self.print_error_message("You dont login!")
+            self.print_error_message(_("You dont login"))
         else:
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("logout\n", num)
+            self.write_to_server("logout", num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
-                if self.request[num] == "success logout":
+                if self.request[num] == "success_logout":
                     self.name = arg[0]
-                print(self.request[num])
+                print(_(server_answer[self.request[num]]))
 
     def do_get_users(self, arg):
         """get online users"""

@@ -72,8 +72,8 @@ async def logout(me, writer=None, command_num=None):
             game = games[clients[me].user_name]
             opponent = game.get_opponent(clients[me].user_name)
             if writer is not None and command_num is not None:
-                await send_msg(writer, command_num, "yoe success give up\n")
-            await clients[users[opponent].IP].queue.put("opponent give up\n")
+                await send_msg(writer, 0, "success_logout_give_up")
+            await clients[users[opponent].IP].queue.put("opponent_give_up")
             game.move(clients[me].user_name, "give_up")
             users[clients[me].user_name].isPlay = False
             users[opponent].isPlay = False
@@ -87,11 +87,10 @@ async def logout(me, writer=None, command_num=None):
         users[user_name].IP = ""
         clients[me].user_name = ""
         if writer is not None and command_num is not None:
-            await send_msg(writer, command_num, "success logout\n")
+            await send_msg(writer, command_num, "success_logout")
     else:
         if writer is not None and command_num is not None:
-            await send_msg(writer, command_num, "not success logout, \
-                    you dont login\n")
+            await send_msg(writer, command_num, "logout_not")
 
 
 async def get_offline_users(writer, command_num):
