@@ -21,6 +21,7 @@ class chess_client(cmd.Cmd):
         self.cn = 2
         self.request = {}
         self.complition = {}
+        self.name = ""
         self.game = None
         self.draw_request = False
 
@@ -42,6 +43,8 @@ class chess_client(cmd.Cmd):
             self.print_error_message("More arguments!")
         elif len(arg) < 1:
             self.print_error_message("Not enough arguments!")
+        elif not arg[0].isalnum():
+            self.print_error_message("Incorrect name!")
         else:
             num = self.request_num()
             self.request[num] = None
@@ -58,6 +61,10 @@ class chess_client(cmd.Cmd):
             self.print_error_message("More arguments!")
         elif len(arg) < 1:
             self.print_error_message("Not enough arguments!")
+        elif not arg[0].isalnum():
+            self.print_error_message("Incorrect name!")
+        elif self.name != "":
+            self.print_error_message("You already login!")
         else:
             num = self.request_num()
             self.request[num] = None
@@ -65,6 +72,8 @@ class chess_client(cmd.Cmd):
             while self.request[num] is None:
                 pass
             if self.request[num]:
+                if self.request[num] == "success login":
+                    self.name = arg[0]
                 print(self.request[num])
 
     def complete_login(self, text, line, begidx, endidx):
@@ -88,6 +97,8 @@ class chess_client(cmd.Cmd):
         arg = shlex.split(arg)
         if len(arg) > 0:
             self.print_error_message("More arguments!")
+        elif self.name == "":
+            self.print_error_message("You dont login!")
         else:
             num = self.request_num()
             self.request[num] = None
@@ -95,6 +106,8 @@ class chess_client(cmd.Cmd):
             while self.request[num] is None:
                 pass
             if self.request[num]:
+                if self.request[num] == "success logout":
+                    self.name = arg[0]
                 print(self.request[num])
 
     def do_get_users(self, arg):
@@ -145,7 +158,7 @@ class chess_client(cmd.Cmd):
             self.print_error_message("More arguments!")
         else:
             user = ""
-            if len(arg) == 1:
+            if len(arg) == 1 and arg[0].isalnum():
                 user = arg[0]
             num = self.request_num()
             self.request[num] = None
@@ -162,6 +175,8 @@ class chess_client(cmd.Cmd):
             self.print_error_message("More arguments!")
         elif len(arg) < 1:
             self.print_error_message("Not enough arguments!")
+        elif not arg[0].isalnum():
+            self.print_error_message("Incorrect name!")
         else:
             num = self.request_num()
             self.request[num] = None
@@ -192,7 +207,7 @@ class chess_client(cmd.Cmd):
         match len(words):
             case 2:
                 complition = self.complition[num].split()
-        return [c for c in complition if c.startswith(text)]
+        return [c for c in complition if c.startswith(text) and c != self.name]
 
     def do_move(self, arg):
         """move command"""
@@ -207,6 +222,8 @@ class chess_client(cmd.Cmd):
             self.print_error_message("Not enough arguments!")
         elif self.draw_request:
             self.print_error_message("you send draw request!")
+        elif len(arg[0]) != 4:
+            self.print_error_message("incorrect move!")
         else:
             move = [arg[0][0:2], arg[0][2:4]]
 
@@ -249,7 +266,9 @@ class chess_client(cmd.Cmd):
     def do_draw(self, arg):
         """draw"""
         arg = shlex.split(arg)
-        if len(arg) > 1:
+        if self.game is None:
+            self.print_error_message("You dont play now!")
+        elif len(arg) > 1:
             self.print_error_message("More arguments!")
         elif len(arg) < 1:
             self.print_error_message("Not enough arguments!")
@@ -266,10 +285,21 @@ class chess_client(cmd.Cmd):
                     self.draw_request = True
                 print(self.request[num])
 
+    def complete_draw(self, text, line, begidx, endidx):
+        """print all passible move"""
+        words = (line[:endidx] + ".").split()
+        complition = []
+        match len(words):
+            case 2:
+                complition = ['ok', 'not']
+        return [c for c in complition if c.startswith(text)]
+
     def do_give_up(self, arg):
         """dive up"""
         arg = shlex.split(arg)
-        if len(arg) > 0:
+        if self.game is None:
+            self.print_error_message("You dont play now!")
+        elif len(arg) > 0:
             self.print_error_message("More arguments!")
         else:
             num = self.request_num()

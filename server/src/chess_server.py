@@ -44,8 +44,8 @@ async def registre(user_name, writer, command_num):
         users[user_name].user_name = user_name
         await send_msg(writer, command_num, "success registre\n")
     else:
-        await send_msg(writer, command_num, "not success registre, \
-                such a user is already registered\n")
+        await send_msg(writer, command_num, "not success registre, " +
+                       "such a user is already registered\n")
 
 
 async def login(user_name, me, writer, command_num):
@@ -65,6 +65,22 @@ async def login(user_name, me, writer, command_num):
 async def logout(me, writer=None, command_num=None):
     if isOnline(me):
         user_name = clients[me].user_name
+        if users[user_name].isOnline and users[user_name].isPlay:
+            # you lose
+            print("end game logout")
+            game = games[clients[me].user_name]
+            opponent = game.get_opponent(clients[me].user_name)
+            if writer is not None and command_num is not None:
+                await send_msg(writer, command_num, "yoe success give up\n")
+            await clients[users[opponent].IP].queue.put("opponent give up\n")
+            game.move(clients[me].user_name, "give_up")
+            users[clients[me].user_name].isPlay = False
+            users[opponent].isPlay = False
+            game_story = game.get_game_story()
+            games.stop_game(clients[me].user_name, opponent)
+            game_result = opponent
+            game_history.add_game(clients[me].user_name, opponent,
+                                  game_result, game_story)
         users[user_name].isOnline = False
         users[user_name].isPlay = False
         users[user_name].IP = ""
@@ -106,7 +122,9 @@ async def remove_game_request(me, writer, command_num):
     user_name = clients[me].user_name
     if user_name in game_request:
         del game_request[user_name]
-    ans = "success remove\n"
+        ans = "success remove\n"
+    else:
+        ans = "not found you game request\n"
     await send_msg(writer, command_num, ans)
 
 
@@ -130,6 +148,8 @@ async def play(user_name, me, writer, command_num):
         await send_msg(writer, command_num, "cant play with yourself\n")
     elif users[user_name].isPlay:
         await send_msg(writer, command_num, "now user play\n")
+    elif users[clients[me].user_name].isPlay:
+        await send_msg(writer, command_num, "now you play\n")
     elif user_name in game_request and game_request[user_name] ==\
             clients[me].user_name:
         del game_request[user_name]
@@ -155,6 +175,9 @@ async def play(user_name, me, writer, command_num):
 
 
 async def move_command(me, writer, move, command_num):
+    if not clients[me].user_name == "":
+        await send_msg(writer, command_num, "you dont login now\n")
+        return
     if not users[clients[me].user_name].isPlay:
         await send_msg(writer, command_num, "you dont play now\n")
         return
@@ -183,6 +206,9 @@ async def move_command(me, writer, move, command_num):
 
 
 async def draw(me, writer, command_num, msg):
+    if not clients[me].user_name == "":
+        await send_msg(writer, command_num, "you dont login now\n")
+        return
     if not users[clients[me].user_name].isPlay:
         await send_msg(writer, command_num, "you dont play now\n")
         return
@@ -223,7 +249,13 @@ async def draw(me, writer, command_num, msg):
 
 
 async def give_up(me, writer, command_num):
-    print("end game draw")
+    if not clients[me].user_name == "":
+        await send_msg(writer, command_num, "you dont login now\n")
+        return
+    if not users[clients[me].user_name].isPlay:
+        await send_msg(writer, command_num, "you dont play now\n")
+        return
+    print("end game give_up")
     game = games[clients[me].user_name]
     opponent = game.get_opponent(clients[me].user_name)
     await send_msg(writer, command_num, "yoe success give up\n")
