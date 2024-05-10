@@ -5,6 +5,8 @@ import readline
 import socket
 import shlex
 from chess_game import Game
+from localization import _
+from server_answer import server_answer
 
 
 class chess_client(cmd.Cmd):
@@ -40,19 +42,19 @@ class chess_client(cmd.Cmd):
         """registre form chess server"""
         arg = shlex.split(arg)
         if len(arg) > 1:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         elif len(arg) < 1:
-            self.print_error_message("Not enough arguments!")
+            self.print_error_message(_("Not enough arguments"))
         elif not arg[0].isalnum():
-            self.print_error_message("Incorrect name!")
+            self.print_error_message(_("Incorrect name"))
         else:
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("registre " + arg[0] + "\n", num)
+            self.write_to_server("registre " + arg[0], num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
-                print(self.request[num])
+                print(_(server_answer[self.request[num]]))
 
     def do_login(self, arg):
         """login from chess server"""
@@ -320,7 +322,7 @@ class chess_client(cmd.Cmd):
         return 1
 
     def write_to_server(self, data, request_num):
-        self.socket.send((str(request_num) + ": " + data).encode())
+        self.socket.send((str(request_num) + ": " + data + "\n").encode())
 
     def read_from_server(self):
         t = threading.current_thread()

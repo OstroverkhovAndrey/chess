@@ -44,10 +44,9 @@ async def registre(user_name, writer, command_num):
     if user_name not in users:
         users[user_name] = UserInfo(user_name)
         dump_user_info(users)
-        await send_msg(writer, command_num, "success registre\n")
+        await send_msg(writer, command_num, "registre_ok")
     else:
-        await send_msg(writer, command_num, "not success registre, " +
-                       "such a user is already registered\n")
+        await send_msg(writer, command_num, "registre_not")
 
 
 async def login(user_name, me, writer, command_num):
