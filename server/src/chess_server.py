@@ -51,16 +51,16 @@ async def registre(user_name, writer, command_num):
 
 async def login(user_name, me, writer, command_num):
     if isOnline(me):
-        await send_msg(writer, command_num, "you already login\n")
+        await send_msg(writer, command_num, "already_login")
     elif user_name not in users:
-        await send_msg(writer, command_num, "this user_name dont registre\n")
+        await send_msg(writer, command_num, "login_dont_registre")
     elif users[user_name].isOnline:
-        await send_msg(writer, command_num, "this user_name already online\n")
+        await send_msg(writer, command_num, "login_already_online")
     else:
         clients[me].user_name = user_name
         users[user_name].isOnline = True
         users[user_name].IP = me
-        await send_msg(writer, command_num, "success login\n")
+        await send_msg(writer, command_num, "success_login")
 
 
 async def logout(me, writer=None, command_num=None):

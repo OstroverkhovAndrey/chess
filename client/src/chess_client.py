@@ -60,23 +60,23 @@ class chess_client(cmd.Cmd):
         """login from chess server"""
         arg = shlex.split(arg)
         if len(arg) > 1:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         elif len(arg) < 1:
-            self.print_error_message("Not enough arguments!")
+            self.print_error_message(_("Not enough arguments"))
         elif not arg[0].isalnum():
-            self.print_error_message("Incorrect name!")
+            self.print_error_message(_("Incorrect name"))
         elif self.name != "":
-            self.print_error_message("You already login!")
+            self.print_error_message(_("You already login"))
         else:
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("login " + arg[0] + "\n", num)
+            self.write_to_server("login " + arg[0], num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
-                if self.request[num] == "success login":
+                if self.request[num] == "success_login":
                     self.name = arg[0]
-                print(self.request[num])
+                print(_(server_answer[self.request[num]]))
 
     def complete_login(self, text, line, begidx, endidx):
         """complete login command"""
