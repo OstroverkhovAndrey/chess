@@ -171,22 +171,21 @@ async def play(user_name, me, writer, command_num):
 
 async def move_command(me, writer, move, command_num):
     if clients[me].user_name == "":
-        await send_msg(writer, command_num, "you dont login now\n")
+        await send_msg(writer, command_num, "move_not_dont_login")
         return
     if not users[clients[me].user_name].isPlay:
-        await send_msg(writer, command_num, "you dont play now\n")
+        await send_msg(writer, command_num, "move_not_you_dont_play_now")
         return
     opponent = games[clients[me].user_name].get_opponent(clients[me].user_name)
     if games[clients[me].user_name].get_draw_request() == clients[me].user_name:
         print("Error with draw request!")
     if not games[clients[me].user_name].get_draw_request() is None:
         games[clients[me].user_name].remove_draw_request()
-        await clients[users[opponent].IP].queue.put("opponent refused a draw\n")
+        await clients[users[opponent].IP].queue.put("move_opponent_refused_draw")
 
     games[clients[me].user_name].move(clients[me].user_name, move)
-    await send_msg(writer, command_num, "you get move\n")
-    await clients[users[opponent].IP].queue.put(
-        "opponent get move {}".format(move))
+    await send_msg(writer, command_num, "you_get_move")
+    await clients[users[opponent].IP].queue.put("opponent_get_move " + move)
     if move.endswith("win") or move.endswith("draw"):
         print("end game ", move.split(":")[1])
         users[clients[me].user_name].isPlay = False

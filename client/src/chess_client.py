@@ -216,22 +216,23 @@ class chess_client(cmd.Cmd):
         """move command"""
         arg = shlex.split(arg)
         if self.game is None:
-            self.print_error_message("You dont play now!")
+            self.print_error_message(_("You dont play now"))
         elif not self.game.isMyMove():
-            self.print_error_message("Now not you move!")
+            self.print_error_message(_("Now not you move"))
         elif len(arg) > 1:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         elif len(arg) < 1:
-            self.print_error_message("Not enough arguments!")
+            self.print_error_message(_("Not enough arguments"))
         elif self.draw_request:
-            self.print_error_message("you send draw request!")
+            self.print_error_message(_("You send draw request"))
         elif len(arg[0]) != 4:
-            self.print_error_message("incorrect move!")
+            self.print_error_message(_("Incorrect move"))
         else:
             move = [arg[0][0:2], arg[0][2:4]]
 
             if not self.game.isPossibleMove(move[0], move[1]):
-                self.print_error_message("It is impossiple move!")
+                self.print_error_message(_("It is impossiple move"))
+                return
 
             msg = "ok"
             if self.game.isWinMove(move[0], move[1]):
@@ -244,15 +245,15 @@ class chess_client(cmd.Cmd):
 
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("move " + arg[0] + ":" + msg + "\n", num)
+            self.write_to_server("move " + arg[0] + ":" + msg, num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
-                print(self.request[num])
+                print(_(server_answer[self.request[num]]))
             if msg == "win":
-                print("stop game, you win!")
+                print(_("Stop game, you win!"))
             if msg == "draw":
-                print("stop game, draw")
+                print(_("Stop game, draw"))
 
     def complete_move(self, text, line, begidx, endidx):
         """print all passible move"""
@@ -347,24 +348,28 @@ class chess_client(cmd.Cmd):
                     board = self.game.get_board()
                     print(f"\n{msg}\n{board}\n{self.prompt}" +
                           f"{readline.get_line_buffer()}", end="", flush=True)
-                elif "opponent get move" in data:
-                    move = data.split()[-1]
-                    move, msg = move.split(":")
+                elif "opponent_get_move" in data:
+                    msg, move = data.split()
+                    move, result = move.split(":")
+                    msg = _(server_answer[msg]).format(move)
                     move = [move[0:2], move[2:4]]
                     self.game.move_from_server(move[0], move[1])
                     board = self.game.get_board()
-                    if msg == "win":
-                        msg = "stop game, you lose =("
-                    elif msg == "draw":
-                        msg = "stop game, draw"
+                    if result == "win" or result == "draw":
+                        self.game = None
+                        self.draw_request = False
+                    if result == "win":
+                        result = _("Stop game, you lose =(")
+                    elif result == "draw":
+                        result = _("Stop game, draw")
                     else:
-                        msg = ""
-                    if msg != "":
-                        print(f"\n{data}\n{board}\n{msg}\n{self.prompt}" +
+                        result = ""
+                    if result != "":
+                        print(f"\n{msg}\n{board}\n{result}\n{self.prompt}" +
                               f"{readline.get_line_buffer()}",
                               end="", flush=True)
                     else:
-                        print(f"\n{data}\n{board}\n{self.prompt}" +
+                        print(f"\n{msg}\n{board}\n{self.prompt}" +
                               f"{readline.get_line_buffer()}",
                               end="", flush=True)
                 elif "opponent give up" in data:

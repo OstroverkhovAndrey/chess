@@ -25,6 +25,12 @@ server_answer = {
     "start_game": "Start game, color: {}",
     "send_game_request": "Send game request",
     "send_you_game_request": "{} send you game request",
+    # for move
+    "move_not_dont_login": "You dont login now",
+    "move_not_you_dont_play_now": "You dont play now",
+    "move_opponent_refused_draw": "Opponent refused a draw",
+    "you_get_move": "You get move",
+    "opponent_get_move": "Opponent get move {}",
 }
 
 
@@ -42,3 +48,19 @@ def mock_for_i18n():
     _("Not success logout, you dont login")
     _("Opponent give up")
     _("You success give up")
+    #  for play
+    _("You dont registre")
+    _("Opponent dont registre")
+    _("Opponent dont online")
+    _("Cant play with yourself")
+    _("Now opponent play")
+    _("Now you play")
+    _("Start game, color: {}")
+    _("Send game request")
+    _("{} send you game request")
+    # for move
+    _("You dont login now")
+    _("You dont play now")
+    _("Opponent refused a draw")
+    _("You get move")
+    _("Opponent get move {}")
