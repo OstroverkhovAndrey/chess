@@ -31,6 +31,16 @@ server_answer = {
     "move_opponent_refused_draw": "Opponent refused a draw",
     "you_get_move": "You get move",
     "opponent_get_move": "Opponent get move {}",
+    #  for draw
+    "dont_login": "You dont login now",
+    "you_dont_play_now": "You dont play now",
+    "send_draw_request": "Send draw request",
+    "opponent_send_you_draw_request": "Opponent send you draw request",
+    "opponent_dont_send_draw_request": "Opponent dont send draw request",
+    "you_cant_delete_draw_request": "You cant delete draw request",
+    "you_refused_draw": "You refused a draw",
+    "opponent_refused_draw": "Opponent refused a draw",
+    "draw": "Draw",
 }
 
 
@@ -64,3 +74,13 @@ def mock_for_i18n():
     _("Opponent refused a draw")
     _("You get move")
     _("Opponent get move {}")
+    #  for draw
+    _("You dont login now")
+    _("You dont play now")
+    _("Send draw request")
+    _("Opponent send you draw request")
+    _("Opponent dont send draw request")
+    _("You cant delete draw request")
+    _("You refused a draw")
+    _("Opponent refused a draw")
+    _("Draw")

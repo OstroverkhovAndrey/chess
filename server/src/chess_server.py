@@ -202,37 +202,37 @@ async def move_command(me, writer, move, command_num):
 
 async def draw(me, writer, command_num, msg):
     if clients[me].user_name == "":
-        await send_msg(writer, command_num, "you dont login now\n")
+        await send_msg(writer, command_num, "dont_login")
         return
     if not users[clients[me].user_name].isPlay:
-        await send_msg(writer, command_num, "you dont play now\n")
+        await send_msg(writer, command_num, "you_dont_play_now")
         return
     game = games[clients[me].user_name]
     opponent = game.get_opponent(clients[me].user_name)
     if game.get_draw_request() is None:
         if msg == "ok":
             game.set_draw_request(clients[me].user_name)
-            await send_msg(writer, command_num, "send draw request\n")
+            await send_msg(writer, command_num, "send_draw_request")
             await clients[users[opponent].IP].queue.put(
-                "opponent send you draw request\n")
+                "opponent_send_you_draw_request")
         elif msg == "not":
             await send_msg(writer, command_num,
-                           "opponent dont send draw request\n")
+                           "opponent_dont_send_draw_request")
     else:
         if game.get_draw_request() == clients[me].user_name and msg == "ok":
-            await send_msg(writer, command_num, "send draw request\n")
+            await send_msg(writer, command_num, "send_draw_request")
         elif game.get_draw_request() == clients[me].user_name and msg == "not":
             await send_msg(writer, command_num,
-                           "you dont delete draw request\n")
+                           "you_cant_delete_draw_request")
         elif msg == "not":
-            await send_msg(writer, command_num, "you refused a draw\n")
+            await send_msg(writer, command_num, "you_refused_draw")
             await clients[users[opponent].IP].queue.put(
-                "opponent refused a draw\n")
+                "opponent_refused_draw")
             game.remove_draw_request()
         elif msg == "ok":
             print("end game draw")
-            await send_msg(writer, command_num, "draw\n")
-            await clients[users[opponent].IP].queue.put("draw\n")
+            await send_msg(writer, command_num, "draw")
+            await clients[users[opponent].IP].queue.put("draw")
             game.move(clients[me].user_name, "draw")
             users[clients[me].user_name].isPlay = False
             users[opponent].isPlay = False

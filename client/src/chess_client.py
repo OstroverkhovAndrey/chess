@@ -271,23 +271,26 @@ class chess_client(cmd.Cmd):
         """draw"""
         arg = shlex.split(arg)
         if self.game is None:
-            self.print_error_message("You dont play now!")
+            self.print_error_message(_("You dont play now"))
         elif len(arg) > 1:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         elif len(arg) < 1:
-            self.print_error_message("Not enough arguments!")
+            self.print_error_message(_("Not enough arguments"))
         elif not (arg[0] == "ok" or arg[0] == "not"):
-            self.print_error_message("Incorrect argument!")
+            self.print_error_message(_("Incorrect argument"))
         else:
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("draw " + arg[0] + "\n", num)
+            self.write_to_server("draw " + arg[0], num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
-                if self.request[num] == "send draw request\n":
+                if self.request[num] == "send_draw_request":
                     self.draw_request = True
-                print(self.request[num])
+                if self.request[num] == "draw":
+                    self.game = None
+                    self.draw_request = False
+                print(_(server_answer[self.request[num]]))
 
     def complete_draw(self, text, line, begidx, endidx):
         """print all passible move"""
@@ -382,10 +385,13 @@ class chess_client(cmd.Cmd):
                     msg = _(server_answer[msg]).format(opponent_name)
                     print(f"\n{msg}\n{self.prompt}" +
                           f"{readline.get_line_buffer()}", end="", flush=True)
-
                 else:
-                    if "opponent refused a draw\n" in data:
+                    if "opponent_refused_draw" in data:
                         self.draw_request = False
+                    if data == "draw":
+                        self.game = None
+                        self.draw_request = False
+                    data = _(server_answer[data])
                     print(f"\n{data}\n{self.prompt}" +
                           f"{readline.get_line_buffer()}", end="", flush=True)
 
