@@ -82,7 +82,7 @@ class chess_client(cmd.Cmd):
         """complete login command"""
         num = self.complition_num()
         self.complition[num] = None
-        self.write_to_server("offline_users\n", num)
+        self.write_to_server("offline_users", num)
 
         while self.complition[num] is None:
             pass
@@ -116,11 +116,11 @@ class chess_client(cmd.Cmd):
         """get online users"""
         arg = shlex.split(arg)
         if len(arg) > 0:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         else:
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("online_users\n", num)
+            self.write_to_server("online_users", num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
@@ -130,45 +130,48 @@ class chess_client(cmd.Cmd):
         """get game request from current player"""
         arg = shlex.split(arg)
         if len(arg) > 0:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         else:
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("game_request\n", num)
+            self.write_to_server("game_request", num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
-                print(self.request[num])
+                msg, from_me, for_me = self.request[num].split(".")
+                print(_(server_answer[msg]).format(from_me, for_me))
 
     def do_remove_game_request(self, arg):
         """remove game request which me sent"""
         if len(arg) > 0:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         else:
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("remove_game_request\n", num)
+            self.write_to_server("remove_game_request", num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
-                print(self.request[num])
+                print(_(server_answer[self.request[num]]))
 
     def do_get_statistic(self, arg):
         """get statistic for current player or other player"""
         arg = shlex.split(arg)
         if len(arg) > 1:
-            self.print_error_message("More arguments!")
+            self.print_error_message(_("More arguments"))
         else:
             user = ""
             if len(arg) == 1 and arg[0].isalnum():
                 user = arg[0]
             num = self.request_num()
             self.request[num] = None
-            self.write_to_server("statistic " + user + "\n", num)
+            self.write_to_server("statistic " + user, num)
             while self.request[num] is None:
                 pass
             if self.request[num]:
-                print(self.request[num])
+                msg, user_name, win, draw, defeat = self.request[num].split(".")
+                print(_(server_answer[msg]).format(
+                    user_name, win, draw, defeat))
 
     def do_play(self, arg):
         """play request with another user"""
@@ -200,7 +203,7 @@ class chess_client(cmd.Cmd):
         """complete play command"""
         num = self.complition_num()
         self.complition[num] = None
-        self.write_to_server("online_users\n", num)
+        self.write_to_server("online_users", num)
 
         while self.complition[num] is None:
             pass
@@ -379,7 +382,8 @@ class chess_client(cmd.Cmd):
                 elif "opponent_give_up" in data:
                     self.game = None
                     self.draw_request = False
-                    print(f"\n{data}\nyou win!\n{self.prompt}" +
+                    data = _(data)
+                    print(f"\n{data}\n{self.prompt}" +
                           f"{readline.get_line_buffer()}",
                           end="", flush=True)
                 elif "send_you_game_request" in data:

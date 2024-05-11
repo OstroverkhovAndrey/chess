@@ -13,7 +13,7 @@ server_answer = {
     #  for logout
     "success_logout": "Success logout",
     "logout_not": "Not success logout, you dont login",
-    "opponent_give_up": "Opponent give up",
+    "opponent_give_up_logout": "Opponent give up",
     "success_logout_give_up": "You success give up",
     #  for play
     "you_dont_login": "You dont login now",
@@ -40,7 +40,14 @@ server_answer = {
     "draw": "Draw",
     #  for give up
     "you_success_give_up": "You success give up",
-    "opponent_give_up": "Opponent give up",
+    "opponent_give_up": "Opponent give up\nYou win!",
+    #  for get game request
+    "game_request": "From me: {}\nFor me: {}",
+    #  for remove game request
+    "success_remove_game_request": "Success remove game request",
+    "not_found_you_game_request": "Not found you game request",
+    #  for statistic
+    "statistic": "Statistic for {}\nwin: {}\ndraw: {}\ndefeat: {}",
 }
 
 
@@ -83,4 +90,11 @@ def mock_for_i18n():
     _("Draw")
     #  for give up
     _("You success give up")
-    _("Opponent give up")
+    _("Opponent give up\nYou win!")
+    #  for get game request
+    _("From me: {}\nFor me: {}")
+    #  for remove game request
+    _("Success remove game request")
+    _("Not found you game request")
+    #  for statistic
+    _("Statistic for {}\nwin: {}\ndraw: {}\n defeat: {}")
