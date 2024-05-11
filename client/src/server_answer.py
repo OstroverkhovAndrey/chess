@@ -16,7 +16,7 @@ server_answer = {
     "opponent_give_up": "Opponent give up",
     "success_logout_give_up": "You success give up",
     #  for play
-    "you_dont_register": "You dont registre",
+    "you_dont_login": "You dont login now",
     "opponent_dont_registre": "Opponent dont registre",
     "opponent_dont_online": "Opponent dont online",
     "cant_play_with_yourself": "Cant play with yourself",
@@ -26,14 +26,11 @@ server_answer = {
     "send_game_request": "Send game request",
     "send_you_game_request": "{} send you game request",
     # for move
-    "move_not_dont_login": "You dont login now",
-    "move_not_you_dont_play_now": "You dont play now",
+    "you_dont_play_now": "You dont play now",
     "move_opponent_refused_draw": "Opponent refused a draw",
     "you_get_move": "You get move",
     "opponent_get_move": "Opponent get move {}",
     #  for draw
-    "you_dont_login": "You dont login now",
-    "you_dont_play_now": "You dont play now",
     "send_draw_request": "Send draw request",
     "opponent_send_you_draw_request": "Opponent send you draw request",
     "opponent_dont_send_draw_request": "Opponent dont send draw request",
@@ -62,7 +59,7 @@ def mock_for_i18n():
     _("Opponent give up")
     _("You success give up")
     #  for play
-    _("You dont registre")
+    _("You dont login now")
     _("Opponent dont registre")
     _("Opponent dont online")
     _("Cant play with yourself")
@@ -72,14 +69,11 @@ def mock_for_i18n():
     _("Send game request")
     _("{} send you game request")
     # for move
-    _("You dont login now")
     _("You dont play now")
     _("Opponent refused a draw")
     _("You get move")
     _("Opponent get move {}")
     #  for draw
-    _("You dont login now")
-    _("You dont play now")
     _("Send draw request")
     _("Opponent send you draw request")
     _("Opponent dont send draw request")

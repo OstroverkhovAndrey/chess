@@ -139,7 +139,7 @@ async def get_statistic(me, writer, command_num, user_name=""):
 
 async def play(user_name, me, writer, command_num):
     if not isOnline(me):
-        await send_msg(writer, command_num, "you_dont_register")
+        await send_msg(writer, command_num, "you_dont_login")
     elif user_name not in users:
         await send_msg(writer, command_num, "opponent_dont_registre")
     elif not users[user_name].isOnline:
@@ -172,10 +172,10 @@ async def play(user_name, me, writer, command_num):
 
 async def move_command(me, writer, move, command_num):
     if clients[me].user_name == "":
-        await send_msg(writer, command_num, "move_not_dont_login")
+        await send_msg(writer, command_num, "you_dont_login")
         return
     if not users[clients[me].user_name].isPlay:
-        await send_msg(writer, command_num, "move_not_you_dont_play_now")
+        await send_msg(writer, command_num, "you_dont_play_now")
         return
     opponent = games[clients[me].user_name].get_opponent(clients[me].user_name)
     if games[clients[me].user_name].get_draw_request() == clients[me].user_name:
