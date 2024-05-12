@@ -97,4 +97,4 @@ def mock_for_i18n():
     _("Success remove game request")
     _("Not found you game request")
     #  for statistic
-    _("Statistic for {}\nwin: {}\ndraw: {}\n defeat: {}")
+    _("Statistic for {}\nwin: {}\ndraw: {}\ndefeat: {}")

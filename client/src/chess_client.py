@@ -109,7 +109,9 @@ class chess_client(cmd.Cmd):
                 pass
             if self.request[num]:
                 if self.request[num] == "success_logout":
-                    self.name = arg[0]
+                    self.name = ""
+                    self.game = None
+                    self.draw_request = False
                 print(_(server_answer[self.request[num]]))
 
     def do_get_users(self, arg):
