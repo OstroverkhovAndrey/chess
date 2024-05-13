@@ -1,4 +1,6 @@
 
+"""A module that implements a chess server using asyncio server."""
+
 import asyncio
 from user_info import UserInfo
 from clients_info import ClientsInfo
@@ -21,17 +23,55 @@ command ids
 """
 
 
-def isOnline(me):
+def isOnline(me: str) -> bool:
+    """
+    Returns True if me client is onlain.
+
+    Parameters
+    ----------
+    me : str
+        IP
+
+    Returns
+    -------
+    bool
+        Is online flag for me IP
+    """
     return me in clients and clients[me].user_name != ""
 
 
-async def send_msg(writer, ids, msg):
+async def send_msg(writer: asyncio.streams.StreamWriter, ids: int, msg: str):
+    """
+    A coroutine for sending responses to a user's request.
+
+    Parameters
+    ----------
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    ids : int
+        Ids user's request
+    msg : str
+        Message for user
+    """
     msg = str(ids) + ":" + msg
     writer.write(msg.encode())
     await writer.drain()
 
 
-def get_msg_num(msg):
+def get_msg_num(msg: str) -> tuple:
+    """
+    Returns command_num and msg from raw msg.
+
+    Parameters
+    ----------
+    msg : str
+        message that start at the number
+
+    Returns
+    -------
+    tuple
+        tuple(command_num, msg)
+    """
     num = msg.strip().split(":")[0]
     if num.isnumeric():
         msg = msg[len(num)+1:].strip()
@@ -40,7 +80,20 @@ def get_msg_num(msg):
         return 0, msg
 
 
-async def registre(user_name, writer, command_num):
+async def registre(user_name: str, writer: asyncio.streams.StreamWriter,
+                   command_num: int):
+    """
+    A coroutine for registre new user.
+
+    Parameters
+    ----------
+    user_name : str
+        Name of new user
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    command_num : int
+        Ids user's request
+    """
     if user_name not in users:
         users[user_name] = UserInfo(user_name)
         dump_user_info(users)
@@ -49,7 +102,22 @@ async def registre(user_name, writer, command_num):
         await send_msg(writer, command_num, "registre_not")
 
 
-async def login(user_name, me, writer, command_num):
+async def login(user_name: str, me: str, writer: asyncio.streams.StreamWriter,
+                command_num: int):
+    """
+    A coroutine for login user in server.
+
+    Parameters
+    ----------
+    user_name : str
+        Name of new user
+    me : str
+        IP
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    command_num : int
+        Ids user's request
+    """
     if isOnline(me):
         await send_msg(writer, command_num, "already_login")
     elif user_name not in users:
@@ -63,7 +131,20 @@ async def login(user_name, me, writer, command_num):
         await send_msg(writer, command_num, "success_login")
 
 
-async def logout(me, writer=None, command_num=None):
+async def logout(me: str, writer: asyncio.streams.StreamWriter = None,
+                 command_num: int = None):
+    """
+    A coroutine for logout user in server.
+
+    Parameters
+    ----------
+    me : str
+        IP
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests (default is None)
+    command_num : int
+        Ids user's request (default is None)
+    """
     if isOnline(me):
         user_name = clients[me].user_name
         if users[user_name].isOnline and users[user_name].isPlay:
@@ -94,21 +175,56 @@ async def logout(me, writer=None, command_num=None):
             await send_msg(writer, command_num, "logout_not")
 
 
-async def get_offline_users(writer, command_num):
+async def get_offline_users(writer: asyncio.streams.StreamWriter,
+                            command_num: int):
+    """
+    A coroutine to get a list of all offline users.
+
+    Parameters
+    ----------
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    command_num : int
+        Ids user's request
+    """
     offline_users = [name for name, info in users.items()
                      if not info.isOnline]
     offline_users = " ".join(offline_users)
     await send_msg(writer, command_num, offline_users)
 
 
-async def get_online_users(writer, command_num):
+async def get_online_users(writer: asyncio.streams.StreamWriter,
+                           command_num: int):
+    """
+    A coroutine to get a list of all offline users.
+
+    Parameters
+    ----------
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    command_num : int
+        Ids user's request
+    """
     online_users = [user.user_name for _, user in clients.items()
                     if user.user_name != ""]
     online_users = " ".join(online_users)
     await send_msg(writer, command_num, online_users)
 
 
-async def get_game_request(me, writer, command_num):
+async def get_game_request(me: str, writer: asyncio.streams.StreamWriter,
+                           command_num: int):
+    """
+    A coroutine to get a list of game request for user.
+
+    Parameters
+    ----------
+    me : str
+        IP
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    command_num : int
+        Ids user's request
+    """
     game_request_from_me = [user2 for user1, user2 in game_request.items()
                             if user1 == clients[me].user_name]
     game_request_from_me = " ".join(game_request_from_me)
@@ -119,7 +235,20 @@ async def get_game_request(me, writer, command_num):
                    game_request_from_me + "." + game_request_for_me)
 
 
-async def remove_game_request(me, writer, command_num):
+async def remove_game_request(me: str, writer: asyncio.streams.StreamWriter,
+                              command_num: int):
+    """
+    A coroutine to remove game request if user send it.
+
+    Parameters
+    ----------
+    me : str
+        IP
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    command_num : int
+        Ids user's request
+    """
     user_name = clients[me].user_name
     if user_name in game_request:
         del game_request[user_name]
@@ -129,7 +258,22 @@ async def remove_game_request(me, writer, command_num):
     await send_msg(writer, command_num, ans)
 
 
-async def get_statistic(me, writer, command_num, user_name=""):
+async def get_statistic(me: str, writer: asyncio.streams.StreamWriter,
+                        command_num: int, user_name: str = ""):
+    """
+    A coroutine to get statistic for user_name.
+
+    Parameters
+    ----------
+    me : str
+        IP
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    command_num : int
+        Ids user's request
+    user_name : str
+        user for whom statistics are being requested
+    """
     if user_name == "":
         user_name = clients[me].user_name
     statistic = game_history.get_statistic_for_user(user_name)
@@ -138,7 +282,22 @@ async def get_statistic(me, writer, command_num, user_name=""):
     await send_msg(writer, command_num, statistic)
 
 
-async def play(user_name, me, writer, command_num):
+async def play(user_name: str, me: str, writer: asyncio.streams.StreamWriter,
+               command_num: int):
+    """
+    A coroutine for sending a game request or confirming it.
+
+    Parameters
+    ----------
+    user_name : str
+        name of future opponent
+    me : str
+        IP
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    command_num : int
+        Ids user's request
+    """
     if not isOnline(me):
         await send_msg(writer, command_num, "you_dont_login")
     elif user_name not in users:
@@ -171,7 +330,22 @@ async def play(user_name, me, writer, command_num):
             "send_you_game_request " + clients[me].user_name)
 
 
-async def move_command(me, writer, move, command_num):
+async def move_command(me: str, writer: asyncio.streams.StreamWriter,
+                       move: str, command_num: int):
+    """
+    A coroutine for get move in game.
+
+    Parameters
+    ----------
+    me : str
+        IP
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    move : str
+        new move from user
+    command_num : int
+        Ids user's request
+    """
     if clients[me].user_name == "":
         await send_msg(writer, command_num, "you_dont_login")
         return
@@ -203,7 +377,22 @@ async def move_command(me, writer, move, command_num):
         dump_game_history(game_history)
 
 
-async def draw(me, writer, command_num, msg):
+async def draw(me: str, writer: asyncio.streams.StreamWriter,
+               command_num: int, msg: str):
+    """
+    A coroutine to suggest, agreeing or rejecting a draw.
+
+    Parameters
+    ----------
+    me : str
+        IP
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    command_num : int
+        Ids user's request
+    msg : str
+        ok | not agree to a draw
+    """
     if clients[me].user_name == "":
         await send_msg(writer, command_num, "you_dont_login")
         return
@@ -247,7 +436,20 @@ async def draw(me, writer, command_num, msg):
             dump_game_history(game_history)
 
 
-async def give_up(me, writer, command_num):
+async def give_up(me: str, writer: asyncio.streams.StreamWriter,
+                  command_num: int):
+    """
+    A coroutine to give up.
+
+    Parameters
+    ----------
+    me : str
+        IP
+    writer : asyncio.streams.StreamWriter
+        For send responses to requests
+    command_num : int
+        Ids user's request
+    """
     if clients[me].user_name == "":
         await send_msg(writer, command_num, "you_dont_login")
         return
@@ -270,7 +472,20 @@ async def give_up(me, writer, command_num):
     dump_game_history(game_history)
 
 
-async def chess_server(reader, writer):
+async def chess_server(reader: asyncio.streams.StreamReader,
+                       writer: asyncio.streams.StreamWriter):
+    """
+    The main coroutine of the server.
+
+    Receives the request and calls the appropriate handler
+
+    Parameters
+    ----------
+    reader : asyncio.streams.StreamReader
+        For receive requests
+    writer: asyncio.streams.StreamWriter
+        For send responses to requests
+    """
     me = "{}:{}".format(*writer.get_extra_info('peername'))
     print(me)
     clients[me] = ClientsInfo()
@@ -332,6 +547,7 @@ async def chess_server(reader, writer):
 
 
 async def main():
+    """Coroutine that runs the chess server."""
     server = await asyncio.start_server(chess_server, '0.0.0.0', 1337)
     async with server:
         await server.serve_forever()

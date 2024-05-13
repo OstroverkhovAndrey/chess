@@ -120,17 +120,51 @@ class Game:
 
 
 class GamesDict:
+    """
+    Dictionary of games that returns a game by the name of one of the players.
+
+    Methods
+    -------
+    add_game(self, user1: str, user2: str) -> None
+        Add new game to the game_dict
+    stop_game(self, user1: str, user2: str) -> None
+        Remove game from the game_dict
+    __getitem__(self, user: str) -> Game
+        Return the game by name of one player
+    """
+
     def __init__(self):
+        """Init GameDict."""
         self.user1_to_user2 = {}
         self.user2_to_user1 = {}
         self.game_dict = {}
 
-    def add_game(self, user1, user2):
+    def add_game(self, user1: str, user2: str) -> None:
+        """
+        Add new game to the game_dict.
+
+        Parameters
+        ----------
+        user1 : str
+            User who play
+        user2 : str
+            User who play
+        """
         self.user1_to_user2[user1] = user2
         self.user2_to_user1[user2] = user1
         self.game_dict[user1+" "+user2] = Game(user1, user2)
 
-    def stop_game(self, user1, user2):
+    def stop_game(self, user1: str, user2: str) -> None:
+        """
+        Remove game from the game_dict.
+
+        Parameters
+        ----------
+        user1 : str
+            User who played
+        user2 : str
+            User who played
+        """
         if user1 in self.user1_to_user2:
             del self.user1_to_user2[user1]
         if user2 in self.user1_to_user2:
@@ -144,7 +178,20 @@ class GamesDict:
         if user2+" "+user1 in self.game_dict:
             del self.game_dict[user2+" "+user1]
 
-    def __getitem__(self, user):
+    def __getitem__(self, user: str) -> Game:
+        """
+        Return the game by name of one player.
+
+        Parameters
+        ----------
+        user : str
+            User who played
+
+        Returns
+        -------
+        Game
+            Game in which the player participates
+        """
         if user in self.user1_to_user2:
             user1, user2 = user, self.user1_to_user2[user]
         else:
