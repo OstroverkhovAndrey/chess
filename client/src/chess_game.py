@@ -211,7 +211,7 @@ class King(Figure):
             x = self.x + dx
             y = self.y + dy
             if (-1 < x < 8 and -1 < y < 8 and (board[x][y] == ' '
-               or board[x][y].isupper() != self.label.isupper())):
+               or board[x][y][-1] != self.label[-1])):
                 possible_moves.append(coordinates_to_human((x, y)))
 
         possible_moves += self.get_possible_roques(board)
@@ -296,7 +296,7 @@ class Queen(Figure):
 
         for dx, dy in ([1, 0], [0, -1], [-1, 0], [0, 1],
                        [1, 1], [1, -1], [-1, -1], [-1, 1]):
-            for length in range(1, 7):
+            for length in range(1, 8):
                 x = self.x + dx * length
                 y = self.y + dy * length
                 if not -1 < x < 8 or not -1 < y < 8:
@@ -304,7 +304,7 @@ class Queen(Figure):
                 elif board[x][y] == ' ':
                     possible_moves.append(
                             coordinates_to_human((x, y)))
-                elif board[x][y].isupper() != self.label.isupper():
+                elif board[x][y][-1] != self.label[-1]:
                     possible_moves.append(coordinates_to_human((x, y)))
                     break
                 else:
@@ -390,14 +390,14 @@ class Rook(Figure):
         possible_moves = []
 
         for dx, dy in [1, 0], [0, -1], [-1, 0], [0, 1]:
-            for length in range(1, 7):
+            for length in range(1, 8):
                 x = self.x + dx * length
                 y = self.y + dy * length
                 if not -1 < x < 8 or not -1 < y < 8:
                     break
                 elif board[x][y] == ' ':
                     possible_moves.append(coordinates_to_human((x, y)))
-                elif board[x][y].isupper() != self.label.isupper():
+                elif board[x][y][-1] != self.label[-1]:
                     possible_moves.append(coordinates_to_human((x, y)))
                     break
                 else:
@@ -486,8 +486,8 @@ class Knight(Figure):
             x = self.x + dx
             y = self.y + dy
             if (-1 < x < 8 and -1 < y < 8
-                    and (board[x][y] == ' ' or board[x][y].isupper()
-                         != self.label.isupper())):
+                    and (board[x][y] == ' ' or board[x][y][-1]
+                         != self.label[-1])):
                 possible_moves.append(coordinates_to_human((x, y)))
 
         return sorted(possible_moves)
@@ -569,14 +569,14 @@ class Bishop(Figure):
         possible_moves = []
 
         for dx, dy in [1, 1], [1, -1], [-1, -1], [-1, 1]:
-            for length in range(1, 7):
+            for length in range(1, 8):
                 x = self.x + dx * length
                 y = self.y + dy * length
                 if not -1 < x < 8 or not -1 < y < 8:
                     break
                 elif board[x][y] == ' ':
                     possible_moves.append(coordinates_to_human((x, y)))
-                elif board[x][y].isupper() != self.label.isupper():
+                elif board[x][y][-1] != self.label[-1]:
                     possible_moves.append(coordinates_to_human((x, y)))
                     break
                 else:
@@ -873,6 +873,12 @@ class Game():
         cancel move from (x1, y1) to (x2, y2)
     is_check_move(x1, x2, y1, y2, moving_figures, fixed_figures, eated_figure)
         check if move from (x1, y1) to (x2, y2) led to check
+    is_draw(moving_figures, fixed_figures)
+        check if it is draw situation
+    isDrawMove(coordinate_1, coordinate_2)
+        check if suggested move will lead to draw
+    isWinMove(coordinate_1, coordinate_2)
+        check if suddested move will lead to checkmate
     is_checkmate()
         check if any King is checkmated
     handle_roque(x1, y1, x2, y2, moving_figures)
@@ -972,6 +978,21 @@ class Game():
             print(BOARD_TEMPLATE_BLACK.format(*[self.board[7 - i][7 - j]
                   for j in range(7, -1, -1) for i in range(8)]))
 
+    def isMyMove(self):
+        """Returns True if it is the player's turn, False otherwise."""
+        if self.player == self.current_player:
+            return True
+        else:
+            return False
+
+    def isPossibleMove(self, coordinate_1, coordinate_2):
+        """Returns True if suggested move is possible, False otherwise."""
+        d = self.get_possible_moves()
+        if coordinate_1 in list(d.keys()) and coordinate_2 in d[coordinate_1]:
+            return True
+        else:
+            return False
+
     def cancel_move(self, x1, y1, x2, y2,
                     moving_figures, fixed_figures, eated_figure=None):
         """
@@ -1001,8 +1022,8 @@ class Game():
         if eated_figure is not None:
             fixed_figures.append(eated_figure)
 
-    def is_check_move(self, x1, x2, y1, y2,
-                      moving_figures, fixed_figures, eated_figure=None):
+    def is_check_move(self, x1, x2, y1, y2, moving_figures,
+                      fixed_figures, eated_figure=None, cancel=False):
         """
         Check if made move led to check and calls cancel_move method if player's King is checked or checkmated after move.
 
@@ -1020,9 +1041,10 @@ class Game():
             list of figures of player whose turn was it
         fixed_figures : list
             list of figures of the opposite player
-        eated_figure
+        eated_figure, optional
             Figure which was eated in this turn (None if any figure was eated)
-
+        cancel : bool, optional
+            True if forced cancel of move is neccessary, False otherwise (default is False)
         Returns
         -------
         str
@@ -1051,9 +1073,174 @@ class Game():
                 if x == king_x and y == king_y:
                     fixed_figures[0].is_under_attack = True
                     if self.is_checkmate():
+                        if cancel:
+                            self.cancel_move(x1, y1, x2, y2,
+                                             moving_figures,
+                                             fixed_figures, eated_figure)
                         return 'CHECKMATE!'
                     else:
+                        if cancel:
+                            self.cancel_move(x1, y1, x2, y2,
+                                             moving_figures,
+                                             fixed_figures, eated_figure)
                         return 'CHECK!'
+
+    def is_draw(self, moving_figures, fixed_figures):
+        """
+        Check if it is draw situation now.
+
+        Parameters
+        ----------
+        moving_figures : list
+            list of figures of active player
+        fixed_figures : list
+            list of figures of non-active player
+        Returns
+        -------
+        bool
+            True if it is draw
+            False otherwise
+        """
+        king_x = moving_figures[0].x
+        king_y = moving_figures[0].y
+
+        for fig in fixed_figures:
+            for (x, y) in fig.possible_moves:
+                if x == king_x and y == king_y:
+                    return False
+
+        for fig in moving_figures:
+            x = fig.x
+            y = fig.y
+            for (x2, y2) in fig.possible_moves[::-1]:
+                eated_figure = None
+                if self.board[x2][y2] != ' ':
+                    for i in range(len(fixed_figures)):
+                        if (fixed_figures[i].x == x2 and
+                                fixed_figures[i].y == y2):
+                            eated_figure = fixed_figures.pop(i)
+                            self.board[x2][y2] = ' '
+                            break
+                if self.move_from_server(coordinates_to_human((x, y)),
+                                         coordinates_to_human((x2, y2))):
+                    self.cancel_move(x, y, x2, y2, moving_figures,
+                                     fixed_figures, eated_figure)
+                    self.update_board()
+                    self.update_possible_moves()
+                    return False
+                self.cancel_move(x, y, x2, y2, moving_figures,
+                                 fixed_figures, eated_figure)
+                self.update_board()
+                self.update_possible_moves()
+        return True
+
+    def isDrawMove(self, coordinate_1, coordinate_2):
+        """
+        Check if suggested move will lead to draw, doesn't make move.
+
+        Parameters
+        ----------
+        coordinate_1 : str
+            human-like coordinates of first cell of suggested move
+        coordinate_2 : str
+            human-like coordinates of first cell of suggested move
+        Returns
+        -------
+        bool
+            True if suggested move will lead to draw
+            False otherwise
+        """            
+        if self.current_player == 'w':
+            moving_figures = self.white_figures
+            fixed_figures = self.black_figures
+        else:
+            moving_figures = self.black_figures
+            fixed_figures = self.white_figures
+
+        if not self.isPossibleMove(coordinate_1, coordinate_2):
+            return False
+
+        x1, y1 = coordinates_to_computer(coordinate_1)
+        x2, y2 = coordinates_to_computer(coordinate_2)
+
+        eated_figure = None
+        if self.board[x2][y2] != ' ':
+            for i in range(len(fixed_figures)):
+                if fixed_figures[i].x == x2 and fixed_figures[i].y == y2:
+                    eated_figure = fixed_figures.pop(i)
+                    break
+
+        for m_fig in moving_figures:
+            if m_fig.x == x1 and m_fig.y == y1:
+                m_fig.x = x2
+                m_fig.y = y2
+                self.board[x2][y2] = self.board[x1][y1]
+                self.board[x1][y1] = ' '
+                break
+
+        if self.current_player == 'w':
+            self.current_player = 'b'
+        else:
+            self.current_player = 'w'
+        ans = self.is_draw(fixed_figures, moving_figures)
+
+        self.cancel_move(x1, y1, x2, y2, moving_figures,
+                         fixed_figures, eated_figure)
+
+        return ans
+
+    def isWinMove(self, coordinate_1, coordinate_2):
+        """
+        Check if suggested move will lead to checkmate, doesn't make move.
+
+        Parameters
+        ----------
+        coordinate_1 : str
+            human-like coordinates of first cell of suggested move
+        coordinate_2 : str
+            human-like coordinates of first cell of suggested move
+        Returns
+        -------
+        bool
+            True if suggested move will lead to checkmate
+            False otherwise
+        """
+        if self.current_player == 'w':
+            moving_figures = self.white_figures
+            fixed_figures = self.black_figures
+        else:
+            moving_figures = self.black_figures
+            fixed_figures = self.white_figures
+
+        if not self.isPossibleMove(coordinate_1, coordinate_2):
+            return False
+
+        x1, y1 = coordinates_to_computer(coordinate_1)
+        x2, y2 = coordinates_to_computer(coordinate_2)
+
+        eated = None
+        if self.board[x2][y2] != ' ':
+            for i in range(len(fixed_figures)):
+                if fixed_figures[i].x == x2 and fixed_figures[i].y == y2:
+                    eated = fixed_figures.pop(i)
+                    break
+
+        for m_fig in moving_figures:
+            if m_fig.x == x1 and m_fig.y == y1:
+                m_fig.x = x2
+                m_fig.y = y2
+                self.board[x2][y2] = self.board[x1][y1]
+                self.board[x1][y1] = ' '
+                break
+
+        ans = self.is_checkmate()
+
+        self.cancel_move(x1, y1, x2, y2, moving_figures, fixed_figures, eated)
+        
+        self.update_board()
+        self.update_possible_moves()
+
+        return ans
 
     def is_checkmate(self):
         """
@@ -1265,8 +1452,7 @@ class Game():
                             if (fixed_figures[i].x == x2
                                     and fixed_figures[i].y == y2):
                                 score = fixed_figures[i].value
-                                eated_figure = fixed_figures[i]
-                                fixed_figures.pop(i)
+                                eated_figure = fixed_figures.pop(i)
                                 break
                     fig.x = x2
                     fig.y = y2
@@ -1313,25 +1499,25 @@ class Game():
         if self.current_player == 'w' and self.player == 'w':
             ans = self.handle_move(
                     x1, y1, x2, y2, self.white_figures, self.black_figures)
+            self.current_player = 'b'
             if isinstance(ans, int):
                 self.score += ans
             else:
-                return ans
-            self.current_player = 'b'
+                return False
         elif self.current_player == 'b' and self.player == 'b':
             ans = self.handle_move(
                     x1, y1, x2, y2, self.black_figures, self.white_figures)
+            self.current_player = 'w'
             if isinstance(ans, int):
                 self.score -= ans
             else:
-                return ans
-            self.current_player = 'w'
+                return False
         else:
-            return "It's your opponent's turn!"
+            return False
 
         self.moves_history.append((coordinate_1, coordinate_2))
         self.update_possible_moves()
-        return coordinate_1, coordinate_2
+        return True
 
     def move_from_server(self, coordinate_1, coordinate_2):
         """
@@ -1354,17 +1540,25 @@ class Game():
         x2, y2 = coordinates_to_computer(coordinate_2)
 
         if self.current_player == 'w':
-            self.score += self.handle_move(
+            ans = self.handle_move(
                     x1, y1, x2, y2, self.white_figures, self.black_figures)
             self.current_player = 'b'
+            if isinstance(ans, int):
+                self.score += ans
+            else:
+                return False
         elif self.current_player == 'b':
-            self.score -= self.handle_move(
+            ans = self.handle_move(
                     x1, y1, x2, y2, self.black_figures, self.white_figures)
             self.current_player = 'w'
+            if isinstance(ans, int):
+                self.score -= ans
+            else:
+                return False
 
         self.moves_history.append((coordinate_1, coordinate_2))
         self.update_possible_moves()
-        return coordinate_1, coordinate_2
+        return True
 
     def get_score(self):
         """Returns score advantage of active player."""
