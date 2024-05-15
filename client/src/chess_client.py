@@ -1,19 +1,72 @@
 
+"""A module implementing a client for playing chess."""
+
 import cmd
 import threading
 import readline
 import socket
 import shlex
 from chess_game import Game
-from localization import _
+from internationalization import _
 from server_answer import server_answer
 
 
 class chess_client(cmd.Cmd):
+    """
+    Class implementing a chess game client.
+
+    Methods
+    -------
+    request_num(self) -> int
+        Returns the next request number for the server
+    complition_num(self) -> int
+        Returns the next complition request number for the server
+    print_error_message(self, error: str = "") -> None
+        Print message for user
+    do_registre(self, arg: str) -> None
+        Registre form chess server
+    do_login(self, arg: str) -> None
+        Login form chess server
+    complete_login(self, text: str, line: str, begidx: int, endidx: int) -> list
+        Complete login command
+    do_logout(self, arg: str) -> None
+        Logout form chess server and give up if user is playing
+    do_get_users(self, arg: str) -> None
+        Print name online users from server
+    do_get_game_request(self, arg: str) -> None
+        Print game request from/for current player
+    do_remove_game_request(self, arg: str) -> None
+        Remove game request from current player
+    do_get_statistic(self, arg: str) -> None
+        Print statistic for current player or other player
+    do_play(self, arg: str) -> None
+        Send play request or accept play request
+    complete_play(self, text: str, line: str, begidx: int, endidx: int)
+        Complete play command
+    do_move(self, arg: str) -> None
+        Make a move in chess play
+    complete_move(self, text: str, line: str, begidx: int, endidx: int) -> None
+        Complete move command
+    do_draw(self, arg) -> None
+        Send draw request or agree with draw
+    complete_draw(self, text: str, line: str, begidx: itn, endidx: int) -> None
+        Complete draw command
+    do_give_up(self, arg: str) -> None
+        Give up in current game
+    do_exit(self, arg: str) -> None
+        Exit program
+    do_EOF(self, arg: str) -> None
+        Exit program
+    write_to_server(self, data: str, request_num: int) -> None
+        Send request to server
+    read_from_server(self) -> None
+        Accepts messages from the server
+    """
 
     prompt = "chess >> "
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Init chess_client."""
         super().__init__()
         self.socket = socket.socket()
         self.socket.connect(("0.0.0.0", 1337))
@@ -27,19 +80,50 @@ class chess_client(cmd.Cmd):
         self.game = None
         self.draw_request = False
 
-    def request_num(self):
+    def request_num(self) -> int:
+        """
+        Returns the next request number for the server.
+
+        Returns
+        -------
+        int
+            Next request nember
+        """
         self.rn += 2
         return self.rn
 
-    def complition_num(self):
+    def complition_num(self) -> int:
+        """
+        Returns the next complition request number for the server.
+
+        Returns
+        -------
+        int
+            Next complition request nember
+        """
         self.cn += 2
         return self.cn
 
-    def print_error_message(self, error=""):
+    def print_error_message(self, error: str = "") -> None:
+        """
+        Print message for user.
+
+        Parameters
+        ----------
+        error : str
+            Message for user
+        """
         print(error)
 
-    def do_registre(self, arg):
-        """registre form chess server"""
+    def do_registre(self, arg: str) -> None:
+        """
+        Registre form chess server.
+
+        Parameters
+        ----------
+        arg : str
+            Must contain the name of the new user
+        """
         arg = shlex.split(arg)
         if len(arg) > 1:
             self.print_error_message(_("More arguments"))
@@ -56,8 +140,15 @@ class chess_client(cmd.Cmd):
             if self.request[num]:
                 print(_(server_answer[self.request[num]]))
 
-    def do_login(self, arg):
-        """login from chess server"""
+    def do_login(self, arg: str) -> None:
+        """
+        Login form chess server.
+
+        Parameters
+        ----------
+        arg : str
+            Must contain the name of the login user
+        """
         arg = shlex.split(arg)
         if len(arg) > 1:
             self.print_error_message(_("More arguments"))
@@ -78,8 +169,27 @@ class chess_client(cmd.Cmd):
                     self.name = arg[0]
                 print(_(server_answer[self.request[num]]))
 
-    def complete_login(self, text, line, begidx, endidx):
-        """complete login command"""
+    def complete_login(
+            self, text: str, line: str, begidx: int, endidx: int) -> list:
+        """
+        Complete login command.
+
+        Parameters
+        ----------
+        text : str
+            Prefix
+        line : str
+            All line
+        begidx : int
+            Prefix start
+        endidx : int
+            Prefix end
+
+        Returns
+        -------
+        list
+            Current ofline users in server
+        """
         num = self.complition_num()
         self.complition[num] = None
         self.write_to_server("offline_users", num)
@@ -94,8 +204,15 @@ class chess_client(cmd.Cmd):
                 complition = self.complition[num].split()
         return [c for c in complition if c.startswith(text)]
 
-    def do_logout(self, arg):
-        """logout from chess server"""
+    def do_logout(self, arg: str) -> None:
+        """
+        Logout form chess server and give up if user is playing.
+
+        Parameters
+        ----------
+        arg : str
+            Should be empty
+        """
         arg = shlex.split(arg)
         if len(arg) > 0:
             self.print_error_message(_("More arguments"))
@@ -114,8 +231,15 @@ class chess_client(cmd.Cmd):
                     self.draw_request = False
                 print(_(server_answer[self.request[num]]))
 
-    def do_get_users(self, arg):
-        """get online users"""
+    def do_get_users(self, arg: str) -> None:
+        """
+        Print name online users from server.
+
+        Parameters
+        ----------
+        arg : str
+            Should be empty
+        """
         arg = shlex.split(arg)
         if len(arg) > 0:
             self.print_error_message(_("More arguments"))
@@ -128,8 +252,15 @@ class chess_client(cmd.Cmd):
             if self.request[num]:
                 print(self.request[num])
 
-    def do_get_game_request(self, arg):
-        """get game request from current player"""
+    def do_get_game_request(self, arg: str) -> None:
+        """
+        Print game request from/for current player.
+
+        Parameters
+        ----------
+        arg : str
+            Should be empty
+        """
         arg = shlex.split(arg)
         if len(arg) > 0:
             self.print_error_message(_("More arguments"))
@@ -143,8 +274,15 @@ class chess_client(cmd.Cmd):
                 msg, from_me, for_me = self.request[num].split(".")
                 print(_(server_answer[msg]).format(from_me, for_me))
 
-    def do_remove_game_request(self, arg):
-        """remove game request which me sent"""
+    def do_remove_game_request(self, arg: str) -> None:
+        """
+        Remove game request from current player.
+
+        Parameters
+        ----------
+        arg : str
+            Should be empty
+        """
         if len(arg) > 0:
             self.print_error_message(_("More arguments"))
         else:
@@ -156,8 +294,15 @@ class chess_client(cmd.Cmd):
             if self.request[num]:
                 print(_(server_answer[self.request[num]]))
 
-    def do_get_statistic(self, arg):
-        """get statistic for current player or other player"""
+    def do_get_statistic(self, arg: str) -> None:
+        """
+        Print statistic for current player or other player.
+
+        Parameters
+        ----------
+        arg : str
+            May contain the user's name
+        """
         arg = shlex.split(arg)
         if len(arg) > 1:
             self.print_error_message(_("More arguments"))
@@ -175,8 +320,15 @@ class chess_client(cmd.Cmd):
                 print(_(server_answer[msg]).format(
                     user_name, win, draw, defeat))
 
-    def do_play(self, arg):
-        """play request with another user"""
+    def do_play(self, arg: str) -> None:
+        """
+        Send play request or accept play request.
+
+        Parameters
+        ----------
+        arg : str
+            Must contain the opponent name
+        """
         arg = shlex.split(arg)
         if len(arg) > 1:
             self.print_error_message(_("More arguments"))
@@ -201,8 +353,27 @@ class chess_client(cmd.Cmd):
                 else:
                     print(_(server_answer[self.request[num]]))
 
-    def complete_play(self, text, line, begidx, endidx):
-        """complete play command"""
+    def complete_play(
+            self, text: str, line: str, begidx: int, endidx: int) -> None:
+        """
+        Complete play command.
+
+        Parameters
+        ----------
+        text : str
+            Prefix
+        line : str
+            All line
+        begidx : int
+            Prefix start
+        endidx : int
+            Prefix end
+
+        Returns
+        -------
+        list
+            Current online users in server
+        """
         num = self.complition_num()
         self.complition[num] = None
         self.write_to_server("online_users", num)
@@ -217,8 +388,16 @@ class chess_client(cmd.Cmd):
                 complition = self.complition[num].split()
         return [c for c in complition if c.startswith(text) and c != self.name]
 
-    def do_move(self, arg):
-        """move command"""
+    def do_move(self, arg: str) -> None:
+        """
+        Make a move in chess play.
+
+        Parameters
+        ----------
+        arg : str
+            Must contain move. Old field and new field, example e2e4.
+            Castling is recorded as the movement of the king, example e1g1.
+        """
         arg = shlex.split(arg)
         if self.game is None:
             self.print_error_message(_("You dont play now"))
@@ -260,8 +439,27 @@ class chess_client(cmd.Cmd):
             if msg == "draw":
                 print(_("Stop game, draw"))
 
-    def complete_move(self, text, line, begidx, endidx):
-        """print all passible move"""
+    def complete_move(
+            self, text: str, line: str, begidx: int, endidx: int) -> None:
+        """
+        Complete move command.
+
+        Parameters
+        ----------
+        text : str
+            Prefix
+        line : str
+            All line
+        begidx : int
+            Prefix start
+        endidx : int
+            Prefix end
+
+        Returns
+        -------
+        list
+            Possible moves with the current start
+        """
         words = (line[:endidx] + ".").split()
         complition = []
         match len(words):
@@ -272,8 +470,16 @@ class chess_client(cmd.Cmd):
 
         return [c for c in complition if c.startswith(text)]
 
-    def do_draw(self, arg):
-        """draw"""
+    def do_draw(self, arg: str) -> None:
+        """
+        Send draw request or agree with draw.
+
+        Parameters
+        ----------
+        arg : str
+            Must contain ok or not. ok if you want to send draw request
+            or you want to agree with draw. not if you don`t want to draw.
+        """
         arg = shlex.split(arg)
         if self.game is None:
             self.print_error_message(_("You dont play now"))
@@ -297,8 +503,27 @@ class chess_client(cmd.Cmd):
                     self.draw_request = False
                 print(_(server_answer[self.request[num]]))
 
-    def complete_draw(self, text, line, begidx, endidx):
-        """print all passible move"""
+    def complete_draw(
+            self, text: str, line: str, begidx: int, endidx: int) -> list:
+        """
+        Complete draw command.
+
+        Parameters
+        ----------
+        text : str
+            Prefix
+        line : str
+            All line
+        begidx : int
+            Prefix start
+        endidx : int
+            Prefix end
+
+        Returns
+        -------
+        list
+            [ok | not]
+        """
         words = (line[:endidx] + ".").split()
         complition = []
         match len(words):
@@ -306,8 +531,15 @@ class chess_client(cmd.Cmd):
                 complition = ['ok', 'not']
         return [c for c in complition if c.startswith(text)]
 
-    def do_give_up(self, arg):
-        """dive up"""
+    def do_give_up(self, arg: str) -> None:
+        """
+        Give up in current game.
+
+        Parameters
+        ----------
+        arg : str
+            Should be empty
+        """
         arg = shlex.split(arg)
         if self.game is None:
             self.print_error_message(_("You dont play now"))
@@ -324,18 +556,35 @@ class chess_client(cmd.Cmd):
                 self.draw_request = False
             print(_(server_answer[self.request[num]]))
 
-    def do_exit(self, arg):
-        """Exit program"""
+    def do_exit(self, arg: str) -> None:
+        """Exit program."""
         return 1
 
-    def do_EOF(self, arg):
-        """Exit program"""
+    def do_EOF(self, arg: str) -> None:
+        """Exit program."""
         return 1
 
-    def write_to_server(self, data, request_num):
+    def write_to_server(self, data: str, request_num: int) -> None:
+        """
+        Send request to server.
+
+        Parameters
+        ----------
+        data : str
+            Request to server
+        request_num : int
+            Number of request
+        """
         self.socket.send((str(request_num) + ": " + data + "\n").encode())
 
-    def read_from_server(self):
+    def read_from_server(self) -> None:
+        """
+        Accepts messages from the server.
+
+        If the received message is a response to the request, it puts
+        the response in the dictionary with the corresponding key
+        to the request number, otherwise it displays the message on the screen
+        """
         t = threading.current_thread()
         while getattr(t, "do_run", True):
             data = self.socket.recv(1024).decode()

@@ -1,5 +1,7 @@
 
-from localization import _
+"""Module for translating server responses into messages for the user."""
+
+from internationalization import _
 
 server_answer = {
     #  for registre
@@ -51,7 +53,13 @@ server_answer = {
 }
 
 
-def mock_for_i18n():
+def mock_for_i18n() -> None:
+    """
+    Do not call this function.
+
+    Function exists so that the i18n can see the lines that need
+    to be translated.
+    """
     #  for registre
     _("Success registre")
     _("Not success registre, such a user is already registered")
