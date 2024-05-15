@@ -29,7 +29,7 @@ class Game:
         delete draw request
     """
 
-    def __init__(self, user1: str, user2: str):
+    def __init__(self, user1: str, user2: str) -> None:
         """
         Init Game.
 
@@ -133,7 +133,7 @@ class GamesDict:
         Return the game by name of one player
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Init GameDict."""
         self.user1_to_user2 = {}
         self.user2_to_user1 = {}

@@ -14,7 +14,7 @@ class GameHistory:
         add a played game to the history
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Init GameHistory.
 

@@ -12,7 +12,7 @@ class UserInfo:
         Name of user, registered on the server
     """
 
-    def __init__(self, user_name: str):
+    def __init__(self, user_name: str) -> None:
         """
         Init UserInfo.
 

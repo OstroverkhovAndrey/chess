@@ -17,11 +17,6 @@ game_request = {}  # player1 -> player2
 games = GamesDict()
 game_history = GameHistory()
 
-"""
-command ids
-0: simple message for client or user
-"""
-
 
 def isOnline(me: str) -> bool:
     """
@@ -40,7 +35,8 @@ def isOnline(me: str) -> bool:
     return me in clients and clients[me].user_name != ""
 
 
-async def send_msg(writer: asyncio.streams.StreamWriter, ids: int, msg: str):
+async def send_msg(
+        writer: asyncio.streams.StreamWriter, ids: int, msg: str) -> None:
     """
     A coroutine for sending responses to a user's request.
 
@@ -81,7 +77,7 @@ def get_msg_num(msg: str) -> tuple:
 
 
 async def registre(user_name: str, writer: asyncio.streams.StreamWriter,
-                   command_num: int):
+                   command_num: int) -> None:
     """
     A coroutine for registre new user.
 
@@ -103,7 +99,7 @@ async def registre(user_name: str, writer: asyncio.streams.StreamWriter,
 
 
 async def login(user_name: str, me: str, writer: asyncio.streams.StreamWriter,
-                command_num: int):
+                command_num: int) -> None:
     """
     A coroutine for login user in server.
 
@@ -132,7 +128,7 @@ async def login(user_name: str, me: str, writer: asyncio.streams.StreamWriter,
 
 
 async def logout(me: str, writer: asyncio.streams.StreamWriter = None,
-                 command_num: int = None):
+                 command_num: int = None) -> None:
     """
     A coroutine for logout user in server.
 
@@ -176,7 +172,7 @@ async def logout(me: str, writer: asyncio.streams.StreamWriter = None,
 
 
 async def get_offline_users(writer: asyncio.streams.StreamWriter,
-                            command_num: int):
+                            command_num: int) -> None:
     """
     A coroutine to get a list of all offline users.
 
@@ -194,7 +190,7 @@ async def get_offline_users(writer: asyncio.streams.StreamWriter,
 
 
 async def get_online_users(writer: asyncio.streams.StreamWriter,
-                           command_num: int):
+                           command_num: int) -> None:
     """
     A coroutine to get a list of all offline users.
 
@@ -212,7 +208,7 @@ async def get_online_users(writer: asyncio.streams.StreamWriter,
 
 
 async def get_game_request(me: str, writer: asyncio.streams.StreamWriter,
-                           command_num: int):
+                           command_num: int) -> None:
     """
     A coroutine to get a list of game request for user.
 
@@ -236,7 +232,7 @@ async def get_game_request(me: str, writer: asyncio.streams.StreamWriter,
 
 
 async def remove_game_request(me: str, writer: asyncio.streams.StreamWriter,
-                              command_num: int):
+                              command_num: int) -> None:
     """
     A coroutine to remove game request if user send it.
 
@@ -259,7 +255,7 @@ async def remove_game_request(me: str, writer: asyncio.streams.StreamWriter,
 
 
 async def get_statistic(me: str, writer: asyncio.streams.StreamWriter,
-                        command_num: int, user_name: str = ""):
+                        command_num: int, user_name: str = "") -> None:
     """
     A coroutine to get statistic for user_name.
 
@@ -283,7 +279,7 @@ async def get_statistic(me: str, writer: asyncio.streams.StreamWriter,
 
 
 async def play(user_name: str, me: str, writer: asyncio.streams.StreamWriter,
-               command_num: int):
+               command_num: int) -> None:
     """
     A coroutine for sending a game request or confirming it.
 
@@ -331,7 +327,7 @@ async def play(user_name: str, me: str, writer: asyncio.streams.StreamWriter,
 
 
 async def move_command(me: str, writer: asyncio.streams.StreamWriter,
-                       move: str, command_num: int):
+                       move: str, command_num: int) -> None:
     """
     A coroutine for get move in game.
 
@@ -378,7 +374,7 @@ async def move_command(me: str, writer: asyncio.streams.StreamWriter,
 
 
 async def draw(me: str, writer: asyncio.streams.StreamWriter,
-               command_num: int, msg: str):
+               command_num: int, msg: str) -> None:
     """
     A coroutine to suggest, agreeing or rejecting a draw.
 
@@ -437,7 +433,7 @@ async def draw(me: str, writer: asyncio.streams.StreamWriter,
 
 
 async def give_up(me: str, writer: asyncio.streams.StreamWriter,
-                  command_num: int):
+                  command_num: int) -> None:
     """
     A coroutine to give up.
 
@@ -473,7 +469,7 @@ async def give_up(me: str, writer: asyncio.streams.StreamWriter,
 
 
 async def chess_server(reader: asyncio.streams.StreamReader,
-                       writer: asyncio.streams.StreamWriter):
+                       writer: asyncio.streams.StreamWriter) -> None:
     """
     The main coroutine of the server.
 
@@ -535,8 +531,6 @@ async def chess_server(reader: asyncio.streams.StreamReader,
             elif q is receive:
                 receive = asyncio.create_task(clients[me].queue.get())
                 await send_msg(writer, 0, q.result())
-                # writer.write(f"{q.result()}\n".encode())
-                # await writer.drain()
     await logout(me)
     send.cancel()
     receive.cancel()
@@ -546,7 +540,7 @@ async def chess_server(reader: asyncio.streams.StreamReader,
     await writer.wait_closed()
 
 
-async def main():
+async def main() -> None:
     """Coroutine that runs the chess server."""
     server = await asyncio.start_server(chess_server, '0.0.0.0', 1337)
     async with server:
