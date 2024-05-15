@@ -41,15 +41,15 @@ class chess_client(cmd.Cmd):
         Print statistic for current player or other player
     do_play(self, arg: str) -> None
         Send play request or accept play request
-    complete_play(self, text: str, line: str, begidx: int, endidx: int)
+    complete_play(self, text: str, line: str, begidx: int, endidx: int) -> list
         Complete play command
     do_move(self, arg: str) -> None
         Make a move in chess play
-    complete_move(self, text: str, line: str, begidx: int, endidx: int) -> None
+    complete_move(self, text: str, line: str, begidx: int, endidx: int) -> list
         Complete move command
     do_draw(self, arg) -> None
         Send draw request or agree with draw
-    complete_draw(self, text: str, line: str, begidx: itn, endidx: int) -> None
+    complete_draw(self, text: str, line: str, begidx: itn, endidx: int) -> list
         Complete draw command
     do_give_up(self, arg: str) -> None
         Give up in current game
@@ -354,7 +354,7 @@ class chess_client(cmd.Cmd):
                     print(_(server_answer[self.request[num]]))
 
     def complete_play(
-            self, text: str, line: str, begidx: int, endidx: int) -> None:
+            self, text: str, line: str, begidx: int, endidx: int) -> list:
         """
         Complete play command.
 
@@ -440,7 +440,7 @@ class chess_client(cmd.Cmd):
                 print(_("Stop game, draw"))
 
     def complete_move(
-            self, text: str, line: str, begidx: int, endidx: int) -> None:
+            self, text: str, line: str, begidx: int, endidx: int) -> list:
         """
         Complete move command.
 
