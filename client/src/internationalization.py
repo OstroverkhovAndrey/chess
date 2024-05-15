@@ -1,4 +1,6 @@
 
+"""Module that provides functions for internationalization."""
+
 import gettext
 
 
