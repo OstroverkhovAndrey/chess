@@ -104,17 +104,6 @@ class chess_client(cmd.Cmd):
         self.cn += 2
         return self.cn
 
-    def print_error_message(self, error: str = "") -> None:
-        """
-        Print message for user.
-
-        Parameters
-        ----------
-        error : str
-            Message for user
-        """
-        print(error)
-
     def do_registre(self, arg: str) -> None:
         """
         Registre form chess server.
@@ -126,11 +115,11 @@ class chess_client(cmd.Cmd):
         """
         arg = shlex.split(arg)
         if len(arg) > 1:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         elif len(arg) < 1:
-            self.print_error_message(_("Not enough arguments"))
+            print(_("Not enough arguments"))
         elif not arg[0].isalnum():
-            self.print_error_message(_("Incorrect name"))
+            print(_("Incorrect name"))
         else:
             num = self.request_num()
             self.request[num] = None
@@ -151,13 +140,13 @@ class chess_client(cmd.Cmd):
         """
         arg = shlex.split(arg)
         if len(arg) > 1:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         elif len(arg) < 1:
-            self.print_error_message(_("Not enough arguments"))
+            print(_("Not enough arguments"))
         elif not arg[0].isalnum():
-            self.print_error_message(_("Incorrect name"))
+            print(_("Incorrect name"))
         elif self.name != "":
-            self.print_error_message(_("You already login"))
+            print(_("You already login"))
         else:
             num = self.request_num()
             self.request[num] = None
@@ -215,9 +204,9 @@ class chess_client(cmd.Cmd):
         """
         arg = shlex.split(arg)
         if len(arg) > 0:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         elif self.name == "":
-            self.print_error_message(_("You dont login"))
+            print(_("You dont login"))
         else:
             num = self.request_num()
             self.request[num] = None
@@ -242,7 +231,7 @@ class chess_client(cmd.Cmd):
         """
         arg = shlex.split(arg)
         if len(arg) > 0:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         else:
             num = self.request_num()
             self.request[num] = None
@@ -263,7 +252,7 @@ class chess_client(cmd.Cmd):
         """
         arg = shlex.split(arg)
         if len(arg) > 0:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         else:
             num = self.request_num()
             self.request[num] = None
@@ -284,7 +273,7 @@ class chess_client(cmd.Cmd):
             Should be empty
         """
         if len(arg) > 0:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         else:
             num = self.request_num()
             self.request[num] = None
@@ -305,7 +294,7 @@ class chess_client(cmd.Cmd):
         """
         arg = shlex.split(arg)
         if len(arg) > 1:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         else:
             user = ""
             if len(arg) == 1 and arg[0].isalnum():
@@ -331,11 +320,11 @@ class chess_client(cmd.Cmd):
         """
         arg = shlex.split(arg)
         if len(arg) > 1:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         elif len(arg) < 1:
-            self.print_error_message(_("Not enough arguments"))
+            print(_("Not enough arguments"))
         elif not arg[0].isalnum():
-            self.print_error_message(_("Incorrect name"))
+            print(_("Incorrect name"))
         else:
             num = self.request_num()
             self.request[num] = None
@@ -400,22 +389,22 @@ class chess_client(cmd.Cmd):
         """
         arg = shlex.split(arg)
         if self.game is None:
-            self.print_error_message(_("You dont play now"))
+            print(_("You dont play now"))
         elif not self.game.isMyMove():
-            self.print_error_message(_("Now not you move"))
+            print(_("Now not you move"))
         elif len(arg) > 1:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         elif len(arg) < 1:
-            self.print_error_message(_("Not enough arguments"))
+            print(_("Not enough arguments"))
         elif self.draw_request:
-            self.print_error_message(_("You send draw request"))
+            print(_("You send draw request"))
         elif len(arg[0]) != 4:
-            self.print_error_message(_("Incorrect move"))
+            print(_("Incorrect move"))
         else:
             move = [arg[0][0:2], arg[0][2:4]]
 
             if not self.game.isPossibleMove(move[0], move[1]):
-                self.print_error_message(_("It is impossiple move"))
+                print(_("It is impossiple move"))
                 return
 
             msg = "ok"
@@ -482,13 +471,13 @@ class chess_client(cmd.Cmd):
         """
         arg = shlex.split(arg)
         if self.game is None:
-            self.print_error_message(_("You dont play now"))
+            print(_("You dont play now"))
         elif len(arg) > 1:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         elif len(arg) < 1:
-            self.print_error_message(_("Not enough arguments"))
+            print(_("Not enough arguments"))
         elif not (arg[0] == "ok" or arg[0] == "not"):
-            self.print_error_message(_("Incorrect argument"))
+            print(_("Incorrect argument"))
         else:
             num = self.request_num()
             self.request[num] = None
@@ -542,9 +531,9 @@ class chess_client(cmd.Cmd):
         """
         arg = shlex.split(arg)
         if self.game is None:
-            self.print_error_message(_("You dont play now"))
+            print(_("You dont play now"))
         elif len(arg) > 0:
-            self.print_error_message(_("More arguments"))
+            print(_("More arguments"))
         else:
             num = self.request_num()
             self.request[num] = None
