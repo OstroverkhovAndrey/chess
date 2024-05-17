@@ -1,19 +1,19 @@
 """Client-side chess game library."""
 
 import copy
-from figures import *
+import figures
 
 
-WHITE_START_FIGURES = ([King(4, 0, 'w'), Queen(3, 0, 'w')]
-                       + [Rook(0, 0, 'w'), Rook(7, 0, 'w')]
-                       + [Knight(1, 0, 'w'), Knight(6, 0, 'w')]
-                       + [Bishop(2, 0, 'w'), Bishop(5, 0, 'w')]
-                       + [Pawn(i, 1, 'w') for i in range(8)])
-BLACK_START_FIGURES = ([King(4, 7, 'b'), Queen(3, 7, 'b')]
-                       + [Rook(0, 7, 'b'), Rook(7, 7, 'b')]
-                       + [Knight(1, 7, 'b'), Knight(6, 7, 'b')]
-                       + [Bishop(2, 7, 'b'), Bishop(5, 7, 'b')]
-                       + [Pawn(i, 6, 'b') for i in range(8)])
+WHITE_START_FIGURES = ([figures.King(4, 0, 'w'), figures.Queen(3, 0, 'w')]
+                       + [figures.Rook(0, 0, 'w'), figures.Rook(7, 0, 'w')]
+                       + [figures.Knight(1, 0, 'w'), figures.Knight(6, 0, 'w')]
+                       + [figures.Bishop(2, 0, 'w'), figures.Bishop(5, 0, 'w')]
+                       + [figures.Pawn(i, 1, 'w') for i in range(8)])
+BLACK_START_FIGURES = ([figures.King(4, 7, 'b'), figures.Queen(3, 7, 'b')]
+                       + [figures.Rook(0, 7, 'b'), figures.Rook(7, 7, 'b')]
+                       + [figures.Knight(1, 7, 'b'), figures.Knight(6, 7, 'b')]
+                       + [figures.Bishop(2, 7, 'b'), figures.Bishop(5, 7, 'b')]
+                       + [figures.Pawn(i, 6, 'b') for i in range(8)])
 
 EMPTY_BOARD = [[' ' for i in range(8)] for j in range(8)]
 
@@ -68,7 +68,8 @@ class Game():
     Attributes
     ----------
     board : list
-        list (len 8) of lists (len 8) where each element is string (' ' if there is no figure and figure label otherwise)
+        list (len 8) of lists (len 8) where each element is string
+        (' ' if there is no figure and figure label otherwise)
     white_figures : list
         list of white figures on the board
     black_figures : list
@@ -85,9 +86,11 @@ class Game():
     Methods
     -------
     get_possible_moves()
-        return dictionary with keys - coordinates of figures on player's side and values - list of ceils where those figures can move
+        return dictionary with keys - coordinates of figures on
+        player's side and values - list of ceils where those figures can move
     update_possible_moves()
-        update possible_moves attribute of each figure in white_figures and black_figures lists
+        update possible_moves attribute of each figure in
+        white_figures and black_figures lists
     get_board()
         return board as string in "pretty" format
     update_board()
@@ -129,7 +132,8 @@ class Game():
         Parameters
         ----------
         player : str
-            color of the figures the player plays with ('w' - white, 'b' - black)
+            color of the figures the player plays with
+            ('w' - white, 'b' - black)
         """
         self.white_figures = [copy.deepcopy(WHITE_START_FIGURES[i])
                               for i in range(len(WHITE_START_FIGURES))]
@@ -153,18 +157,19 @@ class Game():
         Returns
         -------
         dictionary
-            dictionary with keys - coordinates of figures on player's side and values - list of ceils where those figures can move
+            dictionary with keys - coordinates of figures on player's
+            side and values - list of ceils where those figures can move
         """
         possible_moves = {}
 
         if self.current_player == 'w' and self.player == 'w':
             for fig in self.white_figures:
-                possible_moves[coordinates_to_human((fig.x, fig.y))] = (
+                possible_moves[figures.coordinates_to_human((fig.x, fig.y))] = (
                         fig.get_possible_moves(self.board))
             return dict(sorted(possible_moves.items()))
         elif self.current_player == 'b' and self.player == 'b':
             for fig in self.black_figures:
-                possible_moves[coordinates_to_human((fig.x, fig.y))] = (
+                possible_moves[figures.coordinates_to_human((fig.x, fig.y))] = (
                         fig.get_possible_moves(self.board))
             return dict(sorted(possible_moves.items()))
         else:
@@ -250,7 +255,10 @@ class Game():
     def is_check_move(self, x1, x2, y1, y2, moving_figures,
                       fixed_figures, eated_figure=None, cancel=False):
         """
-        Check if made move led to check and calls cancel_move method if player's King is checked or checkmated after move.
+        Check if made move led to check.
+
+        Calls cancel_move method if player's King is checked
+        or checkmated after move.
 
         Parameters
         ----------
@@ -269,11 +277,14 @@ class Game():
         eated_figure, optional
             Figure which was eated in this turn (None if any figure was eated)
         cancel : bool, optional
-            True if forced cancel of move is neccessary, False otherwise (default is False)
+            True if forced cancel of move is neccessary, False otherwise
+            (default is False)
+
         Returns
         -------
         str
-            'IMPOSSIBLE MOVE: YOU CAN'T MAKE MOVE TO CHECK' if move led to player's King to be checked or checkmated
+            'IMPOSSIBLE MOVE: YOU CAN'T MAKE MOVE TO CHECK' if move led to
+            player's King to be checked or checkmated
             'CHECKMATE!' if move led to opposite King to be checkmated
             'CHECK!' if move led to opposite King to be checked
         """
@@ -346,8 +357,9 @@ class Game():
                             eated_figure = fixed_figures.pop(i)
                             self.board[x2][y2] = ' '
                             break
-                if self.move_from_server(coordinates_to_human((x, y)),
-                                         coordinates_to_human((x2, y2))):
+                if self.move_from_server(figures.coordinates_to_human((x, y)),
+                                         figures.coordinates_to_human((x2,
+                                                                       y2))):
                     self.cancel_move(x, y, x2, y2, moving_figures,
                                      fixed_figures, eated_figure)
                     self.update_board()
@@ -369,12 +381,13 @@ class Game():
             human-like coordinates of first cell of suggested move
         coordinate_2 : str
             human-like coordinates of first cell of suggested move
+
         Returns
         -------
         bool
             True if suggested move will lead to draw
             False otherwise
-        """            
+        """
         if self.current_player == 'w':
             moving_figures = self.white_figures
             fixed_figures = self.black_figures
@@ -385,8 +398,8 @@ class Game():
         if not self.isPossibleMove(coordinate_1, coordinate_2):
             return False
 
-        x1, y1 = coordinates_to_computer(coordinate_1)
-        x2, y2 = coordinates_to_computer(coordinate_2)
+        x1, y1 = figures.coordinates_to_computer(coordinate_1)
+        x2, y2 = figures.coordinates_to_computer(coordinate_2)
 
         eated_figure = None
         if self.board[x2][y2] != ' ':
@@ -430,6 +443,7 @@ class Game():
             human-like coordinates of first cell of suggested move
         coordinate_2 : str
             human-like coordinates of first cell of suggested move
+
         Returns
         -------
         bool
@@ -446,8 +460,8 @@ class Game():
         if not self.isPossibleMove(coordinate_1, coordinate_2):
             return False
 
-        x1, y1 = coordinates_to_computer(coordinate_1)
-        x2, y2 = coordinates_to_computer(coordinate_2)
+        x1, y1 = figures.coordinates_to_computer(coordinate_1)
+        x2, y2 = figures.coordinates_to_computer(coordinate_2)
 
         eated = None
         if self.board[x2][y2] != ' ':
@@ -467,7 +481,7 @@ class Game():
         ans = self.is_checkmate()
 
         self.cancel_move(x1, y1, x2, y2, moving_figures, fixed_figures, eated)
-        
+
         self.update_board()
         self.update_possible_moves()
 
@@ -490,8 +504,8 @@ class Game():
             moving_figures = self.white_figures
             fixed_figures = self.black_figures
 
-        king_position = (coordinates_to_human((moving_figures[0].x,
-                                              moving_figures[0].y)))
+        king_position = (figures.coordinates_to_human((moving_figures[0].x,
+                                                       moving_figures[0].y)))
 
         for moved_figure in moving_figures[1:]:
             for (x, y) in moved_figure.possible_moves:
@@ -663,9 +677,11 @@ class Game():
         str
             'IMPOSSIBLE MOVE' if proposed move is impossible
         int
-            0 if the move is roque or en passant and the move was made successfully
+            0 if the move is roque or en passant and the move was made
+            successfully
         str
-            'CHECK!' or 'CHECKMATE!' if move led to check or checkmate respectively
+            'CHECK!' or 'CHECKMATE!' if move led to check or checkmate
+            respectively
         int
             score changes after successful neither roque not en passant move
         """
@@ -689,7 +705,7 @@ class Game():
                     fig.y = y2
                     self.board[x2][y2] = self.board[x1][y1]
                     self.board[x1][y1] = ' '
-                    if isinstance(fig, Pawn) and (abs(y2 - y1) == 2):
+                    if isinstance(fig, figures.Pawn) and (abs(y2 - y1) == 2):
                         fig.has_moved_two = True
 
                     break
@@ -721,11 +737,12 @@ class Game():
         str
             'It's your opponent's turn!' if now it is opponent's move
         tuple
-            tuple of human-like coordinates - move-from and move-to ceils - if the move was made successfully
+            tuple of human-like coordinates - move-from and move-to ceils -
+            if the move was made successfully
         """
         self.update_possible_moves()
-        x1, y1 = coordinates_to_computer(coordinate_1)
-        x2, y2 = coordinates_to_computer(coordinate_2)
+        x1, y1 = figures.coordinates_to_computer(coordinate_1)
+        x2, y2 = figures.coordinates_to_computer(coordinate_2)
 
         if self.current_player == 'w' and self.player == 'w':
             ans = self.handle_move(
@@ -767,8 +784,8 @@ class Game():
             tuple of human-like coordinates - move-from and move-to ceils
         """
         self.update_possible_moves()
-        x1, y1 = coordinates_to_computer(coordinate_1)
-        x2, y2 = coordinates_to_computer(coordinate_2)
+        x1, y1 = figures.coordinates_to_computer(coordinate_1)
+        x2, y2 = figures.coordinates_to_computer(coordinate_2)
 
         if self.current_player == 'w':
             ans = self.handle_move(
