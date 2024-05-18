@@ -6,8 +6,8 @@ Functions in module dumping and loading server data that should be saved when
 the server is restared.
 """
 
-from user_info import UserInfo
-from game_history import GameHistory
+from .user_info import UserInfo
+from .game_history import GameHistory
 import pickle
 import os
 
