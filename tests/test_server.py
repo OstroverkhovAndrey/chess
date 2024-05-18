@@ -239,3 +239,54 @@ class TestGetUsers(unittest.IsolatedAsyncioTestCase):
         await chess_server.get_online_users("writer", "comand_num")
         chess_server.send_msg.assert_called_with(
             "writer", "comand_num", "user_name user_name_1")
+
+
+class TestGameRequest(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        pass
+
+    async def asyncSetUp(self):
+        chess_server.send_msg = AsyncMock()
+        chess_server.users = {}
+        chess_server.clients = {}
+
+        chess_server.clients["me1"] = ClientsInfo()
+        chess_server.clients["me1"].user_name = "1"
+        chess_server.clients["me2"] = ClientsInfo()
+        chess_server.clients["me2"].user_name = "2"
+        chess_server.clients["me3"] = ClientsInfo()
+        chess_server.clients["me3"].user_name = "3"
+        chess_server.clients["me4"] = ClientsInfo()
+        chess_server.clients["me4"].user_name = "4"
+        chess_server.game_request = {"1": "2",
+                                     "2": "3",
+                                     "3": "1",
+                                     "4": "2", }
+
+    async def test_get_game_request(self):
+        await chess_server.get_game_request("me1", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "game_request.2.3")
+
+        await chess_server.get_game_request("me2", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "game_request.3.1 4")
+
+        await chess_server.get_game_request("me3", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "game_request.1.2")
+
+        await chess_server.get_game_request("me4", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "game_request.2.")
+
+    async def test_remove_game_request(self):
+        await chess_server.remove_game_request("me2", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "success_remove_game_request")
+        self.assertFalse("2" in chess_server.game_request)
+
+        await chess_server.remove_game_request("me2", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "not_found_you_game_request")
