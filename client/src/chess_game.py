@@ -1184,8 +1184,14 @@ class Game():
             self.current_player = 'w'
         ans = self.is_draw(fixed_figures, moving_figures)
 
+        self.update_board()
+        self.update_possible_moves()
+
         self.cancel_move(x1, y1, x2, y2, moving_figures,
                          fixed_figures, eated_figure)
+
+        self.update_board()
+        self.update_possible_moves()
 
         return ans
 
