@@ -337,3 +337,93 @@ class TestGetStatistic(unittest.IsolatedAsyncioTestCase):
         await chess_server.get_statistic("me4", "writer", "comand_num", "")
         chess_server.send_msg.assert_called_with(
             "writer", "comand_num", "statistic.4.0.1.0")
+
+
+class TestPlayCommand(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        pass
+
+    async def asyncSetUp(self):
+        chess_server.send_msg = AsyncMock()
+        chess_server.users = {}
+        chess_server.clients = {}
+
+        chess_server.users["1"] = UserInfo("1")
+        chess_server.users["1"].isOnline = True
+        chess_server.clients["me1"] = ClientsInfo()
+        chess_server.clients["me1"].user_name = "1"
+
+        chess_server.users["2"] = UserInfo("2")
+        chess_server.users["2"].isOnline = True
+        chess_server.users["2"].isPlay = True
+        chess_server.clients["me2"] = ClientsInfo()
+        chess_server.clients["me2"].user_name = "2"
+
+        chess_server.clients["me3"] = ClientsInfo()
+
+        chess_server.users["4"] = UserInfo("4")
+
+        chess_server.users["5"] = UserInfo("5")
+        chess_server.users["5"].IP = "me5"
+        chess_server.users["5"].isOnline = True
+        chess_server.clients["me5"] = ClientsInfo()
+        chess_server.clients["me5"].user_name = "5"
+        chess_server.clients["me5"].queue.put = AsyncMock()
+
+        chess_server.users["6"] = UserInfo("6")
+        chess_server.users["6"].isOnline = True
+        chess_server.clients["me6"] = ClientsInfo()
+        chess_server.clients["me6"].user_name = "6"
+
+        chess_server.game_request["5"] = "6"
+
+        chess_server.users["7"] = UserInfo("7")
+        chess_server.users["7"].isOnline = True
+        chess_server.clients["me7"] = ClientsInfo()
+        chess_server.clients["me7"].user_name = "7"
+
+        chess_server.random.randint = MagicMock(return_value=0)
+
+    async def test_me_not_login(self):
+        await chess_server.play("opponent", "me3", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "you_dont_login")
+
+    async def test_opponent_dont_registre(self):
+        await chess_server.play("55", "me1", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "opponent_dont_registre")
+
+    async def test_opponent_dont_online(self):
+        await chess_server.play("4", "me1", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "opponent_dont_online")
+
+    async def test_play_with_yourself(self):
+        await chess_server.play("1", "me1", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "cant_play_with_yourself")
+
+    async def test_opponent_play(self):
+        await chess_server.play("2", "me1", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "now_opponent_play")
+
+    async def test_you_play(self):
+        await chess_server.play("1", "me2", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "now_you_play")
+
+    async def test_start_game(self):
+        await chess_server.play("5", "me6", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "start_game 0")
+        chess_server.clients["me5"].queue.put.assert_called_with("start_game 1")
+
+    async def test_send_game_request(self):
+        await chess_server.play("5", "me7", "writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "send_game_request")
+        chess_server.clients["me5"].queue.put.assert_called_with(
+            "send_you_game_request 7")
