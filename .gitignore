@@ -1,0 +1,9 @@
+*~
+Pipfile.*
+__pycache__
+build
+dump
+*.mo
+*.pot
+.coverage
+.doit*
