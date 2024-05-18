@@ -75,7 +75,7 @@ class chess_client(cmd.Cmd):
         self.rn = 1
         self.cn = 2
         self.request = {}
-        self.complition = {}
+        self.complet = {}
         self.name = ""
         self.game = None
         self.draw_request = False
@@ -92,7 +92,7 @@ class chess_client(cmd.Cmd):
         self.rn += 2
         return self.rn
 
-    def complition_num(self) -> int:
+    def complet_num(self) -> int:
         """
         Returns the next complition request number for the server.
 
@@ -103,6 +103,30 @@ class chess_client(cmd.Cmd):
         """
         self.cn += 2
         return self.cn
+
+    def wait_request_ans(self, num: int) -> None:
+        """
+        Waiting for the response from the server to be received.
+
+        Parameters
+        ----------
+        num : int
+            Request num
+        """
+        while self.request[num] is None:
+            pass
+
+    def wait_complet_ans(self, num: int) -> None:
+        """
+        Waiting for the response from the server to be received.
+
+        Parameters
+        ----------
+        num : int
+            Request num
+        """
+        while self.complet[num] is None:
+            pass
 
     def do_registre(self, arg: str) -> None:
         """
@@ -124,8 +148,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("registre " + arg[0], num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num]:
                 print(_(server_answer[self.request[num]]))
 
@@ -151,8 +174,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("login " + arg[0], num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num]:
                 if self.request[num] == "success_login":
                     self.name = arg[0]
@@ -179,19 +201,18 @@ class chess_client(cmd.Cmd):
         list
             Current ofline users in server
         """
-        num = self.complition_num()
-        self.complition[num] = None
+        num = self.complet_num()
+        self.complet[num] = None
         self.write_to_server("offline_users", num)
 
-        while self.complition[num] is None:
-            pass
+        self.wait_complet_ans(num)
 
         words = (line[:endidx] + ".").split()
-        complition = []
+        complet = []
         match len(words):
             case 2:
-                complition = self.complition[num].split()
-        return [c for c in complition if c.startswith(text)]
+                complet = self.complet[num].split()
+        return [c for c in complet if c.startswith(text)]
 
     def do_logout(self, arg: str) -> None:
         """
@@ -211,8 +232,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("logout", num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num]:
                 if self.request[num] == "success_logout":
                     self.name = ""
@@ -236,8 +256,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("online_users", num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num]:
                 print(self.request[num])
 
@@ -257,8 +276,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("game_request", num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num]:
                 msg, from_me, for_me = self.request[num].split(".")
                 print(_(server_answer[msg]).format(from_me, for_me))
@@ -278,8 +296,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("remove_game_request", num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num]:
                 print(_(server_answer[self.request[num]]))
 
@@ -302,8 +319,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("statistic " + user, num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num]:
                 msg, user_name, win, draw, defeat = self.request[num].split(".")
                 print(_(server_answer[msg]).format(
@@ -329,8 +345,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("play " + arg[0], num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num]:
                 if "start_game" in self.request[num]:
                     color = int(self.request[num].split()[-1][0])
@@ -363,19 +378,18 @@ class chess_client(cmd.Cmd):
         list
             Current online users in server
         """
-        num = self.complition_num()
-        self.complition[num] = None
+        num = self.complet_num()
+        self.complet[num] = None
         self.write_to_server("online_users", num)
 
-        while self.complition[num] is None:
-            pass
+        self.wait_complet_ans(num)
 
         words = (line[:endidx] + ".").split()
-        complition = []
+        complet = []
         match len(words):
             case 2:
-                complition = self.complition[num].split()
-        return [c for c in complition if c.startswith(text) and c != self.name]
+                complet = self.complet[num].split()
+        return [c for c in complet if c.startswith(text) and c != self.name]
 
     def do_move(self, arg: str) -> None:
         """
@@ -419,10 +433,12 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("move " + arg[0] + ":" + msg, num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num]:
                 print(_(server_answer[self.request[num]]))
+            if msg != "ok":
+                self.draw_request = False
+                self.game = None
             if msg == "win":
                 print(_("Stop game, you win!"))
             if msg == "draw":
@@ -482,8 +498,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("draw " + arg[0], num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num]:
                 if self.request[num] == "send_draw_request":
                     self.draw_request = True
@@ -538,8 +553,7 @@ class chess_client(cmd.Cmd):
             num = self.request_num()
             self.request[num] = None
             self.write_to_server("give_up", num)
-            while self.request[num] is None:
-                pass
+            self.wait_request_ans(num)
             if self.request[num] == "you_success_give_up":
                 self.game = None
                 self.draw_request = False
@@ -580,9 +594,9 @@ class chess_client(cmd.Cmd):
             data_num = data.split(":")[0]
             data = data[len(data_num)+1:].strip()
             data_num = int(data_num)
-            if data_num in self.complition and\
-                    self.complition[data_num] is None:
-                self.complition[data_num] = data
+            if data_num in self.complet and\
+                    self.complet[data_num] is None:
+                self.complet[data_num] = data
             elif data_num in self.request and self.request[data_num] is None:
                 self.request[data_num] = data
             else:
