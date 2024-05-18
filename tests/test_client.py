@@ -104,3 +104,27 @@ class TestLogin(unittest.TestCase):
         self.assertEqual(self.client.complete_login("", "login ", 6, 6),
                          ["1", "2", "3"])
         self.client.write_to_server.assert_called_with("offline_users", 4)
+
+
+class TestLogout(unittest.TestCase):
+
+    def setUp(self):
+        self.client = chess_client.chess_client()
+        chess_client.print = MagicMock()
+        chess_client.chess_client.write_to_server = MagicMock()
+
+        def wait_request_ans(self, num):
+            self.request[num] = "success_logout"
+        chess_client.chess_client.wait_request_ans = wait_request_ans
+
+    def test_do_logout(self):
+        self.client.do_logout("1 1")
+        chess_client.print.assert_called_with("More arguments")
+
+        self.client.do_logout("")
+        chess_client.print.assert_called_with("You dont login")
+
+        self.client.name = "1"
+        self.client.do_logout("")
+        self.client.write_to_server.assert_called_with("logout", 3)
+        chess_client.print.assert_called_with("Success logout")
