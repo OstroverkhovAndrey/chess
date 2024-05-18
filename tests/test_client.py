@@ -335,3 +335,48 @@ class TestMove(unittest.TestCase):
     def test_complet_move(self):
         self.assertEqual(self.client.complete_move("e", "move e", 6, 6),
                          ["e2e3", "e2e4"])
+
+
+class TestDraw(unittest.TestCase):
+
+    def setUp(self):
+        self.client = chess_client.chess_client()
+        chess_client.print = MagicMock()
+        chess_client.chess_client.write_to_server = MagicMock()
+
+        def wait_request_ans(self, num):
+            if num == 3:
+                self.request[num] = "send_draw_request"
+            else:
+                self.request[num] = "draw"
+        chess_client.chess_client.wait_request_ans = wait_request_ans
+        self.client.game = Game("w")
+
+    def test_do_draw(self):
+        self.client.game = None
+        self.client.do_draw("ok")
+        chess_client.print.assert_called_with("You dont play now")
+
+        self.client.game = Game("w")
+        self.client.do_draw("ok not")
+        chess_client.print.assert_called_with("More arguments")
+
+        self.client.do_draw("")
+        chess_client.print.assert_called_with("Not enough arguments")
+
+        self.client.do_draw("yes")
+        chess_client.print.assert_called_with("Incorrect argument")
+
+        self.client.do_draw("ok")
+        self.assertEqual(self.client.write_to_server.mock_calls[-1].args,
+                         ("draw ok", 3))
+        chess_client.print.assert_called_with("Send draw request")
+
+        self.client.do_draw("ok")
+        self.assertEqual(self.client.write_to_server.mock_calls[-1].args,
+                         ("draw ok", 5))
+        chess_client.print.assert_called_with("Draw")
+
+    def test_complet_draw(self):
+        self.assertEqual(self.client.complete_draw("", "draw ", 5, 5),
+                         ["ok", "not"])
