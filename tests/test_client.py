@@ -209,3 +209,44 @@ class TestGetStatistic(unittest.TestCase):
         self.client.write_to_server.assert_called_with("statistic 1", 3)
         chess_client.print.assert_called_with(
             "Statistic for 1\nwin: 2\ndraw: 3\ndefeat: 4")
+
+
+class TestPlay(unittest.TestCase):
+
+    def setUp(self):
+        self.client = chess_client.chess_client()
+        chess_client.print = MagicMock()
+        chess_client.chess_client.write_to_server = MagicMock()
+
+        def wait_request_ans(self, num):
+            if num == 3:
+                self.request[num] = "send_game_request"
+            else:
+                self.request[num] = "start_game 0"
+        chess_client.chess_client.wait_request_ans = wait_request_ans
+
+        def wait_complet_ans(self, num):
+            self.complet[num] = "1 2 3"
+        chess_client.chess_client.wait_complet_ans = wait_complet_ans
+
+    def test_do_play(self):
+        self.client.do_play("1 1")
+        chess_client.print.assert_called_with("More arguments")
+        self.client.do_play("")
+        chess_client.print.assert_called_with("Not enough arguments")
+        self.client.do_play("#@$")
+        chess_client.print.assert_called_with("Incorrect name")
+
+        self.client.do_play("1")
+        self.client.write_to_server.assert_called_with("play 1", 3)
+        chess_client.print.assert_called_with("Send game request")
+
+        self.client.do_play("1")
+        self.client.write_to_server.assert_called_with("play 1", 5)
+        self.assertEqual(chess_client.print.mock_calls[-2].args[0],
+                         "Start game, color: w")
+
+    def test_complet_play(self):
+        self.assertEqual(self.client.complete_play("", "play ", 5, 5),
+                         ["1", "2", "3"])
+        self.client.write_to_server.assert_called_with("online_users", 4)
