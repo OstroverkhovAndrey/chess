@@ -2,13 +2,13 @@
 """A module that implements a chess server using asyncio server."""
 
 import asyncio
-from .user_info import UserInfo
-from .clients_info import ClientsInfo
-from .games import GamesDict
-from .game_history import GameHistory
+from user_info import UserInfo
+from clients_info import ClientsInfo
+from games import GamesDict
+from game_history import GameHistory
 import random
-from .dump_load import dump_user_info, load_user_info
-from .dump_load import dump_game_history, load_game_history
+from dump_load import dump_user_info, load_user_info
+from dump_load import dump_game_history, load_game_history
 
 
 clients = {}  # ip to clients_info
@@ -70,7 +70,7 @@ def get_msg_num(msg: str) -> tuple:
     """
     num = msg.strip().split(":")[0]
     if num.isnumeric():
-        msg = msg[len(num)+1:].strip()
+        msg = msg[len(num) + 1:].strip()
         return int(num), msg
     else:
         return 0, msg
@@ -227,8 +227,8 @@ async def get_game_request(me: str, writer: asyncio.streams.StreamWriter,
     game_request_for_me = [user1 for user1, user2 in game_request.items()
                            if user2 == clients[me].user_name]
     game_request_for_me = " ".join(game_request_for_me)
-    await send_msg(writer, command_num, "game_request." +
-                   game_request_from_me + "." + game_request_for_me)
+    await send_msg(writer, command_num, "game_request."
+                   + game_request_from_me + "." + game_request_for_me)
 
 
 async def remove_game_request(me: str, writer: asyncio.streams.StreamWriter,
@@ -273,8 +273,7 @@ async def get_statistic(me: str, writer: asyncio.streams.StreamWriter,
     if user_name == "":
         user_name = clients[me].user_name
     statistic = game_history.get_statistic_for_user(user_name)
-    statistic = "statistic.{}.{}.{}.{}".format(
-                 user_name, *statistic)
+    statistic = "statistic.{}.{}.{}.{}".format(user_name, *statistic)
     await send_msg(writer, command_num, statistic)
 
 

@@ -1,5 +1,9 @@
 
 """Tests for server."""
+
+import os
+import sys
+sys.path.insert(1, os.path.dirname(__file__) + '/../server/src/')
 import server.src.chess_server as chess_server
 import unittest
 from unittest.mock import AsyncMock, MagicMock
@@ -197,7 +201,7 @@ class TestServerLogout(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(chess_server.clients["me"].user_name, "")
         self.assertTrue(unittest.mock.call(
             'writer', 0, 'success_logout_give_up') in
-                chess_server.send_msg.mock_calls)
+            chess_server.send_msg.mock_calls)
         chess_server.send_msg.assert_called_with(
             "writer", "command_num", "success_logout")
 

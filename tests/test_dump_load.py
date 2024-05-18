@@ -2,6 +2,8 @@
 """Tests for dump/load functions."""
 
 import os
+import sys
+sys.path.insert(1, os.path.dirname(__file__) + '/../server/src/')
 import unittest
 import server.src.dump_load as dump_load
 from server.src.user_info import UserInfo
