@@ -407,3 +407,15 @@ class TestGiveUp(unittest.TestCase):
         self.assertEqual(self.client.write_to_server.mock_calls[-1].args,
                          ("give_up", 3))
         chess_client.print.assert_called_with("You success give up")
+
+
+class TestExit(unittest.TestCase):
+
+    def setUp(self):
+        self.client = chess_client.chess_client()
+
+    def test_exit(self):
+        self.assertEqual(self.client.do_exit(""), 1)
+
+    def test_eof(self):
+        self.assertEqual(self.client.do_EOF(""), 1)
