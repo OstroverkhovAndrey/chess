@@ -188,3 +188,24 @@ class TestRemoveGameRequest(unittest.TestCase):
         self.client.do_remove_game_request("")
         self.client.write_to_server.assert_called_with("remove_game_request", 3)
         chess_client.print.assert_called_with("Success remove game request")
+
+
+class TestGetStatistic(unittest.TestCase):
+
+    def setUp(self):
+        self.client = chess_client.chess_client()
+        chess_client.print = MagicMock()
+        chess_client.chess_client.write_to_server = MagicMock()
+
+        def wait_request_ans(self, num):
+            self.request[num] = "statistic.1.2.3.4"
+        chess_client.chess_client.wait_request_ans = wait_request_ans
+
+    def test_do_statistic(self):
+        self.client.do_get_statistic("1 1")
+        chess_client.print.assert_called_with("More arguments")
+
+        self.client.do_get_statistic("1")
+        self.client.write_to_server.assert_called_with("statistic 1", 3)
+        chess_client.print.assert_called_with(
+            "Statistic for 1\nwin: 2\ndraw: 3\ndefeat: 4")
