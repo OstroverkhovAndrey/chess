@@ -419,3 +419,9 @@ class TestExit(unittest.TestCase):
 
     def test_eof(self):
         self.assertEqual(self.client.do_EOF(""), 1)
+
+
+class TestServerAnswer(unittest.TestCase):
+
+    def test_server_answer(self):
+        self.assertIsNone(mock_for_i18n())
