@@ -2,13 +2,13 @@
 """A module that implements a chess server using asyncio server."""
 
 import asyncio
-from user_info import UserInfo
-from clients_info import ClientsInfo
-from games import GamesDict
-from game_history import GameHistory
+from .user_info import UserInfo
+from .clients_info import ClientsInfo
+from .games import GamesDict
+from .game_history import GameHistory
 import random
-from dump_load import dump_user_info, load_user_info
-from dump_load import dump_game_history, load_game_history
+from .dump_load import dump_user_info, load_user_info
+from .dump_load import dump_game_history, load_game_history
 
 
 clients = {}  # ip to clients_info
@@ -527,6 +527,7 @@ async def chess_server(reader: asyncio.streams.StreamReader,
                         await draw(me, writer, command_num, msg)
                     case ["give_up"]:
                         await give_up(me, writer, command_num)
+
                 send = asyncio.create_task(reader.readline())
             elif q is receive:
                 receive = asyncio.create_task(clients[me].queue.get())
