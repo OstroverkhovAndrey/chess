@@ -1,794 +1,19 @@
 """Client-side chess game library."""
 
 import copy
-
-COMPUTER_TO_HUMAN_TRANSLATOR = [
-        {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h'},
-        {0: '1', 1: '2', 2: '3', 3: '4', 4: '5', 5: '6', 6: '7', 7: '8'}
-]
-
-HUMAN_TO_COMPUTER_TRANSLATOR = [
-        {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7},
-        {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7}
-]
-
-
-def coordinates_to_human(to_translate):
-    """
-    Converts coordinates to human-like format.
-
-    Parameters
-    ----------
-    to_translate : tuple
-        tuple of x and y - coordinates (both 0 to 7)
-
-    Returns
-    -------
-    str
-        human-like coordinate
-    """
-    if isinstance(to_translate, str):
-        return to_translate
-
-    return (COMPUTER_TO_HUMAN_TRANSLATOR[0][to_translate[0]]
-            + COMPUTER_TO_HUMAN_TRANSLATOR[1][to_translate[1]])
-
-
-def coordinates_to_computer(to_translate):
-    """
-    Converts coordinates to machine-like format.
-
-    Parameters
-    ----------
-    to_translate : str
-        human-like coordinates
-
-    Returns
-    -------
-    str
-        machine-like coordinate
-    """
-    if isinstance(to_translate, tuple):
-        return to_translate
-
-    return ((HUMAN_TO_COMPUTER_TRANSLATOR[0][to_translate[0]],
-             HUMAN_TO_COMPUTER_TRANSLATOR[1][to_translate[1]]))
-
-
-class Figure():
-    """
-    A class used to present any chess figure.
-
-    Attributes
-    ----------
-    x : int
-        first coordinate of figure (0 to 7)
-    y : int
-        second coordinate of figure (0 to 7)
-    color : str
-        present side which figure is on ('w' -white or 'b' - black)
-    possible_moves : list
-        list of figure possible moves
-    """
-
-    def __init__(self, x, y, color):
-        """
-        Init of Figure class.
-
-        Parameters
-        ----------
-        x : int
-            first coordinate of figure (0 to 7)
-        y : int
-            second coordinate of figure (0 to 7)
-        color : str
-            present side which figure is on ('w' -white or 'b' - black)
-        """
-        self.x = x
-        self.y = y
-        self.color = color
-        self.possible_moves = []
-
-
-class King(Figure):
-    """
-    A class used to present King chess figure.
-
-    Attributes
-    ----------
-    x : int
-        first coordinate of figure (0 to 7)
-    y : int
-        second coordinate of figure (0 to 7)
-    color : str
-        present side which figure is on ('w' - white or 'b' - black)
-    label : str
-        name of the figure as it have to be printed on the board ('Kw' or 'Kb')
-    possible_moves : list
-        list of figure possible moves
-    value : int
-        value of a figure (default 0)
-    has_moved : bool
-        indicator of moving since begginning of the game (used for roque)
-    is_under_attack : bool
-        indicator of attack on King (chech)
-
-    Methods
-    -------
-    get_possible_roques(board)
-        return list of human-like possible positions to move on the board (only roques)
-    get_possible_moves(board)
-        return list of human-like possible positions to move on the board
-    update_possible_moves(board)
-        update possible moves attribute based on get_possible_roques and get_possible_moves returning lists
-    """
-
-    def __init__(self, x, y, color):
-        """
-        Init of King class.
-
-        Parameters
-        ----------
-        x : int
-            first coordinate of figure (0 to 7)
-        y : int
-            second coordinate of figure (0 to 7)
-        color : str
-            present side which figure is on ('w' -white or 'b' - black)
-        """
-        super().__init__(x, y, color)
-        self.value = 0
-        if color == 'w':
-            self.label = 'Kw'
-        elif color == 'b':
-            self.label = 'Kb'
-        self.has_moved = False
-        self.is_under_attack = False
-
-    def get_possible_roques(self, board):
-        """
-        Returns list of ceils where figure can move (roques only).
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure staying at
-
-        Returns
-        -------
-        list
-            list of ceils where figure can move (roques only)
-        """
-        possible_moves = []
-
-        if not self.has_moved:
-            for dx in [-3, -2, -1]:
-                x = self.x + dx
-                y = self.y
-                if board[x][y] != ' ':
-                    break
-            else:
-                if self.label == 'Kw' and board[0][0] == 'Rw':
-                    possible_moves.append(coordinates_to_human((2, 0)))
-                elif self.label == 'Kb' and board[0][7] == 'Rb':
-                    possible_moves.append(coordinates_to_human((2, 7)))
-
-            for dx in [1, 2]:
-                x = self.x + dx
-                y = self.y
-                if board[x][y] != ' ':
-                    break
-            else:
-                if self.label == 'Kw' and board[7][0] == 'Rw':
-                    possible_moves.append(coordinates_to_human((6, 0)))
-                elif self.label == 'Kb' and board[7][7] == 'Rb':
-                    possible_moves.append(coordinates_to_human((6, 7)))
-
-        return possible_moves
-
-    def get_possible_moves(self, board):
-        """
-        Returns list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure stay at
-
-        Returns
-        -------
-        list
-            list of ceils where figure can move
-        """
-        if (self.x != 4 or self.label == 'Kw' and self.y != 0
-                or self.label == 'Kb' and self.y != 7):
-            self.has_moved = True
-
-        possible_moves = []
-
-        for dx, dy in ([0, 1], [1, 1], [1, 0], [1, -1],
-                       [0, -1], [-1, -1], [-1, 0], [-1, 1]):
-            x = self.x + dx
-            y = self.y + dy
-            if (-1 < x < 8 and -1 < y < 8 and (board[x][y] == ' '
-               or board[x][y][-1] != self.label[-1])):
-                possible_moves.append(coordinates_to_human((x, y)))
-
-        possible_moves += self.get_possible_roques(board)
-
-        return sorted(possible_moves)
-
-    def update_possible_moves(self, board):
-        """
-        Updates the possible_moves class attribute - list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure stay at
-        """
-        self.possible_moves = [coordinates_to_computer(coordinate)
-                               for coordinate in self.get_possible_moves(board)]
-
-
-class Queen(Figure):
-    """
-    A class used to present Queen chess figure.
-
-    Attributes
-    ----------
-    x : int
-        first coordinate of figure (0 to 7)
-    y : int
-        second coordinate of figure (0 to 7)
-    color : str
-        present side which figure is on ('w' - white or 'b' - black)
-    label : str
-        name of the figure as it have to be printed on the board ('Qw' or 'Qb')
-    possible_moves : list
-        list of figure possible moves
-    value : int
-        value of a figure (default 8)
-
-    Methods
-    -------
-    get_possible_moves(board)
-        return list of human-like possible positions to move on the board
-    update_possible_moves(board)
-        update possible moves attribute based on get_possible_moves returning lists
-    """
-
-    def __init__(self, x, y, color):
-        """
-        Init of Queen class.
-
-        Parameters
-        ----------
-        x : int
-            first coordinate of figure (0 to 7)
-        y : int
-            second coordinate of figure (0 to 7)
-        color : str
-            present side which figure is on ('w' -white or 'b' - black)
-        """
-        super().__init__(x, y, color)
-        self.value = 8
-        if color == 'w':
-            self.label = 'Qw'
-        elif color == 'b':
-            self.label = 'Qb'
-
-    def get_possible_moves(self, board):
-        """
-        Returns list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure staying at
-
-        Returns
-        -------
-        list
-            list of ceils where figure can move
-        """
-        possible_moves = []
-
-        for dx, dy in ([1, 0], [0, -1], [-1, 0], [0, 1],
-                       [1, 1], [1, -1], [-1, -1], [-1, 1]):
-            for length in range(1, 8):
-                x = self.x + dx * length
-                y = self.y + dy * length
-                if not -1 < x < 8 or not -1 < y < 8:
-                    break
-                elif board[x][y] == ' ':
-                    possible_moves.append(
-                            coordinates_to_human((x, y)))
-                elif board[x][y][-1] != self.label[-1]:
-                    possible_moves.append(coordinates_to_human((x, y)))
-                    break
-                else:
-                    break
-
-        return sorted(possible_moves)
-
-    def update_possible_moves(self, board):
-        """
-        Updates the possible_moves class attribute - list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure stay at
-        """
-        self.possible_moves = [coordinates_to_computer(coordinate)
-                               for coordinate in self.get_possible_moves(board)]
-
-
-class Rook(Figure):
-    """
-    A class used to present Rook chess figure.
-
-    Attributes
-    ----------
-    x : int
-        first coordinate of figure (0 to 7)
-    y : int
-        second coordinate of figure (0 to 7)
-    color : str
-        present side which figure is on ('w' - white or 'b' - black)
-    label : str
-        name of the figure as it have to be printed on the board ('Rw' or 'Rb')
-    possible_moves : list
-        list of figure possible moves
-    value : int
-        value of a figure (default 5)
-
-    Methods
-    -------
-    get_possible_moves(board)
-        return list of human-like possible positions to move on the board
-    update_possible_moves(board)
-        update possible moves attribute based on get_possible_moves returning lists
-    """
-
-    def __init__(self, x, y, color):
-        """
-        Init of Rook class.
-
-        Parameters
-        ----------
-        x : int
-            first coordinate of figure (0 to 7)
-        y : int
-            second coordinate of figure (0 to 7)
-        color : str
-            present side which figure is on ('w' -white or 'b' - black)
-        """
-        super().__init__(x, y, color)
-        self.value = 5
-        if color == 'w':
-            self.label = 'Rw'
-        elif color == 'b':
-            self.label = 'Rb'
-        self.has_moved = False
-
-    def get_possible_moves(self, board):
-        """
-        Returns list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure staying at
-
-        Returns
-        -------
-        list
-            list of ceils where figure can move
-        """
-        possible_moves = []
-
-        for dx, dy in [1, 0], [0, -1], [-1, 0], [0, 1]:
-            for length in range(1, 8):
-                x = self.x + dx * length
-                y = self.y + dy * length
-                if not -1 < x < 8 or not -1 < y < 8:
-                    break
-                elif board[x][y] == ' ':
-                    possible_moves.append(coordinates_to_human((x, y)))
-                elif board[x][y][-1] != self.label[-1]:
-                    possible_moves.append(coordinates_to_human((x, y)))
-                    break
-                else:
-                    break
-
-        return sorted(possible_moves)
-
-    def update_possible_moves(self, board):
-        """
-        Updates the possible_moves class attribute - list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure stay at
-        """
-        self.possible_moves = [coordinates_to_computer(coordinate)
-                               for coordinate in self.get_possible_moves(board)]
-
-
-class Knight(Figure):
-    """
-    A class used to present Knight chess figure.
-
-    Attributes
-    ----------
-    x : int
-        first coordinate of figure (0 to 7)
-    y : int
-        second coordinate of figure (0 to 7)
-    color : str
-        present side which figure is on ('w' - white or 'b' - black)
-    label : str
-        name of the figure as it have to be printed on the board ('Knw' or 'Knb')
-    possible_moves : list
-        list of figure possible moves
-    value : int
-        value of a figure (default 3)
-
-    Methods
-    -------
-    get_possible_moves(board)
-        return list of human-like possible positions to move on the board
-    update_possible_moves(board)
-        update possible moves attribute based on get_possible_moves returning lists
-    """
-
-    def __init__(self, x, y, color):
-        """
-        Init of Knight class.
-
-        Parameters
-        ----------
-        x : int
-            first coordinate of figure (0 to 7)
-        y : int
-            second coordinate of figure (0 to 7)
-        color : str
-            present side which figure is on ('w' -white or 'b' - black)
-        """
-        super().__init__(x, y, color)
-        self.value = 3
-        if color == 'w':
-            self.label = 'KNw'
-        elif color == 'b':
-            self.label = 'KNb'
-
-    def get_possible_moves(self, board):
-        """
-        Returns list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure staying at
-
-        Returns
-        -------
-        list
-            list of ceils where figure can move
-        """
-        possible_moves = []
-
-        for dx, dy in ([2, 1], [2, -1], [-2, -1], [-2, 1],
-                       [1, 2], [1, -2], [-1, -2], [-1, 2]):
-            x = self.x + dx
-            y = self.y + dy
-            if (-1 < x < 8 and -1 < y < 8
-                    and (board[x][y] == ' ' or board[x][y][-1]
-                         != self.label[-1])):
-                possible_moves.append(coordinates_to_human((x, y)))
-
-        return sorted(possible_moves)
-
-    def update_possible_moves(self, board):
-        """
-        Updates the possible_moves class attribute - list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure stay at
-        """
-        self.possible_moves = [coordinates_to_computer(coordinate)
-                               for coordinate in self.get_possible_moves(board)]
-
-
-class Bishop(Figure):
-    """
-    A class used to present Rook chess figure.
-
-    Attributes
-    ----------
-    x : int
-        first coordinate of figure (0 to 7)
-    y : int
-        second coordinate of figure (0 to 7)
-    color : str
-        present side which figure is on ('w' - white or 'b' - black)
-    label : str
-        name of the figure as it have to be printed on the board ('Bw' or 'Bb')
-    possible_moves : list
-        list of figure possible moves
-    value : int
-        value of a figure (default 3)
-
-    Methods
-    -------
-    get_possible_moves(board)
-        return list of human-like possible positions to move on the board
-    update_possible_moves(board)
-        update possible moves attribute based on get_possible_moves returning lists
-    """
-
-    def __init__(self, x, y, color):
-        """
-        Init of Bishop class.
-
-        Parameters
-        ----------
-        x : int
-            first coordinate of figure (0 to 7)
-        y : int
-            second coordinate of figure (0 to 7)
-        color : str
-            present side which figure is on ('w' -white or 'b' - black)
-        """
-        super().__init__(x, y, color)
-        self.value = 3
-        if color == 'w':
-            self.label = 'Bw'
-        elif color == 'b':
-            self.label = 'Bb'
-
-    def get_possible_moves(self, board):
-        """
-        Returns list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure staying at
-
-        Returns
-        -------
-        list
-            list of ceils where figure can move
-        """
-        possible_moves = []
-
-        for dx, dy in [1, 1], [1, -1], [-1, -1], [-1, 1]:
-            for length in range(1, 8):
-                x = self.x + dx * length
-                y = self.y + dy * length
-                if not -1 < x < 8 or not -1 < y < 8:
-                    break
-                elif board[x][y] == ' ':
-                    possible_moves.append(coordinates_to_human((x, y)))
-                elif board[x][y][-1] != self.label[-1]:
-                    possible_moves.append(coordinates_to_human((x, y)))
-                    break
-                else:
-                    break
-
-        return sorted(possible_moves)
-
-    def update_possible_moves(self, board):
-        """
-        Updates the possible_moves class attribute - list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure stay at
-        """
-        self.possible_moves = [coordinates_to_computer(coordinate)
-                               for coordinate in self.get_possible_moves(board)]
-
-
-class Pawn(Figure):
-    """
-    A class used to present Rook chess figure.
-
-    Attributes
-    ----------
-    x : int
-        first coordinate of figure (0 to 7)
-    y : int
-        second coordinate of figure (0 to 7)
-    color : str
-        present side which figure is on ('w' - white or 'b' - black)
-    label : str
-        name of the figure as it have to be printed on the board ('Pw' or 'Pb')
-    possible_moves : list
-        list of figure possible moves
-    value : int
-        value of a figure (default 1)
-    has_moved_two : bool
-        indicator of moving for 2 cells since begginning of the game (used for en passant)
-
-    Methods
-    -------
-    get_possible_moves_white_pawn(board)
-        return list of human-like possible positions to move on the board for white pawn
-    get_possible_moves_black_pawn(board)
-        return list of human-like possible positions to move on the board for black pawn
-    get_possible_moves(board)
-        return list of human-like possible positions to move on the board
-    update_possible_moves(board)
-        update possible moves attribute based on get_possible_moves returning lists
-    """
-
-    def __init__(self, x, y, color):
-        """
-        Init of Pawn class.
-
-        Parameters
-        ----------
-        x : int
-            first coordinate of figure (0 to 7)
-        y : int
-            second coordinate of figure (0 to 7)
-        color : str
-            present side which figure is on ('w' -white or 'b' - black)
-        """
-        super().__init__(x, y, color)
-        self.value = 1
-        if color == 'w':
-            self.label = 'Pw'
-        elif color == 'b':
-            self.label = 'Pb'
-        self.has_moved_two = False
-
-    def possible_moves_white_pawn(self, board):
-        """
-        Returns list of ceils where white figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure staying at
-
-        Returns
-        -------
-        list
-            list of ceils where white figure can move
-        """
-        possible_moves = []
-
-        if self.y + 1 < 8:
-            if (self.x - 1 > -1
-                    and board[self.x - 1][self.y + 1] != ' '
-                    and board[self.x - 1][self.y + 1][-1]
-                    != self.label[-1]):
-                possible_moves.append(
-                        coordinates_to_human((self.x - 1, self.y + 1)))
-
-            if (self.x + 1 < 8
-                    and board[self.x + 1][self.y + 1] != ' '
-                    and board[self.x + 1][self.y + 1][-1]
-                    != self.label[-1]):
-                possible_moves.append(
-                        coordinates_to_human((self.x + 1, self.y + 1)))
-
-            if board[self.x][self.y + 1] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x, self.y + 1)))
-                if self.y == 1 and board[self.x][self.y + 2] == ' ':
-                    possible_moves.append(
-                            coordinates_to_human((self.x, self.y + 2)))
-
-            if self.y == 4:
-                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'Pb':
-                    possible_moves.append(
-                        coordinates_to_human((self.x - 1, self.y + 1)))
-                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'Pb':
-                    possible_moves.append(
-                        coordinates_to_human((self.x + 1, self.y + 1)))
-
-        return sorted(possible_moves)
-
-    def possible_moves_black_pawn(self, board):
-        """
-        Returns list of ceils where black figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure staying at
-
-        Returns
-        -------
-        list
-            list of ceils where black figure can move
-        """
-        possible_moves = []
-
-        if self.y - 1 > -1:
-            if (self.x - 1 > -1
-                    and board[self.x - 1][self.y - 1] != ' '
-                    and board[self.x - 1][self.y - 1][-1]
-                    != self.label[-1]):
-                possible_moves.append(
-                        coordinates_to_human((self.x - 1, self.y - 1)))
-
-            if (self.x + 1 < 8
-                    and board[self.x + 1][self.y - 1] != ' '
-                    and board[self.x + 1][self.y - 1][-1] !=
-                    self.label[-1]):
-                possible_moves.append(
-                        coordinates_to_human((self.x + 1, self.y - 1)))
-
-            if board[self.x][self.y - 1] == ' ':
-                possible_moves.append(
-                        coordinates_to_human((self.x, self.y - 1)))
-                if self.y == 6 and board[self.x][self.y - 2] == ' ':
-                    possible_moves.append(
-                            coordinates_to_human((self.x, self.y - 2)))
-
-            if self.y == 3:
-                if self.x - 1 > 0 and board[self.x - 1][self.y] == 'Pw':
-                    possible_moves.append(
-                        coordinates_to_human((self.x - 1, self.y - 1)))
-                if self.x + 1 < 8 and board[self.x + 1][self.y] == 'Pw':
-                    possible_moves.append(
-                        coordinates_to_human((self.x + 1, self.y - 1)))
-
-        return sorted(possible_moves)
-
-    def get_possible_moves(self, board):
-        """
-        Returns list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure staying at
-
-        Returns
-        -------
-        list
-            list of ceils where figure can move
-        """
-        if self.label[-1] == 'w':
-            return self.possible_moves_white_pawn(board)
-        else:
-            return self.possible_moves_black_pawn(board)
-
-    def update_possible_moves(self, board):
-        """
-        Updates the possible_moves class attribute - list of ceils where figure can move.
-
-        Parameters
-        ----------
-        board : list of lists
-            a board the figure stay at
-        """
-        self.possible_moves = [coordinates_to_computer(coordinate)
-                               for coordinate in self.get_possible_moves(board)]
-
-
-WHITE_START_FIGURES = ([King(4, 0, 'w'), Queen(3, 0, 'w')]
-                       + [Rook(0, 0, 'w'), Rook(7, 0, 'w')]
-                       + [Knight(1, 0, 'w'), Knight(6, 0, 'w')]
-                       + [Bishop(2, 0, 'w'), Bishop(5, 0, 'w')]
-                       + [Pawn(i, 1, 'w') for i in range(8)])
-BLACK_START_FIGURES = ([King(4, 7, 'b'), Queen(3, 7, 'b')]
-                       + [Rook(0, 7, 'b'), Rook(7, 7, 'b')]
-                       + [Knight(1, 7, 'b'), Knight(6, 7, 'b')]
-                       + [Bishop(2, 7, 'b'), Bishop(5, 7, 'b')]
-                       + [Pawn(i, 6, 'b') for i in range(8)])
+import figures
+
+
+WHITE_START_FIGURES = ([figures.King(4, 0, 'w'), figures.Queen(3, 0, 'w')]
+                       + [figures.Rook(0, 0, 'w'), figures.Rook(7, 0, 'w')]
+                       + [figures.Knight(1, 0, 'w'), figures.Knight(6, 0, 'w')]
+                       + [figures.Bishop(2, 0, 'w'), figures.Bishop(5, 0, 'w')]
+                       + [figures.Pawn(i, 1, 'w') for i in range(8)])
+BLACK_START_FIGURES = ([figures.King(4, 7, 'b'), figures.Queen(3, 7, 'b')]
+                       + [figures.Rook(0, 7, 'b'), figures.Rook(7, 7, 'b')]
+                       + [figures.Knight(1, 7, 'b'), figures.Knight(6, 7, 'b')]
+                       + [figures.Bishop(2, 7, 'b'), figures.Bishop(5, 7, 'b')]
+                       + [figures.Pawn(i, 6, 'b') for i in range(8)])
 
 EMPTY_BOARD = [[' ' for i in range(8)] for j in range(8)]
 
@@ -843,7 +68,8 @@ class Game():
     Attributes
     ----------
     board : list
-        list (len 8) of lists (len 8) where each element is string (' ' if there is no figure and figure label otherwise)
+        list (len 8) of lists (len 8) where each element is string
+        (' ' if there is no figure and figure label otherwise)
     white_figures : list
         list of white figures on the board
     black_figures : list
@@ -860,9 +86,11 @@ class Game():
     Methods
     -------
     get_possible_moves()
-        return dictionary with keys - coordinates of figures on player's side and values - list of ceils where those figures can move
+        return dictionary with keys - coordinates of figures on
+        player's side and values - list of ceils where those figures can move
     update_possible_moves()
-        update possible_moves attribute of each figure in white_figures and black_figures lists
+        update possible_moves attribute of each figure in
+        white_figures and black_figures lists
     get_board()
         return board as string in "pretty" format
     update_board()
@@ -904,7 +132,8 @@ class Game():
         Parameters
         ----------
         player : str
-            color of the figures the player plays with ('w' - white, 'b' - black)
+            color of the figures the player plays with
+            ('w' - white, 'b' - black)
         """
         self.white_figures = [copy.deepcopy(WHITE_START_FIGURES[i])
                               for i in range(len(WHITE_START_FIGURES))]
@@ -928,18 +157,19 @@ class Game():
         Returns
         -------
         dictionary
-            dictionary with keys - coordinates of figures on player's side and values - list of ceils where those figures can move
+            dictionary with keys - coordinates of figures on player's
+            side and values - list of ceils where those figures can move
         """
         possible_moves = {}
 
         if self.current_player == 'w' and self.player == 'w':
             for fig in self.white_figures:
-                possible_moves[coordinates_to_human((fig.x, fig.y))] = (
+                possible_moves[figures.coordinates_to_human((fig.x, fig.y))] = (
                         fig.get_possible_moves(self.board))
             return dict(sorted(possible_moves.items()))
         elif self.current_player == 'b' and self.player == 'b':
             for fig in self.black_figures:
-                possible_moves[coordinates_to_human((fig.x, fig.y))] = (
+                possible_moves[figures.coordinates_to_human((fig.x, fig.y))] = (
                         fig.get_possible_moves(self.board))
             return dict(sorted(possible_moves.items()))
         else:
@@ -1025,7 +255,10 @@ class Game():
     def is_check_move(self, x1, x2, y1, y2, moving_figures,
                       fixed_figures, eated_figure=None, cancel=False):
         """
-        Check if made move led to check and calls cancel_move method if player's King is checked or checkmated after move.
+        Check if made move led to check.
+
+        Calls cancel_move method if player's King is checked
+        or checkmated after move.
 
         Parameters
         ----------
@@ -1044,11 +277,14 @@ class Game():
         eated_figure, optional
             Figure which was eated in this turn (None if any figure was eated)
         cancel : bool, optional
-            True if forced cancel of move is neccessary, False otherwise (default is False)
+            True if forced cancel of move is neccessary, False otherwise
+            (default is False)
+
         Returns
         -------
         str
-            'IMPOSSIBLE MOVE: YOU CAN'T MAKE MOVE TO CHECK' if move led to player's King to be checked or checkmated
+            'IMPOSSIBLE MOVE: YOU CAN'T MAKE MOVE TO CHECK' if move led to
+            player's King to be checked or checkmated
             'CHECKMATE!' if move led to opposite King to be checkmated
             'CHECK!' if move led to opposite King to be checked
         """
@@ -1121,8 +357,9 @@ class Game():
                             eated_figure = fixed_figures.pop(i)
                             self.board[x2][y2] = ' '
                             break
-                if self.move_from_server(coordinates_to_human((x, y)),
-                                         coordinates_to_human((x2, y2))):
+                if self.move_from_server(figures.coordinates_to_human((x, y)),
+                                         figures.coordinates_to_human((x2,
+                                                                       y2))):
                     self.cancel_move(x, y, x2, y2, moving_figures,
                                      fixed_figures, eated_figure)
                     self.update_board()
@@ -1144,12 +381,13 @@ class Game():
             human-like coordinates of first cell of suggested move
         coordinate_2 : str
             human-like coordinates of first cell of suggested move
+
         Returns
         -------
         bool
             True if suggested move will lead to draw
             False otherwise
-        """            
+        """
         if self.current_player == 'w':
             moving_figures = self.white_figures
             fixed_figures = self.black_figures
@@ -1160,8 +398,8 @@ class Game():
         if not self.isPossibleMove(coordinate_1, coordinate_2):
             return False
 
-        x1, y1 = coordinates_to_computer(coordinate_1)
-        x2, y2 = coordinates_to_computer(coordinate_2)
+        x1, y1 = figures.coordinates_to_computer(coordinate_1)
+        x2, y2 = figures.coordinates_to_computer(coordinate_2)
 
         eated_figure = None
         if self.board[x2][y2] != ' ':
@@ -1205,6 +443,7 @@ class Game():
             human-like coordinates of first cell of suggested move
         coordinate_2 : str
             human-like coordinates of first cell of suggested move
+
         Returns
         -------
         bool
@@ -1221,8 +460,8 @@ class Game():
         if not self.isPossibleMove(coordinate_1, coordinate_2):
             return False
 
-        x1, y1 = coordinates_to_computer(coordinate_1)
-        x2, y2 = coordinates_to_computer(coordinate_2)
+        x1, y1 = figures.coordinates_to_computer(coordinate_1)
+        x2, y2 = figures.coordinates_to_computer(coordinate_2)
 
         eated = None
         if self.board[x2][y2] != ' ':
@@ -1242,7 +481,7 @@ class Game():
         ans = self.is_checkmate()
 
         self.cancel_move(x1, y1, x2, y2, moving_figures, fixed_figures, eated)
-        
+
         self.update_board()
         self.update_possible_moves()
 
@@ -1265,8 +504,8 @@ class Game():
             moving_figures = self.white_figures
             fixed_figures = self.black_figures
 
-        king_position = (coordinates_to_human((moving_figures[0].x,
-                                              moving_figures[0].y)))
+        king_position = (figures.coordinates_to_human((moving_figures[0].x,
+                                                       moving_figures[0].y)))
 
         for moved_figure in moving_figures[1:]:
             for (x, y) in moved_figure.possible_moves:
@@ -1438,9 +677,11 @@ class Game():
         str
             'IMPOSSIBLE MOVE' if proposed move is impossible
         int
-            0 if the move is roque or en passant and the move was made successfully
+            0 if the move is roque or en passant and the move was made
+            successfully
         str
-            'CHECK!' or 'CHECKMATE!' if move led to check or checkmate respectively
+            'CHECK!' or 'CHECKMATE!' if move led to check or checkmate
+            respectively
         int
             score changes after successful neither roque not en passant move
         """
@@ -1464,7 +705,7 @@ class Game():
                     fig.y = y2
                     self.board[x2][y2] = self.board[x1][y1]
                     self.board[x1][y1] = ' '
-                    if isinstance(fig, Pawn) and (abs(y2 - y1) == 2):
+                    if isinstance(fig, figures.Pawn) and (abs(y2 - y1) == 2):
                         fig.has_moved_two = True
 
                     break
@@ -1496,11 +737,12 @@ class Game():
         str
             'It's your opponent's turn!' if now it is opponent's move
         tuple
-            tuple of human-like coordinates - move-from and move-to ceils - if the move was made successfully
+            tuple of human-like coordinates - move-from and move-to ceils -
+            if the move was made successfully
         """
         self.update_possible_moves()
-        x1, y1 = coordinates_to_computer(coordinate_1)
-        x2, y2 = coordinates_to_computer(coordinate_2)
+        x1, y1 = figures.coordinates_to_computer(coordinate_1)
+        x2, y2 = figures.coordinates_to_computer(coordinate_2)
 
         if self.current_player == 'w' and self.player == 'w':
             ans = self.handle_move(
@@ -1542,8 +784,8 @@ class Game():
             tuple of human-like coordinates - move-from and move-to ceils
         """
         self.update_possible_moves()
-        x1, y1 = coordinates_to_computer(coordinate_1)
-        x2, y2 = coordinates_to_computer(coordinate_2)
+        x1, y1 = figures.coordinates_to_computer(coordinate_1)
+        x2, y2 = figures.coordinates_to_computer(coordinate_2)
 
         if self.current_player == 'w':
             ans = self.handle_move(
