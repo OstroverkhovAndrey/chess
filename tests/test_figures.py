@@ -1,0 +1,2 @@
+
+"""Tetsts for chess figures."""
