@@ -512,3 +512,94 @@ class TestMoveCommand(unittest.IsolatedAsyncioTestCase):
         chess_server.print.assert_called_with("end game ", "win")
         self.assertFalse(chess_server.users["5"].isPlay)
         self.assertFalse(chess_server.users["6"].isPlay)
+
+
+class TestDrawCommand(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        pass
+
+    async def asyncSetUp(self):
+        chess_server.send_msg = AsyncMock()
+        chess_server.users = {}
+        chess_server.clients = {}
+
+        chess_server.clients["me1"] = ClientsInfo()
+
+        chess_server.users["2"] = UserInfo("2")
+        chess_server.users["2"].isOnline = True
+        chess_server.clients["me2"] = ClientsInfo()
+        chess_server.clients["me2"].user_name = "2"
+
+        chess_server.users["5"] = UserInfo("5")
+        chess_server.users["5"].IP = "me5"
+        chess_server.users["5"].isOnline = True
+        chess_server.users["5"].isPlay = True
+        chess_server.clients["me5"] = ClientsInfo()
+        chess_server.clients["me5"].user_name = "5"
+        chess_server.clients["me5"].queue.put = AsyncMock()
+
+        chess_server.users["6"] = UserInfo("6")
+        chess_server.users["6"].IP = "me6"
+        chess_server.users["6"].isOnline = True
+        chess_server.users["6"].isPlay = True
+        chess_server.clients["me6"] = ClientsInfo()
+        chess_server.clients["me6"].user_name = "6"
+        chess_server.clients["me6"].queue.put = AsyncMock()
+
+        chess_server.games.add_game("5", "6")
+        chess_server.print = MagicMock()
+
+    async def test_me_not_login(self):
+        await chess_server.draw("me1", "writer", "comand_num", "msg")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "you_dont_login")
+
+    async def test_me_dont_play(self):
+        await chess_server.draw("me2", "writer", "comand_num", "msg")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "you_dont_play_now")
+
+    async def test_send_draw_request_ok(self):
+        await chess_server.draw("me5", "writer", "comand_num", "ok")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "send_draw_request")
+        self.assertEqual(chess_server.games["5"].draw_request, "5")
+        chess_server.clients["me6"].queue.put.assert_called_with(
+            "opponent_send_you_draw_request")
+
+    async def test_send_draw_request_not(self):
+        await chess_server.draw("me5", "writer", "comand_num", "not")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "opponent_dont_send_draw_request")
+        self.assertEqual(chess_server.games["5"].draw_request, None)
+
+    async def test_repeat_send_draw_request_ok(self):
+        chess_server.games["5"].draw_request = "5"
+        await chess_server.draw("me5", "writer", "comand_num", "ok")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "send_draw_request")
+        self.assertEqual(chess_server.games["5"].draw_request, "5")
+
+    async def test_repeat_send_draw_request_not(self):
+        chess_server.games["5"].draw_request = "5"
+        await chess_server.draw("me5", "writer", "comand_num", "not")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "you_cant_delete_draw_request")
+        self.assertEqual(chess_server.games["5"].draw_request, "5")
+
+    async def test_ans_draw_request_ok(self):
+        chess_server.games["5"].draw_request = "5"
+        await chess_server.draw("me6", "writer", "comand_num", "ok")
+        chess_server.send_msg.assert_called_with("writer", "comand_num", "draw")
+        chess_server.clients["me5"].queue.put.assert_called_with("draw")
+        self.assertFalse(chess_server.users["5"].isPlay)
+        self.assertFalse(chess_server.users["6"].isPlay)
+
+    async def test_ans_draw_request_not(self):
+        chess_server.games["5"].draw_request = "5"
+        await chess_server.draw("me6", "writer", "comand_num", "not")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "you_refused_draw")
+        chess_server.clients["me5"].queue.put.assert_called_with(
+            "opponent_refused_draw")
