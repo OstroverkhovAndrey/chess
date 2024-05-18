@@ -427,3 +427,88 @@ class TestPlayCommand(unittest.IsolatedAsyncioTestCase):
             "writer", "comand_num", "send_game_request")
         chess_server.clients["me5"].queue.put.assert_called_with(
             "send_you_game_request 7")
+
+
+class TestMoveCommand(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        pass
+
+    async def asyncSetUp(self):
+        chess_server.send_msg = AsyncMock()
+        chess_server.users = {}
+        chess_server.clients = {}
+
+        chess_server.clients["me1"] = ClientsInfo()
+
+        chess_server.users["2"] = UserInfo("2")
+        chess_server.users["2"].isOnline = True
+        chess_server.clients["me2"] = ClientsInfo()
+        chess_server.clients["me2"].user_name = "2"
+
+        chess_server.users["5"] = UserInfo("5")
+        chess_server.users["5"].IP = "me5"
+        chess_server.users["5"].isOnline = True
+        chess_server.users["5"].isPlay = True
+        chess_server.clients["me5"] = ClientsInfo()
+        chess_server.clients["me5"].user_name = "5"
+        chess_server.clients["me5"].queue.put = AsyncMock()
+
+        chess_server.users["6"] = UserInfo("6")
+        chess_server.users["6"].IP = "me6"
+        chess_server.users["6"].isOnline = True
+        chess_server.users["6"].isPlay = True
+        chess_server.clients["me6"] = ClientsInfo()
+        chess_server.clients["me6"].user_name = "6"
+
+        chess_server.games.add_game("5", "6")
+        chess_server.games["5"].set_draw_request("5")
+        chess_server.print = MagicMock()
+
+    async def test_me_not_login(self):
+        await chess_server.move_command("me1", "writer", "move", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "you_dont_login")
+
+    async def test_me_dont_play(self):
+        await chess_server.move_command("me2", "writer", "move", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "you_dont_play_now")
+
+    async def test_error_with_draw_request_in_client(self):
+        await chess_server.move_command("me5", "writer", "move", "comand_num")
+        chess_server.print.assert_called_with("Error with draw request!")
+
+    async def test_move_and_refused_draw(self):
+        await chess_server.move_command("me6", "writer", "move", "comand_num")
+        self.assertEqual(chess_server.clients["me5"].queue.put.mock_calls[0].
+                         args[0], "move_opponent_refused_draw")
+
+    async def test_move(self):
+        await chess_server.move_command("me6", "writer", "move", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "you_get_move")
+        self.assertEqual(chess_server.clients["me5"].queue.put.mock_calls[1].
+                         args[0], "opponent_get_move move")
+
+    async def test_draw(self):
+        await chess_server.move_command(
+            "me6", "writer", "move:draw", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "you_get_move")
+        self.assertEqual(chess_server.clients["me5"].queue.put.mock_calls[1].
+                         args[0], "opponent_get_move move:draw")
+        chess_server.print.assert_called_with("end game ", "draw")
+        self.assertFalse(chess_server.users["5"].isPlay)
+        self.assertFalse(chess_server.users["6"].isPlay)
+
+    async def test_win(self):
+        await chess_server.move_command(
+            "me6", "writer", "move:win", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "you_get_move")
+        self.assertEqual(chess_server.clients["me5"].queue.put.mock_calls[1].
+                         args[0], "opponent_get_move move:win")
+        chess_server.print.assert_called_with("end game ", "win")
+        self.assertFalse(chess_server.users["5"].isPlay)
+        self.assertFalse(chess_server.users["6"].isPlay)
