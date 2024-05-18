@@ -131,3 +131,72 @@ class TestServerLogin(unittest.IsolatedAsyncioTestCase):
         self.assertFalse("user_name2" in chess_server.users)
         chess_server.send_msg.assert_called_with(
             "writer", "command_num", "login_dont_registre")
+
+
+class TestServerLogout(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        pass
+
+    async def asyncSetUp(self):
+        chess_server.send_msg = AsyncMock()
+        chess_server.users = {}
+        chess_server.users["user_name"] = UserInfo("user_name")
+        chess_server.users["user_name"].isOnline = True
+        chess_server.users["user_name"].IP = "me"
+        chess_server.users["opponent"] = UserInfo("opponent")
+        chess_server.users["opponent"].isOnline = True
+        chess_server.users["opponent"].IP = "me_opponent"
+        chess_server.clients = {}
+        chess_server.clients["me"] = ClientsInfo()
+        chess_server.clients["me"].user_name = "user_name"
+        chess_server.clients["me_opponent"] = ClientsInfo()
+        chess_server.clients["me_opponent"].user_name = "opponent"
+        chess_server.game_request = {}
+        chess_server.games = GamesDict()
+        chess_server.game_history = GameHistory()
+
+    async def test_success_logout(self):
+        self.assertTrue(chess_server.users["user_name"].isOnline)
+        self.assertTrue(chess_server.isOnline("me"))
+
+        await chess_server.logout("me", "writer", "command_num")
+
+        self.assertFalse(chess_server.users["user_name"].isOnline)
+        self.assertEqual(chess_server.clients["me"].user_name, "")
+        chess_server.send_msg.assert_called_with(
+            "writer", "command_num", "success_logout")
+
+    async def test_logout_not(self):
+        self.assertTrue(chess_server.users["user_name"].isOnline)
+        self.assertTrue(chess_server.isOnline("me"))
+
+        await chess_server.logout("me", "writer", "command_num")
+        self.assertFalse(chess_server.users["user_name"].isOnline)
+        self.assertEqual(chess_server.clients["me"].user_name, "")
+        chess_server.send_msg.assert_called_with(
+            "writer", "command_num", "success_logout")
+
+        await chess_server.logout("me", "writer", "command_num")
+        self.assertFalse(chess_server.users["user_name"].isOnline)
+        self.assertEqual(chess_server.clients["me"].user_name, "")
+        chess_server.send_msg.assert_called_with(
+            "writer", "command_num", "logout_not")
+
+    async def test_success_logout_and_give_up(self):
+        self.assertTrue(chess_server.users["user_name"].isOnline)
+        self.assertTrue(chess_server.isOnline("me"))
+        chess_server.users["user_name"].isPlay = True
+        chess_server.users["opponent"].isPlay = True
+        chess_server.games.add_game("user_name", "opponent")
+
+        await chess_server.logout("me", "writer", "command_num")
+
+        self.assertFalse(chess_server.users["user_name"].isOnline)
+        self.assertFalse(chess_server.users["user_name"].isPlay)
+        self.assertEqual(chess_server.clients["me"].user_name, "")
+        self.assertTrue(unittest.mock.call(
+            'writer', 0, 'success_logout_give_up') in
+                chess_server.send_msg.mock_calls)
+        chess_server.send_msg.assert_called_with(
+            "writer", "command_num", "success_logout")
