@@ -290,3 +290,50 @@ class TestGameRequest(unittest.IsolatedAsyncioTestCase):
         await chess_server.remove_game_request("me2", "writer", "comand_num")
         chess_server.send_msg.assert_called_with(
             "writer", "comand_num", "not_found_you_game_request")
+
+
+class TestGetStatistic(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        pass
+
+    async def asyncSetUp(self):
+        chess_server.send_msg = AsyncMock()
+        chess_server.users = {}
+        chess_server.clients = {}
+
+        chess_server.clients["me1"] = ClientsInfo()
+        chess_server.clients["me1"].user_name = "1"
+        chess_server.clients["me2"] = ClientsInfo()
+        chess_server.clients["me2"].user_name = "2"
+        chess_server.clients["me3"] = ClientsInfo()
+        chess_server.clients["me3"].user_name = "3"
+        chess_server.clients["me4"] = ClientsInfo()
+        chess_server.clients["me4"].user_name = "4"
+
+        chess_server.game_history.add_game("1", "2", "1", "")
+        chess_server.game_history.add_game("1", "3", "3", "")
+        chess_server.game_history.add_game("4", "1", "draw", "")
+        chess_server.game_history.add_game("2", "1", "1", "")
+        chess_server.game_history.add_game("3", "2", "3", "")
+
+    async def test_get_statistic(self):
+        await chess_server.get_statistic("me1", "writer", "comand_num", "")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "statistic.1.2.1.1")
+
+        await chess_server.get_statistic("me1", "writer", "comand_num", "1")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "statistic.1.2.1.1")
+
+        await chess_server.get_statistic("me2", "writer", "comand_num", "2")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "statistic.2.0.0.3")
+
+        await chess_server.get_statistic("me3", "writer", "comand_num", "3")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "statistic.3.2.0.0")
+
+        await chess_server.get_statistic("me4", "writer", "comand_num", "")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "statistic.4.0.1.0")
