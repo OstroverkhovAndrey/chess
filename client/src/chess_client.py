@@ -9,6 +9,7 @@ import shlex
 from chess_game import Game
 from internationalization import _
 from server_answer import server_answer
+import locale
 
 
 class chess_client(cmd.Cmd):
@@ -127,6 +128,57 @@ class chess_client(cmd.Cmd):
         """
         while self.complet[num] is None:
             pass
+
+    def do_set_language(self, arg: str) -> None:
+        """
+        Set text interface language.
+
+        Parameters
+        ----------
+        arg : str
+            Contains the desired language of the text interface. Now: en, ru
+        """
+        arg = shlex.split(arg)
+        if len(arg) > 1:
+            print(_("More arguments"))
+        elif len(arg) < 1:
+            print(_("Not enough arguments"))
+        elif arg[0] != "en" and arg[0] != "ru":
+            print(_("This language is currently not supported"))
+        elif arg[0] == "en":
+            locale.setlocale(locale.LC_ALL, ("en_US", "UTF-8"))
+            print(_("Set language"))
+        elif arg[0] == "ru":
+            locale.setlocale(locale.LC_ALL, ("ru_RU", "UTF-8"))
+            print(_("Set language"))
+
+    def complete_set_language(
+            self, text: str, line: str, begidx: int, endidx: int) -> list:
+        """
+        Complete set language command.
+
+        Parameters
+        ----------
+        text : str
+            Prefix
+        line : str
+            All line
+        begidx : int
+            Prefix start
+        endidx : int
+            Prefix end
+
+        Returns
+        -------
+        list
+            [en | ru]
+        """
+        words = (line[:endidx] + ".").split()
+        complition = []
+        match len(words):
+            case 2:
+                complition = ['en', 'ru']
+        return [c for c in complition if c.startswith(text)]
 
     def do_registre(self, arg: str) -> None:
         """
