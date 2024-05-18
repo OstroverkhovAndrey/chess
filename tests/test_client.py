@@ -168,3 +168,23 @@ class TestGetGameRequest(unittest.TestCase):
         self.client.do_get_game_request("")
         self.client.write_to_server.assert_called_with("game_request", 3)
         chess_client.print.assert_called_with("From me: 1\nFor me: 2 3 4")
+
+
+class TestRemoveGameRequest(unittest.TestCase):
+
+    def setUp(self):
+        self.client = chess_client.chess_client()
+        chess_client.print = MagicMock()
+        chess_client.chess_client.write_to_server = MagicMock()
+
+        def wait_request_ans(self, num):
+            self.request[num] = "success_remove_game_request"
+        chess_client.chess_client.wait_request_ans = wait_request_ans
+
+    def test_do_remove_game_request(self):
+        self.client.do_remove_game_request("a")
+        chess_client.print.assert_called_with("More arguments")
+
+        self.client.do_remove_game_request("")
+        self.client.write_to_server.assert_called_with("remove_game_request", 3)
+        chess_client.print.assert_called_with("Success remove game request")
