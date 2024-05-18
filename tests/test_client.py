@@ -250,3 +250,88 @@ class TestPlay(unittest.TestCase):
         self.assertEqual(self.client.complete_play("", "play ", 5, 5),
                          ["1", "2", "3"])
         self.client.write_to_server.assert_called_with("online_users", 4)
+
+
+class TestMove(unittest.TestCase):
+
+    def setUp(self):
+        self.client = chess_client.chess_client()
+        chess_client.print = MagicMock()
+        chess_client.chess_client.write_to_server = MagicMock()
+
+        def wait_request_ans(self, num):
+            self.request[num] = "you_get_move"
+        chess_client.chess_client.wait_request_ans = wait_request_ans
+
+        def get_possible_moves():
+            return {"e2": ["e3", "e4"], "a2": ["a3", "a4"], }
+        self.client.game = Game("w")
+        self.client.game.get_possible_moves = get_possible_moves
+
+    def test_do_move_error(self):
+        self.client.game = None
+        self.client.do_move("e2e4")
+        chess_client.print.assert_called_with("You dont play now")
+
+        self.client.game = Game("b")
+        self.client.do_move("e2e4")
+        chess_client.print.assert_called_with("Now not you move")
+
+        self.client.game = Game("w")
+        self.client.do_move("e2 to e4")
+        chess_client.print.assert_called_with("More arguments")
+
+        self.client.do_move("")
+        chess_client.print.assert_called_with("Not enough arguments")
+
+        self.client.draw_request = True
+        self.client.do_move("e2e4")
+        chess_client.print.assert_called_with("You send draw request")
+
+        self.client.draw_request = False
+        self.client.do_move("e2toe4")
+        chess_client.print.assert_called_with("Incorrect move")
+
+    def test_do_move(self):
+
+        self.client.game.isPossibleMove = MagicMock(return_value=False)
+        self.client.do_move("e2e4")
+        chess_client.print.assert_called_with("It is impossiple move")
+
+        self.client.game = Game("w")
+        self.client.game.isPossibleMove = MagicMock(return_value=True)
+        self.client.game.isWinMove = MagicMock(return_value=False)
+        self.client.game.isDrawMove = MagicMock(return_value=False)
+        self.client.do_move("e2e4")
+        self.client.write_to_server.assert_called_with("move e2e4:ok", 3)
+        chess_client.print.assert_called_with("You get move")
+
+        self.client.game = Game("w")
+        self.client.game.isPossibleMove = MagicMock(return_value=True)
+        self.client.game.isWinMove = MagicMock(return_value=True)
+        self.client.game.isDrawMove = MagicMock(return_value=False)
+        self.client.do_move("e2e4")
+        self.assertEqual(self.client.write_to_server.mock_calls[-1].args,
+                         ("move e2e4:win", 5))
+        self.assertEqual(chess_client.print.mock_calls[-2].args[0],
+                         "You get move")
+        self.assertEqual(chess_client.print.mock_calls[-1].args[0],
+                         "Stop game, you win!")
+        self.assertIsNone(self.client.game)
+
+        self.client.game = Game("w")
+        self.client.game.isPossibleMove = MagicMock(return_value=True)
+        self.client.game.isWinMove = MagicMock(return_value=False)
+        self.client.game.isDrawMove = MagicMock(return_value=True)
+        self.client.do_move("e2e4")
+        self.assertEqual(self.client.write_to_server.mock_calls[-1].args,
+                         ("move e2e4:draw", 7))
+        self.assertEqual(chess_client.print.mock_calls[-2].args[0],
+                         "You get move")
+        self.assertEqual(chess_client.print.mock_calls[-1].args[0],
+                         "Stop game, draw")
+        self.assertIsNone(self.client.game)
+
+    def test_complet_move(self):
+        self.assertEqual(self.client.complete_move("e", "move e", 6, 6),
+                         ["e2e3", "e2e4"])
