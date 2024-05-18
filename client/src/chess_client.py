@@ -710,4 +710,7 @@ class chess_client(cmd.Cmd):
 
 
 if __name__ == "__main__":
-    chess_client().cmdloop()
+    try:
+        chess_client().cmdloop()
+    except ConnectionRefusedError:
+        print(_("The server is currently unavailable, please try again later"))
