@@ -200,3 +200,42 @@ class TestServerLogout(unittest.IsolatedAsyncioTestCase):
                 chess_server.send_msg.mock_calls)
         chess_server.send_msg.assert_called_with(
             "writer", "command_num", "success_logout")
+
+
+class TestGetUsers(unittest.IsolatedAsyncioTestCase):
+
+    def setUp(self):
+        pass
+
+    async def asyncSetUp(self):
+        chess_server.send_msg = AsyncMock()
+        chess_server.users = {}
+        chess_server.clients = {}
+
+        chess_server.users["user_name"] = UserInfo("user_name")
+        chess_server.users["user_name"].isOnline = True
+        chess_server.users["user_name"].IP = "me"
+        chess_server.clients["me"] = ClientsInfo()
+        chess_server.clients["me"].user_name = "user_name"
+
+        chess_server.users["user_name_1"] = UserInfo("user_name_1")
+        chess_server.users["user_name_1"].isOnline = True
+        chess_server.users["user_name_1"].IP = "me_1"
+        chess_server.clients["me_1"] = ClientsInfo()
+        chess_server.clients["me_1"].user_name = "user_name_1"
+
+        chess_server.users["user_name_2"] = UserInfo("user_name_2")
+        chess_server.users["user_name_2"].isOnline = False
+        chess_server.users["user_name_2"].IP = ""
+        chess_server.clients["me_2"] = ClientsInfo()
+        chess_server.clients["me_2"].user_name = ""
+
+    async def test_get_offline_users(self):
+        await chess_server.get_offline_users("writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "user_name_2")
+
+    async def test_get_online_users(self):
+        await chess_server.get_online_users("writer", "comand_num")
+        chess_server.send_msg.assert_called_with(
+            "writer", "comand_num", "user_name user_name_1")
