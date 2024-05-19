@@ -19,204 +19,225 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.15.0\n"
 
-#: client/src/chess_client.py:45 client/src/chess_client.py:63
-#: client/src/chess_client.py:101 client/src/chess_client.py:119
-#: client/src/chess_client.py:133 client/src/chess_client.py:147
-#: client/src/chess_client.py:161 client/src/chess_client.py:180
-#: client/src/chess_client.py:226 client/src/chess_client.py:279
-#: client/src/chess_client.py:313
+#: client/src/chess_client.py:143 client/src/chess_client.py:194
+#: client/src/chess_client.py:218 client/src/chess_client.py:280
+#: client/src/chess_client.py:306 client/src/chess_client.py:326
+#: client/src/chess_client.py:346 client/src/chess_client.py:366
+#: client/src/chess_client.py:391 client/src/chess_client.py:462
+#: client/src/chess_client.py:544 client/src/chess_client.py:603
+#: tests/test_client.py:433 tests/test_client.py:436
 msgid "More arguments"
 msgstr "Много аргументов"
 
-#: client/src/chess_client.py:47 client/src/chess_client.py:65
-#: client/src/chess_client.py:182 client/src/chess_client.py:228
-#: client/src/chess_client.py:281
+#: client/src/chess_client.py:145 client/src/chess_client.py:196
+#: client/src/chess_client.py:220 client/src/chess_client.py:393
+#: client/src/chess_client.py:464 client/src/chess_client.py:546
 msgid "Not enough arguments"
 msgstr "Недостаточно аргументов"
 
-#: client/src/chess_client.py:49 client/src/chess_client.py:67
-#: client/src/chess_client.py:184
+#: client/src/chess_client.py:147
+msgid "This language is currently not supported"
+msgstr "Данный язык пока на поддерживается"
+
+#: client/src/chess_client.py:150 client/src/chess_client.py:153
+msgid "Set language"
+msgstr "Установлен язык"
+
+#: client/src/chess_client.py:198 client/src/chess_client.py:222
+#: client/src/chess_client.py:395
 msgid "Incorrect name"
 msgstr "Некорректное имя"
 
-#: client/src/chess_client.py:69 client/src/server_answer.py:59
+#: client/src/chess_client.py:224 client/src/server_answer.py:67
 msgid "You already login"
 msgstr "Вы уже залгинились"
 
-#: client/src/chess_client.py:103
+#: client/src/chess_client.py:282
 msgid "You dont login"
 msgstr "Вы не залогинились"
 
-#: client/src/chess_client.py:222 client/src/chess_client.py:277
-#: client/src/chess_client.py:311 client/src/server_answer.py:79
+#: client/src/chess_client.py:458 client/src/chess_client.py:542
+#: client/src/chess_client.py:601 client/src/server_answer.py:87
 msgid "You dont play now"
 msgstr "Вы сейчас не играете"
 
-#: client/src/chess_client.py:224
+#: client/src/chess_client.py:460
 msgid "Now not you move"
 msgstr "Сейчас не ваш ход"
 
-#: client/src/chess_client.py:230
+#: client/src/chess_client.py:466
 msgid "You send draw request"
 msgstr "Вы отправили предложени ничьей"
 
-#: client/src/chess_client.py:232
+#: client/src/chess_client.py:468
 msgid "Incorrect move"
 msgstr "Некоректный ход"
 
-#: client/src/chess_client.py:237
+#: client/src/chess_client.py:473
 msgid "It is impossiple move"
 msgstr "Это не невозможный ход"
 
-#: client/src/chess_client.py:257
+#: client/src/chess_client.py:495
 msgid "Stop game, you win!"
 msgstr "Стоп игра, вы выиграли!"
 
-#: client/src/chess_client.py:259 client/src/chess_client.py:371
+#: client/src/chess_client.py:497 client/src/chess_client.py:677
 msgid "Stop game, draw"
 msgstr "Стоп игра, ничья"
 
-#: client/src/chess_client.py:283
+#: client/src/chess_client.py:548
 msgid "Incorrect argument"
 msgstr "Некорректный аргумент"
 
-#: client/src/chess_client.py:369
+#: client/src/chess_client.py:675
 msgid "Stop game, you lose =("
 msgstr "Стоп игра, вы проиграли =("
 
-#: client/src/server_answer.py:56
+#: client/src/chess_client.py:716
+msgid "The server is currently unavailable, please try again later"
+msgstr "Сервер сейчас не доступен, пожалуйста попробуйте позже"
+
+#: client/src/server_answer.py:64
 msgid "Success registre"
 msgstr "Успешная регистрация"
 
-#: client/src/server_answer.py:57
+#: client/src/server_answer.py:65
 msgid "Not success registre, such a user is already registered"
 msgstr "Не успешная регистрация, такой пользователь уже зарегистрирован"
 
-#: client/src/server_answer.py:60
+#: client/src/server_answer.py:68
 msgid "This user_name dont registre"
 msgstr "Такой пользователь не зарегистрирован"
 
-#: client/src/server_answer.py:61
+#: client/src/server_answer.py:69
 msgid "This user_name already online"
 msgstr "Такой пользователь уже онлайн"
 
-#: client/src/server_answer.py:62
+#: client/src/server_answer.py:70
 msgid "Success login"
 msgstr "Вы успешно залогинились"
 
-#: client/src/server_answer.py:64
+#: client/src/server_answer.py:72
 msgid "Success logout"
 msgstr "Вы успешно разлогинились"
 
-#: client/src/server_answer.py:65
+#: client/src/server_answer.py:73
 msgid "Not success logout, you dont login"
 msgstr "Не успешно разлогинились, вы не были залогинены"
 
-#: client/src/server_answer.py:66
+#: client/src/server_answer.py:74
 msgid "Opponent give up"
 msgstr "Противник сдался"
 
-#: client/src/server_answer.py:67 client/src/server_answer.py:92
+#: client/src/server_answer.py:75 client/src/server_answer.py:100
 msgid "You success give up"
 msgstr "Вы успешно сдались"
 
-#: client/src/server_answer.py:69
+#: client/src/server_answer.py:77
 msgid "You dont login now"
 msgstr "Вы не залогинены сейчас"
 
-#: client/src/server_answer.py:70
+#: client/src/server_answer.py:78
 msgid "Opponent dont registre"
 msgstr "Противник не зарегистрирован"
 
-#: client/src/server_answer.py:71
+#: client/src/server_answer.py:79
 msgid "Opponent dont online"
 msgstr "Противник не онлайн"
 
-#: client/src/server_answer.py:72
+#: client/src/server_answer.py:80
 msgid "Cant play with yourself"
 msgstr "Нельзя играть с самим собой"
 
-#: client/src/server_answer.py:73
+#: client/src/server_answer.py:81
 msgid "Now opponent play"
 msgstr "Сейчас противник уже играет"
 
-#: client/src/server_answer.py:74
+#: client/src/server_answer.py:82
 msgid "Now you play"
 msgstr "Вы сейчас уже играете"
 
-#: client/src/server_answer.py:75
+#: client/src/server_answer.py:83
 msgid "Start game, color: {}"
 msgstr "Начало игры, цвет: {}"
 
-#: client/src/server_answer.py:76
+#: client/src/server_answer.py:84
 msgid "Send game request"
 msgstr "Отправили запрос на начало игры"
 
-#: client/src/server_answer.py:77
+#: client/src/server_answer.py:85
 msgid "{} send you game request"
 msgstr "{} отправил вам запрос на начало игры"
 
-#: client/src/server_answer.py:80 client/src/server_answer.py:89
+#: client/src/server_answer.py:88 client/src/server_answer.py:97
 msgid "Opponent refused a draw"
 msgstr "Противник отказался от ничьей"
 
-#: client/src/server_answer.py:81
+#: client/src/server_answer.py:89
 msgid "You get move"
 msgstr "Вы сделали ход"
 
-#: client/src/server_answer.py:82
+#: client/src/server_answer.py:90
 msgid "Opponent get move {}"
 msgstr "Противник сделал ход {}"
 
-#: client/src/server_answer.py:84
+#: client/src/server_answer.py:92
 msgid "Send draw request"
 msgstr "Отправили предложение ничьей"
 
-#: client/src/server_answer.py:85
+#: client/src/server_answer.py:93
 msgid "Opponent send you draw request"
 msgstr "Противник предложил ничью"
 
-#: client/src/server_answer.py:86
+#: client/src/server_answer.py:94
 msgid "Opponent dont send draw request"
 msgstr "Противник не предлагал ничью"
 
-#: client/src/server_answer.py:87
+#: client/src/server_answer.py:95
 msgid "You cant delete draw request"
 msgstr "Вы не можете удалить предложение ничьей"
 
-#: client/src/server_answer.py:88
+#: client/src/server_answer.py:96
 msgid "You refused a draw"
 msgstr "Вы отказались от ничьей"
 
-#: client/src/server_answer.py:90
+#: client/src/server_answer.py:98
 msgid "Draw"
 msgstr "Ничья"
 
-#: client/src/server_answer.py:93
+#: client/src/server_answer.py:101
 msgid ""
 "Opponent give up\n"
 "You win!"
-msgstr "Противник сдался\nВы выиграли!"
+msgstr ""
+"Противник сдался\n"
+"Вы выиграли!"
 
-#: client/src/server_answer.py:95
+#: client/src/server_answer.py:103
 msgid ""
 "From me: {}\n"
 "For me: {}"
-msgstr "От меня: {}\nДля меня: {}"
+msgstr ""
+"От меня: {}\n"
+"Для меня: {}"
 
-#: client/src/server_answer.py:97
+#: client/src/server_answer.py:105
 msgid "Success remove game request"
 msgstr "Запрос на игру удален"
 
-#: client/src/server_answer.py:98
+#: client/src/server_answer.py:106
 msgid "Not found you game request"
 msgstr "Вы не отправляли запрос на игру"
 
-#: client/src/server_answer.py:100
+#: client/src/server_answer.py:108
 msgid ""
 "Statistic for {}\n"
 "win: {}\n"
 "draw: {}\n"
 "defeat: {}"
-msgstr "Статистика для {}\nПобеды: {}\nНичьи: {}\nПоражения: {}"
+msgstr ""
+"Статистика для {}\n"
+"Победы: {}\n"
+"Ничьи: {}\n"
+"Поражения: {}"
 
