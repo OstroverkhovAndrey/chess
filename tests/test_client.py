@@ -425,3 +425,15 @@ class TestServerAnswer(unittest.TestCase):
 
     def test_server_answer(self):
         self.assertIsNone(mock_for_i18n())
+
+
+class TestI18n(unittest.TestCase):
+
+    def test_i18n(self):
+        locale.setlocale(locale.LC_ALL, ("en_US", "UTF-8"))
+        self.assertEqual(internationalization._("More arguments"),
+                         "More arguments")
+        locale.setlocale(locale.LC_ALL, ("ru_Ru", "UTF-8"))
+        self.assertEqual(internationalization._("More arguments"),
+                         "Много аргументов")
+        locale.setlocale(locale.LC_ALL, ("en_US", "UTF-8"))
