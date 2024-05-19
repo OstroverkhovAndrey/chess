@@ -3,11 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-* :ref:`genindex`
-================
+
 
 Welcome to Chess Ninjas's documentation!
 =================================
+
+`Discription <_static/discription.html>`_
 
 .. toctree::
    :maxdepth: 4
