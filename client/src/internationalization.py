@@ -16,6 +16,7 @@ LOCALES = {
 def _(text: str) -> str:
     """
     Text translation function according to the current locale.
+
     Parameters
     ----------
     text : str
