@@ -13,6 +13,8 @@ Welcome to Chess Ninjas's documentation!
 .. toctree::
    :maxdepth: 4
    :caption: Contents:
+   
+   rules
 
    chess_client
    chess_game
