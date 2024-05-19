@@ -1,9 +1,6 @@
 """Client-side chess game library."""
 
 import copy
-import sys
-
-sys.path.insert(1, '../client/src')
 import figures
 
 
