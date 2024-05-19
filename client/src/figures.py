@@ -1,4 +1,4 @@
-"""Chess figures library."""
+"""Client-side chess game library."""
 
 COMPUTER_TO_HUMAN_TRANSLATOR = [
         {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h'},
@@ -114,13 +114,13 @@ class King(Figure):
     Methods
     -------
     get_possible_roques(board)
-        return list of human-like possible positions
-        to move on the board (only roques)
+        return list of human-like possible positions to move on the board
+        (only roques)
     get_possible_moves(board)
         return list of human-like possible positions to move on the board
     update_possible_moves(board)
-        update possible moves attribute based on
-        get_possible_roques and get_possible_moves returning lists
+        update possible moves attribute based on get_possible_roques
+        and get_possible_moves returning lists
     """
 
     def __init__(self, x, y, color):
@@ -794,8 +794,8 @@ class Pawn(Figure):
         """
         Updates the possible_moves class attribute.
 
-        Updates the possible_moves class attribute
-         - list of ceils where figure can move.
+        Updates the possible_moves class attribute -
+        list of ceils where figure can move.
 
         Parameters
         ----------

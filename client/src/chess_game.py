@@ -1,6 +1,9 @@
 """Client-side chess game library."""
 
 import copy
+import sys
+
+sys.path.insert(1, '../client/src')
 import figures
 
 
@@ -245,6 +248,16 @@ class Game():
         eated_figure
             Figure which was eated in this turn (None if any figure was eated)
         """
+        if ((self.board[x2][y2] == 'Kw' or self.board[x2][y2] == 'Kb') and
+                abs(x2 - x1) == 2):
+            for fig in moving_figures:
+                if x2 == 6 and fig.x == 5 and fig.label[0] == 'R':
+                    fig.x = 7
+                    break
+                elif x2 == 2 and fig.x == 3 and fig.label[0] == 'R':
+                    fig.x = 0
+                    break
+
         for fig in moving_figures:
             if fig.x == x2 and fig.y == y2:
                 fig.x = x1
@@ -321,6 +334,77 @@ class Game():
                                              fixed_figures, eated_figure)
                         return 'CHECK!'
 
+    def isCheckMove(self, coordinate_1, coordinate_2):
+        """
+        Check if suggested move will lead to check, doesn't make move.
+
+        Parameters
+        ----------
+        coordinate_1 : str
+            human-like coordinates of first cell of suggested move
+        coordinate_2 : str
+            human-like coordinates of first cell of suggested move
+
+        Returns
+        -------
+        bool
+            True if suggested move will lead to check
+            False otherwise
+        """
+        if self.current_player == 'w':
+            moving_figures = self.white_figures
+            fixed_figures = self.black_figures
+        else:
+            moving_figures = self.black_figures
+            fixed_figures = self.white_figures
+
+        if not self.isPossibleMove(coordinate_1, coordinate_2):
+            return False
+
+        x1, y1 = figures.coordinates_to_computer(coordinate_1)
+        x2, y2 = figures.coordinates_to_computer(coordinate_2)
+
+        king_x = fixed_figures[0].x
+        king_y = fixed_figures[0].y
+
+        t = self.board[x2][y2]
+        self.board[x2][y2] = self.board[x1][y1]
+        self.board[x1][y1] = ' '
+
+#        for fig in moving_figures:
+#            if fig.x == x1 and fig.y == y1:
+#                fig.x = x2
+#                fig.y = y2
+#                break
+
+        for fig in moving_figures:
+            fig.update_possible_moves(self.board)
+            if (king_x, king_y) in fig.possible_moves:
+                self.board[x1][y1] = self.board[x2][y2]
+                self.board[x2][y2] = t
+
+#                for fig2 in moving_figures:
+#                    if fig2.x == x2 and fig2.y == y2:
+#                        fig2.x = x1
+#                        fig2.y = y1
+#                        break
+
+                self.update_board()
+                self.update_possible_moves()
+                return True
+
+        self.board[x1][y1] = self.board[x2][y2]
+        self.board[x2][y2] = t
+
+#        for fig in moving_figures:
+#            if fig.x == x2 and fig.y == y2:
+#                fig.x = x1
+#                fig.y = y1
+#                break
+
+        self.update_board()
+        self.update_possible_moves()
+
     def is_draw(self, moving_figures, fixed_figures):
         """
         Check if it is draw situation now.
@@ -331,6 +415,7 @@ class Game():
             list of figures of active player
         fixed_figures : list
             list of figures of non-active player
+
         Returns
         -------
         bool
@@ -401,6 +486,9 @@ class Game():
         x1, y1 = figures.coordinates_to_computer(coordinate_1)
         x2, y2 = figures.coordinates_to_computer(coordinate_2)
 
+        white_king_has_moved = self.white_figures[0].has_moved
+        black_king_has_moved = self.black_figures[0].has_moved
+
         eated_figure = None
         if self.board[x2][y2] != ' ':
             for i in range(len(fixed_figures)):
@@ -427,6 +515,9 @@ class Game():
 
         self.cancel_move(x1, y1, x2, y2, moving_figures,
                          fixed_figures, eated_figure)
+
+        self.white_figures[0].has_moved = white_king_has_moved
+        self.black_figures[0].has_moved = black_king_has_moved
 
         self.update_board()
         self.update_possible_moves()
@@ -463,6 +554,9 @@ class Game():
         x1, y1 = figures.coordinates_to_computer(coordinate_1)
         x2, y2 = figures.coordinates_to_computer(coordinate_2)
 
+        white_king_has_moved = self.white_figures[0].has_moved
+        black_king_has_moved = self.black_figures[0].has_moved
+
         eated = None
         if self.board[x2][y2] != ' ':
             for i in range(len(fixed_figures)):
@@ -481,6 +575,9 @@ class Game():
         ans = self.is_checkmate()
 
         self.cancel_move(x1, y1, x2, y2, moving_figures, fixed_figures, eated)
+
+        self.white_figures[0].has_moved = white_king_has_moved
+        self.black_figures[0].has_moved = black_king_has_moved
 
         self.update_board()
         self.update_possible_moves()
@@ -560,6 +657,7 @@ class Game():
                     moving_figures[0].x = x2
                     fig.x = 3 if x2 == 2 else 5
                     moving_figures[0].update_possible_moves(self.board)
+                    self.update_board()
                     break
         else:
             return -1
@@ -690,7 +788,7 @@ class Game():
             return 0
 
         score = 0
-        eated_figure = None
+#        eated_figure = None
         for fig in moving_figures:
             if fig.x == x1 and fig.y == y1:
                 if (x2, y2) in fig.possible_moves:
@@ -699,7 +797,7 @@ class Game():
                             if (fixed_figures[i].x == x2
                                     and fixed_figures[i].y == y2):
                                 score = fixed_figures[i].value
-                                eated_figure = fixed_figures.pop(i)
+#                                eated_figure = fixed_figures.pop(i)
                                 break
                     fig.x = x2
                     fig.y = y2
@@ -707,13 +805,14 @@ class Game():
                     self.board[x1][y1] = ' '
                     if isinstance(fig, figures.Pawn) and (abs(y2 - y1) == 2):
                         fig.has_moved_two = True
-
                     break
         else:
             return 'IMPOSSIBLE MOVE'
 
-        ans = self.is_check_move(x1, y1, x2, y2,
-                                 moving_figures, fixed_figures, eated_figure)
+        ans = score
+#        ans = self.is_check_move(x1, y1, x2, y2,
+#                                 moving_figures, fixed_figures, eated_figure)
+
         if ans is not None:
             return ans
         else:
@@ -803,6 +902,8 @@ class Game():
                 self.score -= ans
             else:
                 return False
+        else:
+            return False
 
         self.moves_history.append((coordinate_1, coordinate_2))
         self.update_possible_moves()
