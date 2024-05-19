@@ -526,6 +526,8 @@ async def chess_server(reader: asyncio.streams.StreamReader,
                         await draw(me, writer, command_num, msg)
                     case ["give_up"]:
                         await give_up(me, writer, command_num)
+                    case ["exit"]:
+                        await send_msg(writer, command_num, "exit")
 
                 send = asyncio.create_task(reader.readline())
             elif q is receive:

@@ -613,10 +613,13 @@ class chess_client(cmd.Cmd):
 
     def do_exit(self, arg: str) -> None:
         """Exit program."""
+        self.write_to_server("exit", 1)
         return 1
 
     def do_EOF(self, arg: str) -> None:
         """Exit program."""
+        print()
+        self.write_to_server("exit", 1)
         return 1
 
     def write_to_server(self, data: str, request_num: int) -> None:
@@ -652,7 +655,10 @@ class chess_client(cmd.Cmd):
             elif data_num in self.request and self.request[data_num] is None:
                 self.request[data_num] = data
             else:
-                if "start_game" in data:
+                if "exit" in data:
+                    import sys
+                    sys.exit(0)
+                elif "start_game" in data:
                     color = int(data.split()[-1][0])
                     msg = data.split()[0]
                     color = "w" if not color else "b"
