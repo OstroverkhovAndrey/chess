@@ -8,7 +8,6 @@
 Welcome to Chess Ninjas's documentation!
 =================================
 
-`Discription <_static/discription.html>`_
 
 .. toctree::
    :maxdepth: 4
