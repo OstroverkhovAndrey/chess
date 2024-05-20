@@ -38,6 +38,7 @@ def task_html():
 def task_test():
     """Preform tests."""
     yield {'actions': ['coverage run -m unittest -v tests/test_*'],
+           'task_dep': ["mo"],
            'verbosity': 0, 'name': "run"}
     yield {'actions': ['coverage report'], 'verbosity': 2, 'name': "report"}
 
