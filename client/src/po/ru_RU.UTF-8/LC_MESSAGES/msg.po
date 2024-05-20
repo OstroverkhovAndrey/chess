@@ -25,7 +25,7 @@ msgstr ""
 #: client/src/chess_client.py:346 client/src/chess_client.py:366
 #: client/src/chess_client.py:391 client/src/chess_client.py:462
 #: client/src/chess_client.py:544 client/src/chess_client.py:603
-#: tests/test_client.py:433 tests/test_client.py:436
+#: tests/test_client.py:434 tests/test_client.py:437
 msgid "More arguments"
 msgstr "Много аргументов"
 
@@ -81,7 +81,7 @@ msgstr "Это не невозможный ход"
 msgid "Stop game, you win!"
 msgstr "Стоп игра, вы выиграли!"
 
-#: client/src/chess_client.py:497 client/src/chess_client.py:677
+#: client/src/chess_client.py:497 client/src/chess_client.py:683
 msgid "Stop game, draw"
 msgstr "Стоп игра, ничья"
 
@@ -89,11 +89,11 @@ msgstr "Стоп игра, ничья"
 msgid "Incorrect argument"
 msgstr "Некорректный аргумент"
 
-#: client/src/chess_client.py:675
+#: client/src/chess_client.py:681
 msgid "Stop game, you lose =("
 msgstr "Стоп игра, вы проиграли =("
 
-#: client/src/chess_client.py:716
+#: client/src/chess_client.py:722
 msgid "The server is currently unavailable, please try again later"
 msgstr "Сервер сейчас не доступен, пожалуйста попробуйте позже"
 
