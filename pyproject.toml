@@ -32,8 +32,8 @@ chess_client = "chess.client.src:client"
 [project.urls]
 repository = "https://github.com/OstroverkhovAndrey/chess"
 
-[tool.setuptools.package-dir]                                                                                                            
-chess = "./" 
+[tool.setuptools.package-dir]
+chess = "./"
 
 [tool.setuptools.package-data]
 chess = ["*/*/*/*/*/*.mo"]
