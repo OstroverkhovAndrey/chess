@@ -14,7 +14,6 @@ Welcome to Chess Ninjas's documentation!
    :caption: Contents:
    
    rules
-
    chess_client
    chess_game
    figures
