@@ -26,8 +26,8 @@ classifiers = [
 ]
 
 [project.scripts]
-chess_client = "chess:client"
-chess_server = "chess:server"
+chess_server = "chess.server.src:server"
+chess_client = "chess.client.src:client"
 
 [project.urls]
 repository = "https://github.com/OstroverkhovAndrey/chess"
@@ -36,4 +36,4 @@ repository = "https://github.com/OstroverkhovAndrey/chess"
 chess = "./" 
 
 [tool.setuptools.package-data]
-chess = ["*/*/*/*/*.mo"]
+chess = ["*/*/*/*/*/*.mo"]
