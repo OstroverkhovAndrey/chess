@@ -14,7 +14,7 @@ def task_erase():
 def task_style():
     """Check style against flake8."""
     return {
-            'actions': ['flake8 --config .flake8 server/src client/src'],
+            'actions': ['flake8 --config .flake8 server/src client/src tests'],
             'verbosity': 2,
            }
 
@@ -85,7 +85,6 @@ def task_wheel():
         'verbosity': 2,
         'task_dep': ['mo'],
     }
-
 
 
 def task_wheel_server():
