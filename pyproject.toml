@@ -3,12 +3,11 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "server"
+name = "chess"
 version = "2024.0.0"
 dependencies = ["Sphinx", "build", "coverage", "doit", "flake8",
                 "pydocstyle", "Babel", "setuptools>=61.0", "wheel",
                 ]
-scripts = {chess_server = "server:server"}
 
 requires-python = ">=3.10"
 authors = [
@@ -26,8 +25,15 @@ classifiers = [
   "Programming Language :: Python :: 3"
 ]
 
+[project.scripts]
+chess_client = "chess:client"
+chess_server = "chess:server"
+
 [project.urls]
 repository = "https://github.com/OstroverkhovAndrey/chess"
 
 [tool.setuptools.package-dir]                                                                                                            
-server = "src/" 
+chess = "./" 
+
+[tool.setuptools.package-data]
+chess = ["*/*/*/*/*.mo"]

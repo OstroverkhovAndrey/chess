@@ -19,7 +19,7 @@ maintainers = [
   {name = "Andrey Ostroverkhov", email = "andrey26052001@gmain.com"}
 ]
 description = "Play chess with your friends"
-readme = "../README.md"
+readme = "README.md"
 license = {file = "LICENSE.txt"}
 keywords = ["chess"]
 classifiers = [
