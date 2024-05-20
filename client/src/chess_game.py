@@ -262,7 +262,6 @@ class Game():
         if eated_figure is not None:
             fixed_figures.append(eated_figure)
 
-
     def isDrawMove(self, coordinate_1, coordinate_2):
         """
         Check if suggested move will lead to draw, doesn't make move.
