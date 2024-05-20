@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.15.0\n"
 
-#: client/src/__init__.py:13 client/src/chess_client.py:722
+#: client/src/__init__.py:17 client/src/chess_client.py:722
 msgid "The server is currently unavailable, please try again later"
 msgstr "Сервер сейчас не доступен, пожалуйста попробуйте позже"
 
