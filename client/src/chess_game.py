@@ -262,6 +262,57 @@ class Game():
         if eated_figure is not None:
             fixed_figures.append(eated_figure)
 
+    def is_draw(self, moving_figures, fixed_figures):
+        """
+        Check if it is draw situation now.
+
+        Parameters
+        ----------
+        moving_figures : list
+            list of figures of active player
+        fixed_figures : list
+            list of figures of non-active player
+
+        Returns
+        -------
+        bool
+            True if it is draw
+            False otherwise
+        """
+        king_x = moving_figures[0].x
+        king_y = moving_figures[0].y
+
+        for fig in fixed_figures:
+            for (x, y) in fig.possible_moves:
+                if x == king_x and y == king_y:
+                    return False
+
+        for fig in moving_figures:
+            x = fig.x
+            y = fig.y
+            for (x2, y2) in fig.possible_moves[::-1]:
+                eated_figure = None
+                if self.board[x2][y2] != ' ':
+                    for i in range(len(fixed_figures)):
+                        if (fixed_figures[i].x == x2 and
+                                fixed_figures[i].y == y2):
+                            eated_figure = fixed_figures.pop(i)
+                            self.board[x2][y2] = ' '
+                            break
+                if self.move_from_server(figures.coordinates_to_human((x, y)),
+                                         figures.coordinates_to_human((x2,
+                                                                       y2))):
+                    self.cancel_move(x, y, x2, y2, moving_figures,
+                                     fixed_figures, eated_figure)
+                    self.update_board()
+                    self.update_possible_moves()
+                    return False
+                self.cancel_move(x, y, x2, y2, moving_figures,
+                                 fixed_figures, eated_figure)
+                self.update_board()
+                self.update_possible_moves()
+        return True
+
     def isDrawMove(self, coordinate_1, coordinate_2):
         """
         Check if suggested move will lead to draw, doesn't make move.
