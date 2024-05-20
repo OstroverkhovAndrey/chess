@@ -55,7 +55,26 @@ class TestGetBoard(unittest.TestCase):
     def test_get_board(self):
         game = Game("w")
 
-        self.assertEqual(game.get_board(), '\n   a    b    c    d    e    f    g    h\n ┌────┬────┬────┬────┬────┬────┬────┬────┐\n8│ Rb │KNb │ Bb │ Qb │ Kb │ Bb │KNb │ Rb │8\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n7│ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │7\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n6│    │    │    │    │    │    │    │    │6\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n5│    │    │    │    │    │    │    │    │5\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n4│    │    │    │    │    │    │    │    │4\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n3│    │    │    │    │    │    │    │    │3\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n2│ Pw │ Pw │ Pw │ Pw │ Pw │ Pw │ Pw │ Pw │2\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n1│ Rw │KNw │ Bw │ Qw │ Kw │ Bw │KNw │ Rw │1\n └────┴────┴────┴────┴────┴────┴────┴────┘\n   a    b    c    d    e    f    g    h\n')
+        self.assertEqual(game.get_board(),
+                         '\n   a    b    c    d    e    f    g    h\n' +
+                         ' ┌────┬────┬────┬────┬────┬────┬────┬────┐\n' +
+                         '8│ Rb │KNb │ Bb │ Qb │ Kb │ Bb │KNb │ Rb │8\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '7│ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │7\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '6│    │    │    │    │    │    │    │    │6\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '5│    │    │    │    │    │    │    │    │5\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '4│    │    │    │    │    │    │    │    │4\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '3│    │    │    │    │    │    │    │    │3\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '2│ Pw │ Pw │ Pw │ Pw │ Pw │ Pw │ Pw │ Pw │2\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '1│ Rw │KNw │ Bw │ Qw │ Kw │ Bw │KNw │ Rw │1\n' +
+                         ' └────┴────┴────┴────┴────┴────┴────┴────┘\n' +
+                         '   a    b    c    d    e    f    g    h\n')
 
         self.assertTrue(game.isMyMove())
         self.assertFalse(game.isDrawMove("e2", "e4"))
@@ -63,7 +82,26 @@ class TestGetBoard(unittest.TestCase):
         self.assertTrue(game.isPossibleMove("e2", "e4"))
         game.move("e2", "e4")
 
-        self.assertEqual(game.get_board(), '\n   a    b    c    d    e    f    g    h\n ┌────┬────┬────┬────┬────┬────┬────┬────┐\n8│ Rb │KNb │ Bb │ Qb │ Kb │ Bb │KNb │ Rb │8\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n7│ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │7\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n6│    │    │    │    │    │    │    │    │6\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n5│    │    │    │    │    │    │    │    │5\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n4│    │    │    │    │ Pw │    │    │    │4\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n3│    │    │    │    │    │    │    │    │3\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n2│ Pw │ Pw │ Pw │ Pw │    │ Pw │ Pw │ Pw │2\n ├────┼────┼────┼────┼────┼────┼────┼────┤\n1│ Rw │KNw │ Bw │ Qw │ Kw │ Bw │KNw │ Rw │1\n └────┴────┴────┴────┴────┴────┴────┴────┘\n   a    b    c    d    e    f    g    h\n')
+        self.assertEqual(game.get_board(),
+                         '\n   a    b    c    d    e    f    g    h\n' +
+                         ' ┌────┬────┬────┬────┬────┬────┬────┬────┐\n' +
+                         '8│ Rb │KNb │ Bb │ Qb │ Kb │ Bb │KNb │ Rb │8\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '7│ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │ Pb │7\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '6│    │    │    │    │    │    │    │    │6\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '5│    │    │    │    │    │    │    │    │5\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '4│    │    │    │    │ Pw │    │    │    │4\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '3│    │    │    │    │    │    │    │    │3\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '2│ Pw │ Pw │ Pw │ Pw │    │ Pw │ Pw │ Pw │2\n' +
+                         ' ├────┼────┼────┼────┼────┼────┼────┼────┤\n' +
+                         '1│ Rw │KNw │ Bw │ Qw │ Kw │ Bw │KNw │ Rw │1\n' +
+                         ' └────┴────┴────┴────┴────┴────┴────┴────┘\n' +
+                         '   a    b    c    d    e    f    g    h\n')
 
     def tearDown(self):
         pass
@@ -96,14 +134,15 @@ class TestEat(unittest.TestCase):
         game1.move("e4", "d5")
         game2.move_from_server("e4", "d5")
 
-        self.assertEqual(game1.board, [['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb'],
-                                      ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
-                                      ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
-                                      ['Qw', 'Pw', ' ', ' ', 'Pw', ' ', ' ', 'Qb'],
-                                      ['Kw', ' ', ' ', ' ', ' ', ' ', 'Pb', 'Kb'],
-                                      ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
-                                      ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
-                                      ['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb']])
+        self.assertEqual(game1.board,
+                         [['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb'],
+                          ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
+                          ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
+                          ['Qw', 'Pw', ' ', ' ', 'Pw', ' ', ' ', 'Qb'],
+                          ['Kw', ' ', ' ', ' ', ' ', ' ', 'Pb', 'Kb'],
+                          ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
+                          ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
+                          ['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb']])
 #        self.assertEqual(len(game1.white_figures), 16)
 #        self.assertEqual(len(game1.black_figures), 15)
 
@@ -168,20 +207,20 @@ class TestEnPassant(unittest.TestCase):
         game2.move("g4", "h3")
         game1.move_from_server("g4", "h3")
 
-        self.assertEqual(game1.board, [['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb'],
-                                      ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
-                                      ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
-                                      ['Qw', 'Pw', ' ', ' ', ' ', 'Pw', ' ', 'Qb'],
-                                      ['Kw', ' ', ' ', ' ', ' ', ' ', 'Pb', 'Kb'],
-                                      ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
-                                      ['KNw', 'Pw', ' ', ' ', ' ', ' ', ' ', 'KNb'],
-                                      ['Rw', ' ', 'Pb', ' ', ' ', ' ', 'Pb', 'Rb']])
+        self.assertEqual(game1.board,
+                         [['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb'],
+                          ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
+                          ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
+                          ['Qw', 'Pw', ' ', ' ', ' ', 'Pw', ' ', 'Qb'],
+                          ['Kw', ' ', ' ', ' ', ' ', ' ', 'Pb', 'Kb'],
+                          ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
+                          ['KNw', 'Pw', ' ', ' ', ' ', ' ', ' ', 'KNb'],
+                          ['Rw', ' ', 'Pb', ' ', ' ', ' ', 'Pb', 'Rb']])
 #        self.assertEqual(len(game1.white_figures), 15)
 #        self.assertEqual(len(game1.black_figures), 15)
 
     def tearDown(self):
         pass
-
 
 
 class TestWin(unittest.TestCase):
@@ -217,14 +256,15 @@ class TestWin(unittest.TestCase):
         game2.move("d8", "h4")
         game1.move_from_server("d8", "h4")
 
-        self.assertEqual(game1.board, [['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb'],
-                                       ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
-                                       ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
-                                       ['Qw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', ' '],
-                                       ['Kw', 'Pw', ' ', ' ', 'Pb', ' ', ' ', 'Kb'],
-                                       ['Bw', ' ', 'Pw', ' ', ' ', ' ', 'Pb', 'Bb'],
-                                       ['KNw', ' ', ' ', 'Pw', ' ', ' ', 'Pb', 'KNb'],
-                                       ['Rw', 'Pw', ' ', 'Qb', ' ', ' ', 'Pb', 'Rb']])
+        self.assertEqual(game1.board,
+                         [['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb'],
+                          ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
+                          ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
+                          ['Qw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', ' '],
+                          ['Kw', 'Pw', ' ', ' ', 'Pb', ' ', ' ', 'Kb'],
+                          ['Bw', ' ', 'Pw', ' ', ' ', ' ', 'Pb', 'Bb'],
+                          ['KNw', ' ', ' ', 'Pw', ' ', ' ', 'Pb', 'KNb'],
+                          ['Rw', 'Pw', ' ', 'Qb', ' ', ' ', 'Pb', 'Rb']])
 
     def tearDown(self):
         pass
@@ -287,14 +327,15 @@ class TestRightRoque(unittest.TestCase):
         game2.move("e8", "g8")
         game1.move_from_server("e8", "g8")
 
-        self.assertEqual(game1.board, [['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb'],
-                                       ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
-                                       ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
-                                       ['Qw', 'Pw', 'Bw', ' ', ' ', 'Bb', 'Pb', 'Qb'],
-                                       [' ', ' ', ' ', 'Pw', 'Pb', ' ', ' ', ' '],
-                                       ['Rw', 'Pw', 'KNw', ' ', ' ', 'KNb', 'Pb', 'Rb'],
-                                       ['Kw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Kb'],
-                                       [' ', 'Pw', ' ', ' ', ' ', ' ', 'Pb', ' ']])
+        self.assertEqual(game1.board,
+                         [['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb'],
+                          ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
+                          ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
+                          ['Qw', 'Pw', 'Bw', ' ', ' ', 'Bb', 'Pb', 'Qb'],
+                          [' ', ' ', ' ', 'Pw', 'Pb', ' ', ' ', ' '],
+                          ['Rw', 'Pw', 'KNw', ' ', ' ', 'KNb', 'Pb', 'Rb'],
+                          ['Kw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Kb'],
+                          [' ', 'Pw', ' ', ' ', ' ', ' ', 'Pb', ' ']])
 
     def tearDown(self):
         pass
@@ -369,14 +410,15 @@ class TestLeftRoque(unittest.TestCase):
         game2.move("e8", "c8")
         game1.move_from_server("e8", "c8")
 
-        self.assertEqual(game1.board, [[' ', 'Pw', ' ', ' ', ' ', ' ', 'Pb', ' '],
-                                       [' ', 'Pw', ' ', ' ', ' ', ' ', 'Pb', ' '],
-                                       ['Kw', 'Pw', 'KNw', ' ', ' ', 'KNb', 'Pb', 'Kb'],
-                                       ['Rw', 'Qw', ' ', 'Pw', 'Pb', ' ', 'Qb', 'Rb'],
-                                       [' ', 'Pw', 'Bw', ' ', ' ', 'Bb', 'Pb', ' '],
-                                       ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
-                                       ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
-                                       ['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb']])
+        self.assertEqual(game1.board,
+                         [[' ', 'Pw', ' ', ' ', ' ', ' ', 'Pb', ' '],
+                          [' ', 'Pw', ' ', ' ', ' ', ' ', 'Pb', ' '],
+                          ['Kw', 'Pw', 'KNw', ' ', ' ', 'KNb', 'Pb', 'Kb'],
+                          ['Rw', 'Qw', ' ', 'Pw', 'Pb', ' ', 'Qb', 'Rb'],
+                          [' ', 'Pw', 'Bw', ' ', ' ', 'Bb', 'Pb', ' '],
+                          ['Bw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Bb'],
+                          ['KNw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'KNb'],
+                          ['Rw', 'Pw', ' ', ' ', ' ', ' ', 'Pb', 'Rb']])
 
     def tearDown(self):
         pass
