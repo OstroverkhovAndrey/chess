@@ -31,7 +31,7 @@ def task_html():
     """Make HTML documentationi."""
     return {
             'actions': [(create_folder, ["docs/source/_static"]), 'sphinx-build -M html ./docs/source ./docs/build'],
-            'verbosity': 2,
+            'verbosity': 0,
            }
 
 
@@ -77,3 +77,36 @@ def task_check():
             'actions': None,
             'task_dep': ['style', 'docstyle', 'test']
            }
+
+
+def task_wheel():
+    return {
+        'actions': ['pyproject-build -n -w'],
+        'verbosity': 2,
+        'task_dep': ['mo'],
+    }
+
+
+
+def task_wheel_server():
+    return {
+        'actions': ['pyproject-build -n -w ./server/'],
+        'verbosity': 2,
+        'task_dep': ['mo'],
+    }
+
+
+def task_wheel_client():
+    return {
+        'actions': ['pyproject-build -n -w ./client/'],
+        'verbosity': 2,
+        'task_dep': ['mo'],
+    }
+
+
+def task_sdist():
+    return {
+        'actions': ['pyproject-build -n -s'],
+        'verbosity': 2,
+        'task_dep': ['erase'],
+    }
