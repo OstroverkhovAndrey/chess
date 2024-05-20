@@ -19,6 +19,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.15.0\n"
 
+#: client/src/__init__.py:13 client/src/chess_client.py:722
+msgid "The server is currently unavailable, please try again later"
+msgstr "Сервер сейчас не доступен, пожалуйста попробуйте позже"
+
 #: client/src/chess_client.py:143 client/src/chess_client.py:194
 #: client/src/chess_client.py:218 client/src/chess_client.py:280
 #: client/src/chess_client.py:306 client/src/chess_client.py:326
@@ -92,10 +96,6 @@ msgstr "Некорректный аргумент"
 #: client/src/chess_client.py:681
 msgid "Stop game, you lose =("
 msgstr "Стоп игра, вы проиграли =("
-
-#: client/src/chess_client.py:722
-msgid "The server is currently unavailable, please try again later"
-msgstr "Сервер сейчас не доступен, пожалуйста попробуйте позже"
 
 #: client/src/server_answer.py:64
 msgid "Success registre"
