@@ -7,3 +7,6 @@ dump
 *.pot
 .coverage
 .doit*
+*.egg-info
+*.swp
+dist

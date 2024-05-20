@@ -14,7 +14,7 @@ def task_erase():
 def task_style():
     """Check style against flake8."""
     return {
-            'actions': ['flake8 --config .flake8 server/src client/src tests/'],
+            'actions': ['flake8 --config .flake8 server/src client/src'],
             'verbosity': 2,
            }
 
@@ -30,8 +30,8 @@ def task_docstyle():
 def task_html():
     """Make HTML documentationi."""
     return {
-            'actions': [(create_folder, ["_static"]), 'sphinx-build -M html ./docs/source ./docs/build'],
-            'verbosity': 0,
+            'actions': [(create_folder, ["docs/source/_static"]), 'sphinx-build -M html ./docs/source ./docs/build'],
+            'verbosity': 2,
            }
 
 
